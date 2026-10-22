@@ -1,0 +1,10 @@
+.next/
+node_modules/
+playwright-report/
+test-results/
+src/payload-types.ts
+src/app/(payload)/admin/importMap.js
+src/migrations/
+package-lock.json
+docs/
+*.md

@@ -2,7 +2,7 @@
 
 New website for [EthicAI](https://www.ethicai.au/) (AI ethics & people-strategy consultancy): a professional marketing site with an engaging TikTok/YouTube video feed, written articles summarising video content, and a weekly Substack newsletter surface — plus a Payload CMS admin for weekly publishing.
 
-**Status:** 📋 Planning complete — build not yet started. This repo currently contains the full build plan; the Next.js + Payload app will be scaffolded into this repo (Phase 0 of the build spec).
+**Status:** 🏗️ Phase 0 (scaffold + infrastructure) complete — awaiting review before Phase 1 (data model).
 
 ## Docs
 
@@ -42,10 +42,31 @@ Estimated running cost: ≈ US$0–30/month (see plan package notes; Elfsight fr
 - [ ] Decision: dedicated Services page? (default: "What we do" section on Home)
 - [ ] Analytics preference: Plausible/Fathom (privacy-friendly) vs GA4 (needs cookie consent banner)
 
-## Getting started (for the coding agent)
+## Local development
+
+Requires Node 22.23.4+ (see `.nvmrc`) and a Postgres database.
+
+1. `npm install` (first time only for e2e tests: `npx playwright install chromium`)
+2. `cp .env.example .env`, then fill in `PAYLOAD_SECRET`, `DATABASE_URI` and the `S3_*` values for the R2 bucket. `docker compose up -d` starts a local Postgres matching the example in `docker-compose.yml`. The app refuses to start without the S3 settings — uploads never go to local disk.
+3. `npm run dev` → <http://localhost:3000/admin> to create the first admin user.
+
+In development Payload pushes schema changes to the local database automatically. After any schema change, run `npm run migrate:create -- <name>` and commit the generated file in `src/migrations/` — production only ever applies committed migrations (`npm run migrate`).
+
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Dev server on port 3000 |
+| `npm run lint` · `npm run typecheck` · `npm run format:check` | ESLint · TypeScript · Prettier |
+| `npm test` | Vitest unit tests (`tests/unit/`) |
+| `npm run test:e2e` | Playwright smoke tests (`tests/e2e/`; starts the dev server if needed) |
+| `E2E_MEDIA_UPLOAD=1 npm run test:e2e` | Also uploads a test image through the admin to the **real bucket**, checks it renders on `/media-check`, then deletes it |
+| `npm run generate:types` · `npm run generate:importmap` | Regenerate `src/payload-types.ts` / the admin import map after config changes |
+
+`/media-check` is a temporary, sign-in-only page that shows the latest uploads (Phase 0 acceptance). Remove it before launch.
+
+## Working on the build (coding agents)
 
 1. Read [`AGENTS.md`](AGENTS.md), then [`docs/BUILD-SPEC.md`](docs/BUILD-SPEC.md) in full.
-2. Execute **Phase 0** (scaffold + infra) of the spec's milestone list (§10) in this repo.
+2. Work through the spec's milestones (§10) in order; Phase 0 is done.
 3. Stop at each ✅ checkpoint for human review; never skip acceptance criteria.
 
 ---
