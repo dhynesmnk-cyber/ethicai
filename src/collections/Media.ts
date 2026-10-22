@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 // Images only. Videos are always embedded from YouTube/TikTok, never uploaded here.
-export const MAX_UPLOAD_BYTES = 2 * 1024 * 1024
+export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -9,7 +9,7 @@ export const Media: CollectionConfig = {
     read: () => true,
   },
   admin: {
-    description: 'Images only, up to 2 MB each. Videos go on YouTube or TikTok, not here.',
+    description: 'Images only, up to 5 MB each. Videos go on YouTube or TikTok, not here.',
   },
   fields: [
     {

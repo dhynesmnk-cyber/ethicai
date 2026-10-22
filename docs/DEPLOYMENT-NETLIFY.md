@@ -34,6 +34,8 @@ R2: 10 GB free, **zero egress fees**, S3-compatible API.
 
 *Verify uploads against the real bucket in Phase 0 — do not discover this in Phase 6.*
 
+**Upload size vs Netlify:** the media collection accepts images up to 5 MB, but Netlify Functions base64-encode binary request bodies under a fixed 6 MB limit, so an upload routed through Payload's API tops out at ≈ 4.5 MB on Netlify (larger requests fail with a 500/502, not a friendly error). Before launch, either lower `MAX_UPLOAD_BYTES` in `src/collections/Media.ts` to 4.5 MB, or enable `clientUploads` in the S3 adapter so the browser uploads straight to R2 (needs a bucket CORS rule allowing `PUT` from the site origins). Test a ~4.8 MB image on the deployed site either way.
+
 ## 3. Netlify site setup
 
 1. Push repo to GitHub; Netlify → Add new site → import repo.

@@ -73,7 +73,7 @@ In `/admin`, in this order:
 3. Save as **draft** → hit **Preview** → read it once on mobile width → **Publish**.
 4. Quick checks: article appears on Home "Latest" and `/articles`; the video shows on `/watch`; the YouTube facade plays.
 
-**Hero images:** if the client doesn't supply artwork, a clean frame grab from the video works (macOS: pause + ⇧⌘4, or `ffmpeg -ss 00:00:12 -i video.mp4 -frames:v 1 grab.jpg`). Keep under ~2 MB, landscape ~16:9.
+**Hero images:** if the client doesn't supply artwork, a clean frame grab from the video works (macOS: pause + ⇧⌘4, or `ffmpeg -ss 00:00:12 -i video.mp4 -frames:v 1 grab.jpg`). Max 5 MB (the admin rejects bigger files; smaller uploads faster), landscape ~16:9.
 
 ## Step 4 — Weekly newsletter on Substack (30–45 min)
 
@@ -155,7 +155,7 @@ Practical notes:
 | Newsletter page shows no issues | Substack RSS hiccup or publication URL typo in siteSettings; page degrades gracefully by design — fix the URL |
 | New article not on Home | Wait for revalidation (≤ a few seconds on publish hook; ISR max 1h) → or hit `/api/revalidate` with secret |
 | YouTube facade shows grey box | Video is private/age-restricted/embedding-disabled on YouTube |
-| Admin slow on big uploads | Expected on serverless; keep images < 2 MB (they should be — video files never go here) |
+| Admin slow on big uploads | Expected on serverless; keep images well under the 5 MB limit (they should be — video files never go here) |
 
 ---
 

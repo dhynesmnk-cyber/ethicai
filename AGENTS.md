@@ -8,7 +8,7 @@ You are working on the EthicAI website: Next.js 15+ (App Router) with Payload CM
 
 1. **Never use local disk storage for uploads** — Netlify's filesystem is ephemeral. The S3 adapter (`@payloadcms/storage-s3`) must stay configured in `payload.config.ts`.
 2. **Never commit secrets.** New env vars go in `.env.example` with a comment. Editor-changeable values (Elfsight widget ID, Substack URL, socials) live in the `siteSettings` global, not env.
-3. **Videos are never uploaded to this site** — they are embedded from YouTube/TikTok via the `videos` collection. Image uploads only, < 2 MB each, alt text required.
+3. **Videos are never uploaded to this site** — they are embedded from YouTube/TikTok via the `videos` collection. Image uploads only, max 5 MB each (enforced in the `media` collection), alt text required.
 4. **No eager third-party scripts.** Elfsight loads only on `/watch` and only after user interaction (facade pattern). YouTube uses click-to-load facades (`youtube-nocookie.com`). Substack is a link/button by default.
 5. **Schema changes ship with committed Payload migrations.** No destructive operations against production data; seed scripts must be idempotent.
 6. Server Components + Payload Local API by default; `"use client"` only where interaction requires it. TypeScript strict, no `any`.
