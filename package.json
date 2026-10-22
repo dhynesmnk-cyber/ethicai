@@ -1,7 +1,7 @@
 {
   "name": "ethicai",
   "version": "0.1.0",
-  "description": "EthicAI website — Next.js + Payload CMS",
+  "description": "EthicAI website \u2014 Next.js + Payload CMS",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,10 +19,12 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
-    "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create"
+    "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
+    "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run scripts/seed.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.92.0",
+    "@payloadcms/live-preview-react": "3.92.0",
     "@payloadcms/next": "3.92.0",
     "@payloadcms/richtext-lexical": "3.92.0",
     "@payloadcms/storage-s3": "3.92.0",

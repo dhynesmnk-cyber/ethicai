@@ -2,7 +2,7 @@
 
 New website for [EthicAI](https://www.ethicai.au/) (AI ethics & people-strategy consultancy): a professional marketing site with an engaging TikTok/YouTube video feed, written articles summarising video content, and a weekly Substack newsletter surface — plus a Payload CMS admin for weekly publishing.
 
-**Status:** 🏗️ Phase 0 (scaffold + infrastructure) complete — awaiting review before Phase 1 (data model).
+**Status:** 🏗️ Phase 1 (data model) complete — awaiting review before Phase 2 (design system).
 
 ## Docs
 
@@ -48,7 +48,8 @@ Requires Node 22.23.4+ (see `.nvmrc`) and a Postgres database.
 
 1. `npm install` (first time only for e2e tests: `npx playwright install chromium`)
 2. `cp .env.example .env`, then fill in `PAYLOAD_SECRET`, `DATABASE_URI` and the `S3_*` values for the R2 bucket. `docker compose up -d` starts a local Postgres matching the example in `docker-compose.yml`. The app refuses to start without the S3 settings — uploads never go to local disk.
-3. `npm run dev` → <http://localhost:3000/admin> to create the first admin user.
+3. `npm run dev` → <http://localhost:3000/admin> to create the first admin user (the first account is always an admin).
+4. `npm run seed` to add starter content: team, testimonials, two clearly marked demo articles and placeholder images (uploaded to the bucket). Safe to re-run — it only creates what's missing and never overwrites edits.
 
 In development Payload pushes schema changes to the local database automatically. After any schema change, run `npm run migrate:create -- <name>` and commit the generated file in `src/migrations/` — production only ever applies committed migrations (`npm run migrate`).
 
@@ -59,6 +60,7 @@ In development Payload pushes schema changes to the local database automatically
 | `npm test` | Vitest unit tests (`tests/unit/`) |
 | `npm run test:e2e` | Playwright smoke tests (`tests/e2e/`; starts the dev server if needed) |
 | `E2E_MEDIA_UPLOAD=1 npm run test:e2e` | Also uploads a test image through the admin to the **real bucket**, checks it renders on `/media-check`, then deletes it |
+| `npm run seed` | Idempotent starter content (`scripts/seed.ts`). Don't re-run against production after launch — deleted demo content would come back |
 | `npm run generate:types` · `npm run generate:importmap` | Regenerate `src/payload-types.ts` / the admin import map after config changes |
 
 `/media-check` is a temporary, sign-in-only page that shows the latest uploads (Phase 0 acceptance). Remove it before launch.
@@ -66,7 +68,7 @@ In development Payload pushes schema changes to the local database automatically
 ## Working on the build (coding agents)
 
 1. Read [`AGENTS.md`](AGENTS.md), then [`docs/BUILD-SPEC.md`](docs/BUILD-SPEC.md) in full.
-2. Work through the spec's milestones (§10) in order; Phase 0 is done.
+2. Work through the spec's milestones (§10) in order; Phases 0–1 are done.
 3. Stop at each ✅ checkpoint for human review; never skip acceptance criteria.
 
 ---

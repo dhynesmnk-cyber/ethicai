@@ -11,8 +11,10 @@ import { login } from '../helpers/login'
 test.skip(!process.env.E2E_MEDIA_UPLOAD, 'Set E2E_MEDIA_UPLOAD=1 to run against the real bucket')
 
 const testUser = {
+  name: 'E2E media test',
   email: 'e2e-media@example.com',
   password: 'e2e-media-upload-only',
+  role: 'editor' as const,
 }
 
 test('admin upload lands in object storage and renders', async ({ page, request }) => {

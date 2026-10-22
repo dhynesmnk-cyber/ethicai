@@ -6,8 +6,13 @@ import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
-import { Users } from './collections/Users'
+import { Articles } from './collections/Articles'
 import { Media, MAX_UPLOAD_BYTES } from './collections/Media'
+import { TeamMembers } from './collections/TeamMembers'
+import { Testimonials } from './collections/Testimonials'
+import { Users } from './collections/Users'
+import { Videos } from './collections/Videos'
+import { SiteSettings } from './globals/SiteSettings'
 import { publicFileURL, readS3Settings } from './lib/storage'
 
 const filename = fileURLToPath(import.meta.url)
@@ -18,11 +23,15 @@ const s3 = readS3Settings()
 export default buildConfig({
   admin: {
     user: Users.slug,
+    // Australian date order throughout the admin, e.g. "22 October 2026, 9:30 am".
+    dateFormat: 'd MMMM yyyy, h:mm a',
     importMap: {
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  // Admin sidebar order follows this list.
+  collections: [Articles, Videos, Media, TeamMembers, Testimonials, Users],
+  globals: [SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
