@@ -100,8 +100,7 @@ const team = [
   },
   {
     name: 'Simon Brock',
-    // Appendix A gives no title for Simon; confirm with the client.
-    role: 'Role to be confirmed',
+    role: 'Digital agency leader',
     initials: 'SB',
     bio: [
       'Simon joined EthicAI in 2026. His career spans film and sound production, creative and strategic direction, customer experience design and digital agency leadership across Australia and New Zealand, with work for McDonald’s, ALDI, Toyota, EA Games and Tourism Australia.',
