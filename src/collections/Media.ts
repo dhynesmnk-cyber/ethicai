@@ -4,7 +4,7 @@ import { adminOnly, anyone, signedIn } from '@/access'
 import { publicFileURL, readS3PublicUrl } from '@/lib/storage'
 
 // Images only. Videos are always embedded from YouTube/TikTok, never uploaded here.
-export const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
+export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 
 const webpSize = (name: string, width: number): ImageSize => ({
   name,
@@ -24,7 +24,7 @@ export const Media: CollectionConfig = {
   },
   admin: {
     group: 'Content',
-    description: 'Images only, up to 5 MB each. Videos go on YouTube or TikTok, not here.',
+    description: 'Images only, up to 20 MB each. Videos go on YouTube or TikTok, not here.',
     defaultColumns: ['filename', 'alt', 'updatedAt'],
   },
   fields: [

@@ -6,6 +6,8 @@ import config from '../../src/payload.config'
 import { login } from '../helpers/login'
 
 // Writes to the real bucket, so it only runs when asked: E2E_MEDIA_UPLOAD=1 npm run test:e2e
+// The admin uploads straight from the browser to R2, so the bucket's CORS rule must allow
+// PUT from http://localhost:3000 (docs/DEPLOYMENT-NETLIFY.md §2).
 // Proves the Phase 0 acceptance criterion end to end: admin upload → object in S3/R2 →
 // rendered by next/image on /media-check → deleted from the bucket with the document.
 test.skip(!process.env.E2E_MEDIA_UPLOAD, 'Set E2E_MEDIA_UPLOAD=1 to run against the real bucket')

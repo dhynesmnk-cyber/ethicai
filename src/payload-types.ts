@@ -197,7 +197,7 @@ export interface Article {
   _status?: ('draft' | 'published') | null;
 }
 /**
- * Images only, up to 5 MB each. Videos go on YouTube or TikTok, not here.
+ * Images only, up to 20 MB each. Videos go on YouTube or TikTok, not here.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".

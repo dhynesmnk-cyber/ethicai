@@ -52,6 +52,12 @@ export default buildConfig({
   plugins: [
     s3Storage({
       bucket: s3.bucket,
+      // DECISION: the admin uploads files straight from the browser to the bucket via a signed URL
+      // (Payload checks the user, file type and MAX_UPLOAD_BYTES first; R2 enforces the signed
+      // size). Netlify Functions cap request bodies at ~4.5 MB of binary data, which rules out
+      // proxying larger images through Payload's API. Needs a bucket CORS rule allowing PUT from
+      // the site's origins — see docs/DEPLOYMENT-NETLIFY.md §2.
+      clientUploads: true,
       collections: {
         media: {
           // DECISION: serve files straight from the bucket's public URL rather than proxying them

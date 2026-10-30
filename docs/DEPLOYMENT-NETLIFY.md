@@ -34,7 +34,20 @@ R2: 10 GB free, **zero egress fees**, S3-compatible API.
 
 *Verify uploads against the real bucket in Phase 0 — do not discover this in Phase 6.*
 
-**Upload size vs Netlify:** the media collection accepts images up to 5 MB, but Netlify Functions base64-encode binary request bodies under a fixed 6 MB limit, so an upload routed through Payload's API tops out at ≈ 4.5 MB on Netlify (larger requests fail with a 500/502, not a friendly error). Before launch, either lower `MAX_UPLOAD_BYTES` in `src/collections/Media.ts` to 4.5 MB, or enable `clientUploads` in the S3 adapter so the browser uploads straight to R2 (needs a bucket CORS rule allowing `PUT` from the site origins). Test a ~4.8 MB image on the deployed site either way.
+**Direct uploads (required CORS rule):** Netlify Functions cap request bodies at ≈ 4.5 MB of binary data (base64 under a fixed 6 MB limit), so the admin uploads images straight from the browser to R2 using short-lived signed URLs (`clientUploads` in `payload.config.ts`). Payload still checks the user, file type and the 20 MB limit before signing, and R2 enforces the signed size. Browsers only allow this if the bucket has a CORS rule. In Cloudflare: R2 → the bucket → Settings → CORS policy → Edit, and paste:
+
+```json
+[
+  {
+    "AllowedOrigins": ["http://localhost:3000", "https://www.ethicai.au", "https://ethicai.au"],
+    "AllowedMethods": ["PUT"],
+    "AllowedHeaders": ["content-type", "if-none-match"],
+    "MaxAgeSeconds": 3600
+  }
+]
+```
+
+Add the Netlify site URL (`https://<site>.netlify.app`) while testing before the domain cutover, and the dev bucket and production bucket each need the rule. Without it, uploads in the admin fail with a CORS error in the browser console. Phase 6: upload a large (15–20 MB) image on the deployed site to confirm Payload can generate the resized versions within the function time limit.
 
 ## 3. Netlify site setup
 

@@ -47,7 +47,7 @@ Estimated running cost: ≈ US$0–30/month (see plan package notes; Elfsight fr
 Requires Node 22.23.4+ (see `.nvmrc`) and a Postgres database.
 
 1. `npm install` (first time only for e2e tests: `npx playwright install chromium`)
-2. `cp .env.example .env`, then fill in `PAYLOAD_SECRET`, `DATABASE_URI` and the `S3_*` values for the R2 bucket. `docker compose up -d` starts a local Postgres matching the example in `docker-compose.yml`. The app refuses to start without the S3 settings — uploads never go to local disk.
+2. `cp .env.example .env`, then fill in `PAYLOAD_SECRET`, `DATABASE_URI` and the `S3_*` values for the R2 bucket. `docker compose up -d` starts a local Postgres matching the example in `docker-compose.yml`. The app refuses to start without the S3 settings — uploads never go to local disk. The admin uploads images straight from the browser to the bucket, so the bucket needs the CORS rule in [`docs/DEPLOYMENT-NETLIFY.md`](docs/DEPLOYMENT-NETLIFY.md) §2 (including `http://localhost:3000`).
 3. `npm run dev` → <http://localhost:3000/admin> to create the first admin user (the first account is always an admin).
 4. `npm run seed` to add starter content: team, testimonials, two clearly marked demo articles and placeholder images (uploaded to the bucket). Safe to re-run — it only creates what's missing and never overwrites edits.
 
