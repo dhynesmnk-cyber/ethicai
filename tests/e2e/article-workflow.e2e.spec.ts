@@ -81,7 +81,7 @@ test('draft → preview → publish', async ({ browser, page, request }) => {
     await preview.waitForLoadState()
     await expect(preview).toHaveURL(new RegExp(`/articles/${slug}$`))
     await expect(preview.getByRole('heading', { level: 1 })).toHaveText(title)
-    await expect(preview.getByRole('status')).toContainText('previewing the latest draft')
+    await expect(preview.getByText('You’re previewing the latest draft')).toBeVisible()
     await preview.close()
 
     // Publish from the admin; a fresh visitor now sees it.
@@ -93,7 +93,7 @@ test('draft → preview → publish', async ({ browser, page, request }) => {
     const response = await visitorPage.goto(`/articles/${slug}`)
     expect(response?.status()).toBe(200)
     await expect(visitorPage.getByRole('heading', { level: 1 })).toHaveText(title)
-    await expect(visitorPage.getByRole('status')).toHaveCount(0)
+    await expect(visitorPage.getByText('You’re previewing the latest draft')).toHaveCount(0)
     await visitor.close()
 
     const published = await payload.findByID({ collection: 'articles', id: article.id })

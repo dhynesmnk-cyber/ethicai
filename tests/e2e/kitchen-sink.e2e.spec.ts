@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test'
 import { layoutShift, recordLayoutShift } from '../helpers/layout-shift'
 import { login } from '../helpers/login'
 import { createTestUser, deleteTestUser, type TestUser } from '../helpers/users'
+import { gotoHydrated } from '../helpers/navigation'
 
 // Phase 2 acceptance: the kitchen-sink route renders every shared component (BUILD-SPEC §6, §10).
 
@@ -58,7 +59,7 @@ test('renders every shared component', async ({ page }) => {
 
 test('video facade loads YouTube only after a click', async ({ page }) => {
   await login({ page, user: editor })
-  await page.goto('/kitchen-sink')
+  await gotoHydrated(page, '/kitchen-sink')
 
   await expect(page.locator('iframe')).toHaveCount(0)
   await page.getByRole('button', { name: 'Play video: Example YouTube video' }).click()

@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 
 import config from '../../src/payload.config'
 import { layoutShift, recordLayoutShift } from '../helpers/layout-shift'
+import { gotoHydrated } from '../helpers/navigation'
 
 // Phase 2 acceptance: header/footer shell responsive 320px → 1440px, accessible mobile nav,
 // no layout shift from fonts or images (BUILD-SPEC §10).
@@ -36,7 +37,7 @@ for (const width of [320, 375, 768, 1024, 1440]) {
 
 test('mobile menu is an accessible disclosure', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 })
-  await page.goto('/')
+  await gotoHydrated(page, '/')
   const toggle = page.getByRole('button', { name: 'Menu' })
   const menu = page.locator('#mobile-menu')
 
