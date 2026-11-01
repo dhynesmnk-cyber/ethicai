@@ -3,6 +3,7 @@ import type { NextConfig } from 'next'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+import { LEGACY_REDIRECTS } from './src/lib/redirects'
 import { readS3PublicUrl } from './src/lib/storage'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -17,6 +18,8 @@ const nextConfig: NextConfig = {
     // (see payload.config.ts), and YouTube thumbnails for video facades.
     remotePatterns: [new URL(`${readS3PublicUrl()}/**`), new URL('https://i.ytimg.com/vi/**')],
   },
+  // Old Squarespace URLs, maintained in one place.
+  redirects: async () => LEGACY_REDIRECTS,
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],
