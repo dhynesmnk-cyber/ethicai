@@ -67,6 +67,11 @@
     text-wrap: pretty;
   }
 
+  /* Body-text emphasis uses Inter's real italic (see fonts.ts); serif text keeps its own. */
+  :where(em, i, cite):not(:where(h1, h2, h3, h4, blockquote, .font-serif) *) {
+    font-family: var(--font-inter-italic), var(--font-sans);
+  }
+
   a {
     text-underline-offset: 0.2em;
   }

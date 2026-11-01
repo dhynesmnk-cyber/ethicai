@@ -9,7 +9,7 @@ import { getSiteSettings } from '@/lib/site-settings'
 import { siteUrl } from '@/lib/site-url'
 import { organisationSchema } from '@/lib/structured-data'
 
-import { fraunces, inter } from './fonts'
+import { fraunces, inter, interItalic } from './fonts'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -27,7 +27,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { socialLinks } = await getSiteSettings()
 
   return (
-    <html lang="en-AU" className={`${inter.variable} ${fraunces.variable}`}>
+    <html lang="en-AU" className={`${inter.variable} ${interItalic.variable} ${fraunces.variable}`}>
       <body className="flex min-h-dvh flex-col bg-canvas font-sans text-ink antialiased">
         <JsonLd data={organisationSchema((socialLinks ?? []).map((link) => link.url))} />
         <a
