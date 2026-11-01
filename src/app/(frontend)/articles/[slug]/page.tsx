@@ -1,6 +1,4 @@
 import config from '@payload-config'
-import type { DefaultNodeTypes, SerializedBlockNode } from '@payloadcms/richtext-lexical'
-import { type JSXConvertersFunction, RichText } from '@payloadcms/richtext-lexical/react'
 import type { Metadata } from 'next'
 import { draftMode } from 'next/headers'
 import Image from 'next/image'
@@ -8,26 +6,16 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import type { Article, YouTubeBlock } from '@/payload-types'
+import { RichText } from '@/components/blocks/RichText'
+import { Container } from '@/components/layout/Container'
+import { Prose } from '@/components/ui/Prose'
+import { toImage } from '@/lib/media'
+import type { Article } from '@/payload-types'
 
 // MINIMAL article page so the draft → preview → publish flow works from Phase 1.
 // Phase 3 replaces the layout (meta row, related video facade, related articles, JSON-LD).
 
 type Props = { params: Promise<{ slug: string }> }
-
-const converters: JSXConvertersFunction<DefaultNodeTypes | SerializedBlockNode<YouTubeBlock>> = ({
-  defaultConverters,
-}) => ({
-  ...defaultConverters,
-  blocks: {
-    // Phase 3: swap for the click-to-load YouTube facade.
-    youtube: ({ node }) => (
-      <p>
-        <a href={node.fields.url}>{node.fields.title || 'Watch the video on YouTube'}</a>
-      </p>
-    ),
-  },
-})
 
 async function findArticle(slug: string, draft: boolean): Promise<Article | undefined> {
   const payload = await getPayload({ config })
@@ -57,35 +45,43 @@ export default async function ArticlePage({ params }: Props) {
   const article = await findArticle(slug, draft)
   if (!article) notFound()
 
-  const hero = typeof article.heroImage === 'object' ? article.heroImage : null
+  const hero = toImage(article.heroImage, 'hero')
 
   return (
-    <article className="mx-auto max-w-3xl px-4 py-12">
+    <Container as="article" width="reading" className="py-12 sm:py-16">
       {draft && (
         <>
           <LivePreviewListener />
-          <p className="mb-8 rounded border px-4 py-2 text-sm" role="status">
+          <p
+            className="mb-8 rounded-card border border-accent bg-accent-tint px-4 py-3 text-sm"
+            role="status"
+          >
             You’re previewing the latest draft.{' '}
-            <a className="underline" href={`/api/exit-preview?slug=${article.slug}`}>
+            <a
+              className="font-medium text-accent underline"
+              href={`/api/exit-preview?slug=${article.slug}`}
+            >
               Exit preview
             </a>
           </p>
         </>
       )}
-      <h1 className="text-4xl font-semibold tracking-tight">{article.title}</h1>
-      <p className="mt-4 text-lg">{article.excerpt}</p>
-      {hero?.url && hero.width && hero.height && (
+      <h1 className="text-4xl sm:text-5xl">{article.title}</h1>
+      <p className="mt-4 text-lg text-muted">{article.excerpt}</p>
+      {hero && (
         <Image
           src={hero.url}
           alt={hero.alt}
           width={hero.width}
           height={hero.height}
-          sizes="(min-width: 768px) 768px, 100vw"
-          className="mt-8 h-auto w-full rounded-lg"
+          sizes="(min-width: 768px) 68ch, 100vw"
+          className="mt-8 h-auto w-full rounded-card"
           priority
         />
       )}
-      <RichText className="mt-8 space-y-4" converters={converters} data={article.content} />
-    </article>
+      <Prose className="mt-10">
+        <RichText data={article.content} />
+      </Prose>
+    </Container>
   )
 }

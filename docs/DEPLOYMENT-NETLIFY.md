@@ -53,7 +53,7 @@ Add the Netlify site URL (`https://<site>.netlify.app`) while testing before the
 
 1. Push repo to GitHub; Netlify → Add new site → import repo.
 2. Framework preset: **Next.js** (auto-detected). Build command `next build`, publish dir `.next` — Netlify's Next runtime handles the rest. Node version: set **22** (site settings → environment, `NODE_VERSION=22`).
-3. Add all env vars from Appendix B of the build spec (Site configuration → Environment variables). Also set them for preview deploys.
+3. Add all env vars from Appendix B of the build spec (Site configuration → Environment variables). Also set them for preview deploys. `DATABASE_URI` must be available at **build** time too: static pages are prerendered with the footer's siteSettings.
 4. **Migrations workflow (choose one, document it):**
    - **A (recommended, simplest):** run migrations from your machine against prod DB: `DATABASE_URI=<prod-direct-string> npx payload migrate` whenever new migrations are committed. Add an `npm run migrate:prod` script that reads `.env.production.local` (git-ignored).
    - **B:** run in Netlify build: build command `next build && npx payload migrate --prod` (requires `DATABASE_URI` present at build time; watch build-log noise and build-minute usage).
