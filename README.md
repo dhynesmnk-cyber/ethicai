@@ -2,7 +2,7 @@
 
 New website for [EthicAI](https://www.ethicai.au/) (AI ethics & people-strategy consultancy): a professional marketing site with an engaging TikTok/YouTube video feed, written articles summarising video content, and a weekly Substack newsletter surface — plus a Payload CMS admin for weekly publishing.
 
-**Status:** 🏗️ Phase 1 (data model) complete — awaiting review before Phase 2 (design system).
+**Status:** 🏗️ Phase 2 (design system) complete — awaiting review before Phase 3 (public pages).
 
 ## Docs
 
@@ -63,12 +63,12 @@ In development Payload pushes schema changes to the local database automatically
 | `npm run seed` | Idempotent starter content (`scripts/seed.ts`). Don't re-run against production after launch — deleted demo content would come back |
 | `npm run generate:types` · `npm run generate:importmap` | Regenerate `src/payload-types.ts` / the admin import map after config changes |
 
-`/media-check` is a temporary, sign-in-only page that shows the latest uploads (Phase 0 acceptance). Remove it before launch.
+`/media-check` (latest uploads) and `/kitchen-sink` (every shared component, for design review) are temporary, sign-in-only pages. Remove both before launch.
 
 ## Working on the build (coding agents)
 
 1. Read [`AGENTS.md`](AGENTS.md), then [`docs/BUILD-SPEC.md`](docs/BUILD-SPEC.md) in full.
-2. Work through the spec's milestones (§10) in order; Phases 0–1 are done.
+2. Work through the spec's milestones (§10) in order; Phases 0–2 are done.
 3. Stop at each ✅ checkpoint for human review; never skip acceptance criteria.
 
 ---
