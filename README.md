@@ -2,7 +2,7 @@
 
 New website for [EthicAI](https://www.ethicai.au/) (AI ethics & people-strategy consultancy): a professional marketing site with an engaging TikTok/YouTube video feed, written articles summarising video content, and a weekly Substack newsletter surface — plus a Payload CMS admin for weekly publishing.
 
-**Status:** 🏗️ Phase 2 (design system) complete — awaiting review before Phase 3 (public pages).
+**Status:** 🏗️ Phase 3 (public pages) complete — awaiting review before Phase 4 (integrations).
 
 ## Docs
 
@@ -65,10 +65,12 @@ In development Payload pushes schema changes to the local database automatically
 
 `/media-check` (latest uploads) and `/kitchen-sink` (every shared component, for design review) are temporary, sign-in-only pages. Remove both before launch.
 
+Home and About page copy lives in `src/content/site-copy.ts`; everything else (articles, videos, team, testimonials, contact details, socials, newsletter URL) is edited in the admin. Old Squarespace URLs that need redirects go in `src/lib/redirects.ts`. The contact form uses Netlify Forms, declared in `public/__forms.html`, so it only delivers on Netlify.
+
 ## Working on the build (coding agents)
 
 1. Read [`AGENTS.md`](AGENTS.md), then [`docs/BUILD-SPEC.md`](docs/BUILD-SPEC.md) in full.
-2. Work through the spec's milestones (§10) in order; Phases 0–2 are done.
+2. Work through the spec's milestones (§10) in order; Phases 0–3 are done.
 3. Stop at each ✅ checkpoint for human review; never skip acceptance criteria.
 
 ---
