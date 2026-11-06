@@ -673,7 +673,7 @@ export interface SiteSetting {
    */
   elfsightTikTokWidgetId?: string | null;
   /**
-   * e.g. @ethicai
+   * e.g. @ethicai. Used for the “Follow us on TikTok” link.
    */
   tiktokHandle?: string | null;
   youtubeChannelUrl?: string | null;

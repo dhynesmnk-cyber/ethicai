@@ -83,7 +83,10 @@ export default async function WatchPage({ searchParams }: Props) {
           )}
           {handle && (
             <p className="mt-8">
-              <a href={`https://www.tiktok.com/@${handle}`} className={externalLink}>
+              <a
+                href={`https://www.tiktok.com/@${encodeURIComponent(handle)}`}
+                className={externalLink}
+              >
                 Follow @{handle} on TikTok
                 <ExternalIcon className="size-4" />
               </a>

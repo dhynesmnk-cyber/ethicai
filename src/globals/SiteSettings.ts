@@ -62,7 +62,11 @@ export const SiteSettings: GlobalConfig = {
             {
               name: 'tiktokHandle',
               type: 'text',
-              admin: { description: 'e.g. @ethicai' },
+              validate: (value: string | null | undefined) =>
+                !value ||
+                /^@?[A-Za-z0-9._]{1,24}$/.test(value) ||
+                'Use your TikTok handle, like @ethicai (letters, numbers, full stops and underscores).',
+              admin: { description: 'e.g. @ethicai. Used for the “Follow us on TikTok” link.' },
             },
             {
               name: 'youtubeChannelUrl',
