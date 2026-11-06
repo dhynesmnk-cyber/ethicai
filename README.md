@@ -58,7 +58,7 @@ In development Payload pushes schema changes to the local database automatically
 | `npm run dev` | Dev server on port 3000 |
 | `npm run lint` · `npm run typecheck` · `npm run format:check` | ESLint · TypeScript · Prettier |
 | `npm test` | Vitest unit tests (`tests/unit/`) |
-| `npm run test:e2e` | Playwright smoke tests (`tests/e2e/`; starts the dev server if needed) |
+| `npm run test:e2e` | Playwright smoke tests (`tests/e2e/`; starts the dev server if needed). Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to use an already-installed Chromium |
 | `E2E_MEDIA_UPLOAD=1 npm run test:e2e` | Also uploads a test image through the admin to the **real bucket**, checks it renders on `/media-check`, then deletes it |
 | `npm run seed` | Idempotent starter content (`scripts/seed.ts`). Don't re-run against production after launch — deleted demo content would come back |
 | `npm run generate:types` · `npm run generate:importmap` | Regenerate `src/payload-types.ts` / the admin import map after config changes |
