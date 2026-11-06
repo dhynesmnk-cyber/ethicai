@@ -2,7 +2,7 @@
 
 New website for [EthicAI](https://www.ethicai.au/) (AI ethics & people-strategy consultancy): a professional marketing site with an engaging TikTok/YouTube video feed, written articles summarising video content, and a weekly Substack newsletter surface — plus a Payload CMS admin for weekly publishing.
 
-**Status:** 🏗️ Phase 4 (integrations: Elfsight TikTok feed, Substack, revalidation) complete — awaiting review before Phase 5 (admin polish and real content).
+**Status:** 🏗️ Phase 5 (admin polish: dashboard panel, help text, Markdown paste) built, and the review deploy is prepared ([`docs/DEPLOYMENT-NETLIFY.md`](docs/DEPLOYMENT-NETLIFY.md) §3a). Awaiting review. Real content and the Netlify launch (Phase 6) come next.
 
 ## Docs
 

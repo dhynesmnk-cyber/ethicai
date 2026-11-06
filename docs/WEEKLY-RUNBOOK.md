@@ -76,8 +76,10 @@ Use a two-pass approach: machine draft, human voice.
 
 In `/admin`, in this order:
 
+Start from the **This week** panel on the admin dashboard: it shows drafts waiting and the latest article, and has the New video / New article buttons.
+
 1. **Videos → New video.** Paste the TikTok/YouTube URL — platform, video ID and YouTube thumbnail fill automatically. Set `publishedAt` to the real platform date. Tick `featured` if it should appear on Home.
-2. **Articles → New article.** Title (slug auto), excerpt, hero image (upload + **alt text is required** — describe the image, don't keyword-stuff), paste/Markdown-convert the body, set author, tags, and **link `relatedVideo`** to the entry from step 1 (this puts the video embed at the top of the article and a "Read the summary" card on the feed).
+2. **Articles → New article.** Title (the web address fills in by itself a few seconds later; wait for it before publishing), excerpt, hero image (upload + **alt text is required** — describe the image, don't keyword-stuff), paste the body (Markdown converts to headings, lists and links as you paste), set author, tags, and **link `relatedVideo`** to the entry from step 1 (this puts the video embed at the top of the article and a "Read the summary" card on the feed).
 3. Save as **draft** → hit **Preview** → read it once on mobile width → **Publish**.
 4. Quick checks: article appears on Home "Latest" and `/articles`; the video shows on `/watch`; the YouTube facade plays.
 
