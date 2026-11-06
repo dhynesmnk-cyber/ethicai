@@ -100,7 +100,11 @@ export function parseFeed(xml: string, limit = 5): NewsletterIssue[] {
         ? atomLink(entry.link)
         : text(Array.isArray(entry.link) ? entry.link[0] : entry.link)
       const rawDate = text(entry.pubDate ?? entry.published ?? entry.updated)
-      const rawSummary = text(entry.description ?? entry.summary ?? entry['content:encoded'] ?? '')
+      // Substack's <description> is the post's subtitle; use the post body when it's blank.
+      const rawSummary =
+        text(entry.description).trim() ||
+        text(entry.summary).trim() ||
+        text(entry['content:encoded'])
       return {
         title: decodeEntities(text(entry.title)).trim(),
         link: rawLink.trim(),

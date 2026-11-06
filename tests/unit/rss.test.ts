@@ -11,6 +11,7 @@ const fixture = (name: string) =>
   readFileSync(fileURLToPath(new URL(`../fixtures/rss/${name}`, import.meta.url)), 'utf8')
 const substackRss = fixture('substack.xml')
 const atom = fixture('atom.xml')
+const edgeCases = fixture('edge-cases.xml')
 
 describe('parseFeed', () => {
   it('maps a Substack RSS feed to issues, newest first', () => {
@@ -36,6 +37,23 @@ describe('parseFeed', () => {
     expect(issues.map((i) => [i.title, i.link])).toEqual([
       ['Newer entry', 'https://example.com/newer'],
       ['Older entry', 'https://example.com/older'],
+    ])
+  })
+
+  it('copes with blank subtitles, bad dates and unusable links or titles', () => {
+    expect(parseFeed(edgeCases)).toEqual([
+      {
+        title: 'No subtitle: excerpt comes from the post body',
+        link: 'https://example.substack.com/p/no-subtitle',
+        pubDate: '2026-10-18T22:00:00.000Z',
+        excerpt: 'The body & nothing but the body.',
+      },
+      {
+        title: 'Unreadable date: listed last',
+        link: 'https://example.substack.com/p/bad-date',
+        pubDate: null,
+        excerpt: '',
+      },
     ])
   })
 
