@@ -69,16 +69,19 @@ const revalidateVideo: CollectionAfterChangeHook<Video> = async ({ context, doc,
 }
 
 // Deleting a video clears the link on its articles, so their paths must be found beforehand.
+// DECISION: handed from beforeDelete to afterDelete through a WeakMap keyed by the request, not
+// through `context`: Payload gives the two delete hooks different context objects, so a value set
+// in one never reached the other (seen on a production build: the article stayed stale).
+const articlesLinkedAtDelete = new WeakMap<PayloadRequest, string[]>()
+
 const rememberLinkedArticles: CollectionBeforeDeleteHook = async ({ context, id, req }) => {
   if (context.disableRevalidate) return
-  context.linkedArticlePaths = await linkedArticlePaths(req, Number(id))
+  articlesLinkedAtDelete.set(req, await linkedArticlePaths(req, Number(id)))
 }
 
 const revalidateDeletedVideo: CollectionAfterDeleteHook<Video> = ({ context, doc, req }) => {
-  const linked = Array.isArray(context.linkedArticlePaths)
-    ? (context.linkedArticlePaths as string[])
-    : []
-  revalidatePaths(req, context, ['/', '/watch', ...linked])
+  revalidatePaths(req, context, ['/', '/watch', ...(articlesLinkedAtDelete.get(req) ?? [])])
+  articlesLinkedAtDelete.delete(req)
   return doc
 }
 
