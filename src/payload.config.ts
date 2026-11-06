@@ -25,6 +25,10 @@ export default buildConfig({
     user: Users.slug,
     // Australian date order throughout the admin, e.g. "22 October 2026, 9:30 am".
     dateFormat: 'd MMMM yyyy, h:mm a',
+    components: {
+      // The weekly maintainer's landing panel (BUILD-SPEC §8).
+      beforeDashboard: ['@/components/admin/ThisWeek#ThisWeek'],
+    },
     importMap: {
       baseDir: path.resolve(dirname),
     },

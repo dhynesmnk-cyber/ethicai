@@ -1,0 +1,120 @@
+// Admin-only styles. The "This week" dashboard panel (src/components/admin/ThisWeek.tsx) uses
+// Payload's own theme variables, so it follows light and dark mode.
+
+.this-week {
+  margin-block: calc(var(--base) * 1.5);
+
+  &__heading {
+    margin: 0 0 var(--base);
+  }
+
+  &__grid {
+    display: grid;
+    gap: var(--base);
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+
+  &__card {
+    background: var(--theme-elevation-50);
+    border: 1px solid var(--theme-elevation-100);
+    border-radius: var(--style-radius-m);
+    padding: var(--base);
+  }
+
+  &__label {
+    color: var(--theme-elevation-600);
+    font-size: 0.875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    margin: 0 0 calc(var(--base) / 2);
+  }
+
+  &__figure {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin: 0 0 calc(var(--base) / 2);
+  }
+
+  &__title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 calc(var(--base) / 4);
+  }
+
+  &__note {
+    color: var(--theme-elevation-800);
+    margin: 0 0 calc(var(--base) / 2);
+
+    &[data-this-week='ok'] {
+      color: var(--theme-success-700);
+    }
+
+    &[data-this-week='due'] {
+      color: var(--theme-warning-800, var(--theme-elevation-800));
+    }
+  }
+
+  &__links {
+    display: flex;
+    gap: var(--base);
+    margin: 0;
+  }
+
+  &__link {
+    color: var(--theme-text);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+
+    &:hover {
+      text-decoration-thickness: 2px;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--base) / 2);
+    margin: var(--base) 0;
+  }
+
+  &__button {
+    background: var(--theme-text);
+    border: 1px solid var(--theme-text);
+    border-radius: var(--style-radius-s);
+    color: var(--theme-bg);
+    font-weight: 600;
+    padding: calc(var(--base) / 2) var(--base);
+    text-decoration: none;
+
+    &:hover {
+      opacity: 0.85;
+    }
+
+    &--secondary {
+      background: transparent;
+      color: var(--theme-text);
+    }
+  }
+
+  &__link:focus-visible,
+  &__button:focus-visible {
+    outline: 2px solid var(--theme-text);
+    outline-offset: 2px;
+  }
+
+  &__checklist {
+    ol {
+      margin: 0 0 calc(var(--base) / 2);
+      padding-left: calc(var(--base) * 1.25);
+    }
+
+    li + li {
+      margin-top: calc(var(--base) / 4);
+    }
+
+    p {
+      margin: 0;
+    }
+  }
+}
