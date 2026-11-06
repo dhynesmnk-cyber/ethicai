@@ -4,8 +4,11 @@ import { cn } from '@/lib/cn'
 import { getSiteSettings, subscribeHref } from '@/lib/site-settings'
 
 type Props = {
-  /** `band`: full-width section (Home). `inline`: compact box (end of an article). */
-  variant?: 'band' | 'inline'
+  /**
+   * `band`: full-width section (end of Home). `inline`: compact box (end of an article).
+   * `slim`: a one-line strip (middle of Home).
+   */
+  variant?: 'band' | 'inline' | 'slim'
   className?: string
 }
 
@@ -21,6 +24,24 @@ export async function SubscribeCTA({ variant = 'band', className }: Props) {
   const { substackPublicationUrl } = await getSiteSettings()
   const href = subscribeHref(substackPublicationUrl)
   const label = substackPublicationUrl ? 'Subscribe on Substack' : 'Subscribe'
+
+  if (variant === 'slim') {
+    return (
+      <aside
+        aria-label="Subscribe to the newsletter"
+        className={cn('border-y border-line bg-accent-tint', className)}
+      >
+        <Container className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-medium text-ink">
+            A short weekly note on AI with people at the centre.
+          </p>
+          <ButtonLink href={href} className="shrink-0 self-start sm:self-auto">
+            {label}
+          </ButtonLink>
+        </Container>
+      </aside>
+    )
+  }
 
   if (variant === 'inline') {
     return (

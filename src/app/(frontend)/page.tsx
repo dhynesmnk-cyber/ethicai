@@ -147,6 +147,9 @@ export default async function HomePage() {
         </Container>
       </section>
 
+      {/* Slim newsletter strip, mid-way down (BUILD-SPEC §5.1); the full band is at the end. */}
+      <SubscribeCTA variant="slim" />
+
       {/* 5. Testimonials */}
       {testimonials.length > 0 && (
         <section aria-labelledby="testimonials" className="py-16 sm:py-20">

@@ -117,3 +117,20 @@ test('newsletter page follows the Substack URL in site settings', async ({ page 
     })
   }
 })
+
+test('home has a slim newsletter strip mid-way and the full band at the end', async ({ page }) => {
+  await page.goto('/')
+  const strip = page.getByRole('complementary', { name: 'Subscribe to the newsletter' })
+  const band = page.getByRole('region', { name: 'Newsletter' })
+  await expect(strip.getByRole('link', { name: /^Subscribe/ })).toBeVisible()
+  await expect(band.getByRole('link', { name: /^Subscribe/ })).toBeVisible()
+
+  const top = (locator: typeof strip) => locator.boundingBox().then((box) => box!.y)
+  const [watch, slim, clients, full] = await Promise.all([
+    top(page.getByRole('heading', { name: 'Short videos on AI and people' })),
+    top(strip),
+    top(page.getByRole('heading', { name: 'What our clients say' })),
+    top(band),
+  ])
+  expect([watch, slim, clients, full]).toEqual([watch, slim, clients, full].sort((a, b) => a - b))
+})
