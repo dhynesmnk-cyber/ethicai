@@ -67,3 +67,18 @@ test('video facade loads YouTube only after a click', async ({ page }) => {
   await expect(player).toHaveAttribute('title', 'Example YouTube video')
   await expect(player).toBeFocused()
 })
+
+test('video facade shows a visible focus ring inside its box', async ({ page }) => {
+  await login({ page, user: editor })
+  await gotoHydrated(page, '/kitchen-sink')
+  // The facade's box clips anything drawn outside it, so the ring sits inside, in white.
+  await page.keyboard.press('Shift')
+  const play = page.getByRole('button', { name: 'Play video: Example YouTube video' })
+  await play.focus()
+  await expect(play).toBeFocused()
+  const ring = await play.evaluate((el) => {
+    const style = getComputedStyle(el)
+    return { colour: style.outlineColor, offset: style.outlineOffset, width: style.outlineWidth }
+  })
+  expect(ring).toEqual({ colour: 'rgb(255, 255, 255)', offset: '-6px', width: '3px' })
+})

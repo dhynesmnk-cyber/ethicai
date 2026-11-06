@@ -45,7 +45,8 @@ export function Facade({ label, embedSrc, iframeTitle, children }: Props) {
           type="button"
           onClick={() => setActive(true)}
           aria-label={label}
-          className="group absolute inset-0 size-full cursor-pointer"
+          // The box clips an outside outline, so draw the focus ring inside it, in white.
+          className="group absolute inset-0 size-full cursor-pointer focus-visible:outline-white focus-visible:outline-offset-[-6px]"
         >
           {children}
           <PlayIcon className="absolute top-1/2 left-1/2 size-16 -translate-x-1/2 -translate-y-1/2 text-accent drop-shadow-lg transition-transform group-hover:scale-110 group-focus-visible:scale-110" />
