@@ -43,7 +43,22 @@ Read `AGENTS.md` and `docs/BUILD-SPEC.md` first. They are the source of truth; t
 - **Elfsight facade** (`src/lib/elfsight.ts`, `src/components/feed/ElfsightTikTok.tsx`, `/watch` only). Embed markup checked against Elfsight's current install code: `https://elfsightcdn.com/platform.js` plus `<div class="elfsight-app-<uuid>">` (the spec's `data-eapps-link` / `static.elfsight.com` are older). The admin field accepts the bare ID or the whole install code and stores only the lower-case UUID (`beforeValidate` hook + `validate`); the page re-checks it before rendering. On click: focus moves to the feed region, a status message announces loading, the script is added once. If the script fails, or nothing renders within 15 s, the curated TikTok cards show with a focused notice. Checked against the real Elfsight script with a made-up ID: it requests `elfsightcdn.com` and `core.service.elfsight.com`, renders nothing, and the fallback appears. **Not seen with a real widget**, so it's unconfirmed that Elfsight renders inside our container (rather than replacing it); check that first once a widget ID exists.
 - **Substack:** fixtures moved to `tests/fixtures/rss/` (`substack.xml` copies a real Substack feed's structure with made-up content). The parser was checked against three live Substack feeds (`on.substack.com` plus two custom-domain publications) and `/newsletter` rendered real issues from one in the sandbox. Fixed: a blank `<description>` now falls back to the post body. Substack feeds are 0.5–1 MB (full post bodies); Next won't cache a fetch over 2 MB, but the page itself is cached for an hour either way.
 - **Revalidation:** publishing still goes through the Payload hooks (direct `revalidatePath`). New `POST /api/revalidate` (Bearer `REVALIDATE_SECRET`, off/404 without it) for scripts and manual refreshes; `// DECISION:` in the route explains the split. Proof on `next start`: an article published through the API showed on the cached Home 0.3 s later, and unpublishing removed it (article page 404); an article written by a script with `disableRevalidate` stayed off Home until one `POST /api/revalidate`.
-- `NEXT_PUBLIC_ELFSIGHT_TIKTOK_ID` / `NEXT_PUBLIC_SUBSTACK_URL` are deliberately not used (siteSettings only); `.env.example` says so.
+- `NEXT_PUBLIC_ELFSIGHT_TIKTOK_ID` / `NEXT_PUBLIC_SUBSTACK_URL` are deliberately not used (siteSettings only); `.env.example` says so. BUILD-SPEC Appendix B still lists them as fallbacks, so the spec and the code disagree; AGENTS.md rule 2 says siteSettings, and the code follows that. Confirm with the owner, then fix whichever is wrong.
+- **TikTok handle:** validated when saved (optional `@`, letters, numbers, full stops, underscores, 24 characters at most) and `encodeURIComponent`-ed in the `/watch` link. Covered by `tests/e2e/tiktok-handle.e2e.spec.ts`.
+- **Home newsletter strip:** a slim `<SubscribeCTA variant="slim" />` sits between the watch strip and the testimonials (one line and a button, so the page isn't a wall of calls to action).
+- **Video facade focus ring:** the play button's outline is drawn inside the thumbnail (`outline-offset-[-6px]`, white), because the container's `overflow-hidden` clipped it. A computed-style check in `kitchen-sink.e2e.spec.ts` guards it.
+- **Elfsight script URL: unresolved.** The code loads `https://elfsightcdn.com/platform.js`; BUILD-SPEC §7 and `react-elfsight-widget` use `https://static.elfsight.com/platform/platform.js`. Elfsight's own docs name both hosts in different places. Settle it by copying the install code from the owner's Elfsight dashboard (the admin field accepts the whole snippet) and updating `ELFSIGHT_PLATFORM_SRC` in `src/lib/elfsight.ts` if it differs.
+
+### Proving revalidation on a production build
+
+`next dev` never caches, so this is opt-in and needs a built server:
+
+```bash
+npm run build && npx next start          # leave running on port 3000; needs REVALIDATE_SECRET in .env
+E2E_REVALIDATION=1 npm run test:e2e -- tests/e2e/revalidation-cache.e2e.spec.ts tests/e2e/revalidate.e2e.spec.ts
+```
+
+Expect 4 passed. The spec publishes and deletes an article and a featured video through the running site's REST API and polls Home and `/articles` (within 15 s; in practice under a second), then writes an article with revalidation off and shows Home stays stale until `POST /api/revalidate`. Everything it creates is deleted afterwards. Last run: 6 November 2026, passed twice in a row.
 
 ## 4. Sandbox bootstrap (a fresh container each session)
 
