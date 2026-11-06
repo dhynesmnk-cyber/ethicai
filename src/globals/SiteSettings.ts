@@ -2,6 +2,7 @@ import type { GlobalAfterChangeHook, GlobalConfig } from 'payload'
 
 import { adminOnly, isAdmin } from '@/access'
 import { minimalEditor } from '@/fields/articleEditor'
+import { normaliseElfsightWidgetId, validateElfsightWidgetId } from '@/lib/elfsight'
 import { revalidateEverything } from '@/lib/revalidate'
 
 // Single source of truth for integrations and contact details (BUILD-SPEC §4.7). Anything an
@@ -48,9 +49,14 @@ export const SiteSettings: GlobalConfig = {
               name: 'elfsightTikTokWidgetId',
               type: 'text',
               label: 'Elfsight TikTok widget ID',
+              // Pasting the whole install code works too; only the bare ID is stored.
+              validate: validateElfsightWidgetId,
+              hooks: {
+                beforeValidate: [({ value }) => normaliseElfsightWidgetId(value)],
+              },
               admin: {
                 description:
-                  'From the Elfsight dashboard (the ID in the embed code). The free plan allows about 200 widget views a month, which is why the feed only loads on /watch after a click. Leave empty to show the hand-picked TikTok videos instead.',
+                  'From the Elfsight dashboard: paste the install code (or just the ID in it, like 1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d). The free plan allows about 200 widget views a month, which is why the feed only loads on /watch after a click. Leave empty to show the hand-picked TikTok videos instead.',
               },
             },
             {

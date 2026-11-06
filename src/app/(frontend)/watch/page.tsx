@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
+import { ElfsightTikTok } from '@/components/feed/ElfsightTikTok'
 import { VideoCard } from '@/components/feed/VideoCard'
 import { ExternalIcon } from '@/components/icons'
 import { Container } from '@/components/layout/Container'
 import { Pagination } from '@/components/ui/Pagination'
 import { SectionHeading } from '@/components/ui/SectionHeading'
+import { isElfsightWidgetId } from '@/lib/elfsight'
 import { getVideos } from '@/lib/queries'
 import { getSiteSettings } from '@/lib/site-settings'
 import { isDisplayableVideo, videoCardProps } from '@/lib/view-models'
@@ -37,6 +39,27 @@ export default async function WatchPage({ searchParams }: Props) {
   const handle = settings.tiktokHandle?.replace(/^@/, '')
   const tiktokVideos = tiktok.docs.filter(isDisplayableVideo)
   const youtubeVideos = youtube.docs.filter(isDisplayableVideo)
+  // Checked again here (not just when saved): the ID becomes a class name on the page.
+  const widgetId = isElfsightWidgetId(settings.elfsightTikTokWidgetId)
+    ? settings.elfsightTikTokWidgetId
+    : null
+
+  // Hand-picked TikTok videos: shown when there's no Elfsight widget, or if it fails to load.
+  const curatedTikToks =
+    tiktokVideos.length > 0 ? (
+      <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {tiktokVideos.map((video) => (
+          <li key={video.id} className="flex">
+            <VideoCard {...videoCardProps(video)} headingLevel="h3" />
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p className="mt-6 max-w-2xl text-muted">
+        Our short videos live on TikTok.
+        {!handle && !widgetId && ' The feed is coming soon.'}
+      </p>
+    )
 
   return (
     <>
@@ -52,20 +75,11 @@ export default async function WatchPage({ searchParams }: Props) {
       <section aria-labelledby="tiktok" className="border-t border-line py-16">
         <Container>
           <SectionHeading id="tiktok" eyebrow="TikTok" title="Latest on TikTok" />
-          {/* Phase 4 adds the Elfsight feed here, loaded only after a click. */}
-          {tiktokVideos.length > 0 ? (
-            <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {tiktokVideos.map((video) => (
-                <li key={video.id} className="flex">
-                  <VideoCard {...videoCardProps(video)} headingLevel="h3" />
-                </li>
-              ))}
-            </ul>
+          {/* The Elfsight feed loads only after a click, and only on this page (AGENTS.md #4). */}
+          {widgetId ? (
+            <ElfsightTikTok widgetId={widgetId}>{curatedTikToks}</ElfsightTikTok>
           ) : (
-            <p className="mt-6 max-w-2xl text-muted">
-              Our short videos live on TikTok.
-              {!handle && ' The feed is coming soon.'}
-            </p>
+            curatedTikToks
           )}
           {handle && (
             <p className="mt-8">

@@ -669,7 +669,7 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
 export interface SiteSetting {
   id: number;
   /**
-   * From the Elfsight dashboard (the ID in the embed code). The free plan allows about 200 widget views a month, which is why the feed only loads on /watch after a click. Leave empty to show the hand-picked TikTok videos instead.
+   * From the Elfsight dashboard: paste the install code (or just the ID in it, like 1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d). The free plan allows about 200 widget views a month, which is why the feed only loads on /watch after a click. Leave empty to show the hand-picked TikTok videos instead.
    */
   elfsightTikTokWidgetId?: string | null;
   /**
