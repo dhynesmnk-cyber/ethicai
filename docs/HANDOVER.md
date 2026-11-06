@@ -66,30 +66,39 @@ Spec: §7.1, §7.2, §5.5, §10 Phase 4; AGENTS.md non-negotiable #4 (no eager t
 
 ## 4. Sandbox bootstrap (a fresh container each session)
 
-The cloud environment is "Ethicai": limited network (allowed: `*.r2.cloudflarestorage.com`, `*.r2.dev` plus package registries) and the five `S3_*` variables already set. It has **no setup script**, so each new container needs:
+The cloud environment is "Ethicai": limited network (allowed: `*.r2.cloudflarestorage.com`, `*.r2.dev` plus package registries) and the five `S3_*` variables already set. On 6 November 2026 it was given a **setup script** (stored on the environment, not in the repo; the environment menu in the session's title bar, then Edit, shows it). It ran cleanly against a clean clone and re-ran as a no-op, but it has **not yet run on a genuinely fresh container**, so check its work before relying on it:
+
+```bash
+node -v                                                   # v22.23.4
+pg_lsclusters                                             # 16 main online
+ls /home/user/ethicai/node_modules | head -1; test -f /home/user/ethicai/.env && echo ".env ok"
+ls /home/user/.sandbox-ethicai/proxy/node_modules         # global-agent
+```
+
+What it does: installs Node 22.23.4 (checksum-verified) into `/opt/node22`; installs Postgres 16 with a local-only `ethicai` role and database; runs `npm ci` in the checkout and writes a git-ignored `.env` with a random `PAYLOAD_SECRET`; installs the proxy shim used below. Any failed step prints `setup: WARNING: ...` and never blocks the session. It does **not** run migrations (they need the `S3_*` variables, which the script can't see), so run `npm run migrate` yourself, and after a container restart start Postgres again with `pg_ctlcluster 16 main start`. If a check above fails, tell the user the script needs fixing and fall back to the manual commands:
 
 ```bash
 # Node >= 22.23.4 is required (Payload 3.92). The image has 22.22.0.
 export PATH=/opt/node22/bin:$PATH
-node -v || true   # if below v22.23.4, install it:
 cd /tmp && curl -sSfO https://nodejs.org/dist/v22.23.4/node-v22.23.4-linux-x64.tar.xz \
   && curl -sSf https://nodejs.org/dist/v22.23.4/SHASUMS256.txt | grep 'node-v22.23.4-linux-x64.tar.xz$' | sha256sum -c - \
   && mkdir -p /opt/node22 && tar -xJf node-v22.23.4-linux-x64.tar.xz -C /opt/node22 --strip-components=1
 
 # Local Postgres 16 (no outside database is reachable from the sandbox)
 apt-get update -q && DEBIAN_FRONTEND=noninteractive apt-get install -y -q postgresql
-pg_ctlcluster 16 main start   # also needed after any container restart; "stale pid file" is harmless
+pg_ctlcluster 16 main start   # "stale pid file" is harmless
 su postgres -c "psql -c \"CREATE ROLE ethicai LOGIN PASSWORD 'ethicai' CREATEDB;\" -c 'CREATE DATABASE ethicai OWNER ethicai;'"
 
-cd /home/user/ethicai && npm install
+cd /home/user/ethicai && npm ci
 printf 'PAYLOAD_SECRET=%s\nDATABASE_URI=postgres://ethicai:ethicai@127.0.0.1:5432/ethicai\nNEXT_PUBLIC_SITE_URL=http://localhost:3000\n' "$(openssl rand -hex 32)" > .env   # git-ignored; S3_* come from the environment
-npm run migrate
+
+# Proxy shim
+mkdir -p /home/user/.sandbox-ethicai/proxy && cd /home/user/.sandbox-ethicai/proxy && npm init -y >/dev/null && npm i global-agent@3.0.0
 ```
 
-**Proxy shim.** Node's `fetch` and the AWS SDK ignore the sandbox proxy, so anything that talks to R2 needs this (the shim lives outside the repo):
+Either way, then run `npm run migrate`. **Proxy shim.** Node's `fetch` and the AWS SDK ignore the sandbox proxy, so anything that talks to R2 needs these variables (the shim lives outside the repo):
 
 ```bash
-mkdir -p /home/user/.sandbox-ethicai/proxy && cd /home/user/.sandbox-ethicai/proxy && npm init -y >/dev/null && npm i global-agent@3.0.0
 export NODE_USE_ENV_PROXY=1
 export NODE_OPTIONS="--no-deprecation --use-openssl-ca --require /home/user/.sandbox-ethicai/proxy/node_modules/global-agent/bootstrap"
 cd /home/user/ethicai && nohup npx next dev > /home/user/.sandbox-ethicai/dev.log 2>&1 &
