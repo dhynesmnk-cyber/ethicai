@@ -1,48 +1,16 @@
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { getNewsletterIssues, parseFeed, toExcerpt } from '@/lib/rss'
 
-// Shaped like a Substack feed: CDATA titles/descriptions, RFC 822 dates.
-const substackRss = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
-  <channel>
-    <title><![CDATA[EthicAI Weekly]]></title>
-    <link>https://ethicai.substack.com</link>
-    <item>
-      <title><![CDATA[Issue 2: AI &amp; the four-day week]]></title>
-      <description><![CDATA[<p>What we learnt this week about <strong>time</strong> &amp; trust.</p>]]></description>
-      <link>https://ethicai.substack.com/p/issue-2</link>
-      <pubDate>Wed, 21 Oct 2026 20:00:00 GMT</pubDate>
-    </item>
-    <item>
-      <title><![CDATA[Issue 1: Start with people]]></title>
-      <description><![CDATA[Why adopting AI well starts with the people who'll use it.]]></description>
-      <link>https://ethicai.substack.com/p/issue-1</link>
-      <pubDate>Wed, 14 Oct 2026 20:00:00 GMT</pubDate>
-    </item>
-    <item>
-      <title><![CDATA[No link, skipped]]></title>
-    </item>
-  </channel>
-</rss>`
-
-const atom = `<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Atom feed</title>
-  <entry>
-    <title>Older entry</title>
-    <link rel="alternate" href="https://example.com/older"/>
-    <updated>2026-09-01T00:00:00Z</updated>
-    <summary>An older post.</summary>
-  </entry>
-  <entry>
-    <title>Newer entry</title>
-    <link rel="self" href="https://example.com/newer.atom"/>
-    <link rel="alternate" href="https://example.com/newer"/>
-    <published>2026-10-01T00:00:00Z</published>
-    <summary>A newer post.</summary>
-  </entry>
-</feed>`
+// Fixture feeds live in tests/fixtures/rss. substack.xml copies the structure of a real Substack
+// feed (checked against live ones in November 2026) with made-up content.
+const fixture = (name: string) =>
+  readFileSync(fileURLToPath(new URL(`../fixtures/rss/${name}`, import.meta.url)), 'utf8')
+const substackRss = fixture('substack.xml')
+const atom = fixture('atom.xml')
 
 describe('parseFeed', () => {
   it('maps a Substack RSS feed to issues, newest first', () => {
