@@ -40,7 +40,12 @@ export const TeamMembers: CollectionConfig = {
     afterDelete: [revalidateDeletedTeam],
   },
   fields: [
-    { name: 'name', type: 'text', required: true },
+    {
+      name: 'name',
+      type: 'text',
+      required: true,
+      admin: { description: 'Full name, shown as the heading for this person on the About page.' },
+    },
     {
       name: 'role',
       type: 'text',

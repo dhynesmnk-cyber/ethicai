@@ -73,6 +73,10 @@ export const SiteSettings: GlobalConfig = {
               type: 'text',
               label: 'YouTube channel URL',
               validate: httpsUrl,
+              admin: {
+                description:
+                  'e.g. https://www.youtube.com/@ethicai. Used for the “Visit our YouTube channel” link on Watch.',
+              },
             },
             {
               name: 'youtubeChannelId',
@@ -102,16 +106,24 @@ export const SiteSettings: GlobalConfig = {
         {
           label: 'Contact & footer',
           fields: [
-            { name: 'contactEmail', type: 'email' },
+            {
+              name: 'contactEmail',
+              type: 'email',
+              admin: {
+                description: 'Shown on the Contact page and in the footer. Leave empty to hide it.',
+              },
+            },
             {
               name: 'socialLinks',
               type: 'array',
               labels: { singular: 'Social link', plural: 'Social links' },
+              admin: { description: 'Icons shown in the site footer, in this order.' },
               fields: [
                 {
                   name: 'platform',
                   type: 'select',
                   required: true,
+                  admin: { description: 'Decides which icon is shown.' },
                   options: [
                     { label: 'LinkedIn', value: 'linkedin' },
                     { label: 'TikTok', value: 'tiktok' },
@@ -120,7 +132,13 @@ export const SiteSettings: GlobalConfig = {
                     { label: 'Instagram', value: 'instagram' },
                   ],
                 },
-                { name: 'url', type: 'text', required: true, validate: httpsUrl },
+                {
+                  name: 'url',
+                  type: 'text',
+                  required: true,
+                  validate: httpsUrl,
+                  admin: { description: 'The full link, starting with https://.' },
+                },
               ],
             },
             {

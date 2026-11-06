@@ -107,6 +107,10 @@ export const Articles: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
+      admin: {
+        description:
+          'The headline, shown on the article, on cards and when the link is shared. The web address is made from it automatically.',
+      },
     },
     {
       type: 'tabs',
@@ -136,6 +140,10 @@ export const Articles: CollectionConfig = {
               type: 'richText',
               required: true,
               editor: articleEditor,
+              admin: {
+                description:
+                  'Use Heading 2 and Heading 3 to break up the text. You can paste Markdown and it converts as you paste. The YouTube block adds an extra video.',
+              },
             },
           ],
         },
@@ -144,8 +152,24 @@ export const Articles: CollectionConfig = {
           label: 'SEO',
           description: 'Optional overrides. Leave blank to use the title, excerpt and hero image.',
           fields: [
-            { name: 'metaTitle', type: 'text', maxLength: 70 },
-            { name: 'metaDescription', type: 'textarea', maxLength: 160 },
+            {
+              name: 'metaTitle',
+              type: 'text',
+              maxLength: 70,
+              admin: {
+                description:
+                  'Replaces the title in search results and social shares (70 characters max). Leave blank to use the article title.',
+              },
+            },
+            {
+              name: 'metaDescription',
+              type: 'textarea',
+              maxLength: 160,
+              admin: {
+                description:
+                  'Replaces the excerpt in search results (160 characters max). Leave blank to use the excerpt.',
+              },
+            },
             {
               name: 'ogImage',
               type: 'upload',
@@ -175,7 +199,10 @@ export const Articles: CollectionConfig = {
       relationTo: 'users',
       required: true,
       defaultValue: ({ user }) => user?.id,
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        description: 'Who wrote it. Defaults to you, and is shown on the article.',
+      },
     },
     {
       name: 'relatedVideo',

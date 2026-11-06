@@ -139,6 +139,9 @@ export interface UserAuthOperations {
  */
 export interface Article {
   id: number;
+  /**
+   * The headline, shown on the article, on cards and when the link is shared. The web address is made from it automatically.
+   */
   title: string;
   /**
    * One or two sentences (300 characters max). Used on article cards, in search results and when the link is shared.
@@ -148,6 +151,9 @@ export interface Article {
    * Landscape image, ideally 16:9.
    */
   heroImage: number | Media;
+  /**
+   * Use Heading 2 and Heading 3 to break up the text. You can paste Markdown and it converts as you paste. The YouTube block adds an extra video.
+   */
   content: {
     root: {
       type: string;
@@ -164,7 +170,13 @@ export interface Article {
     [k: string]: unknown;
   };
   seo?: {
+    /**
+     * Replaces the title in search results and social shares (70 characters max). Leave blank to use the article title.
+     */
     metaTitle?: string | null;
+    /**
+     * Replaces the excerpt in search results (160 characters max). Leave blank to use the excerpt.
+     */
     metaDescription?: string | null;
     /**
      * Image shown when the article is shared on social media.
@@ -183,6 +195,9 @@ export interface Article {
    * Articles are listed newest first by this date.
    */
   publishedAt?: string | null;
+  /**
+   * Who wrote it. Defaults to you, and is shown on the article.
+   */
   author: number | User;
   /**
    * The video this article summarises. Shown as “Watch the original video”.
@@ -261,6 +276,9 @@ export interface User {
    * Editors write and publish articles, videos and images. Admins can also manage users, site settings, team members and testimonials, and delete content.
    */
   role: 'admin' | 'editor';
+  /**
+   * Optional profile picture. It isn’t shown on the public site yet.
+   */
   avatar?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
@@ -292,6 +310,9 @@ export interface Video {
    * The video’s link on YouTube or TikTok. Platform and video ID are filled in automatically when you save.
    */
   url: string;
+  /**
+   * Shown on the video’s card. Usually the same as on YouTube or TikTok.
+   */
   title: string;
   /**
    * The date it went live on YouTube or TikTok.
@@ -321,6 +342,9 @@ export interface Video {
    * Featured videos appear on the home page.
    */
   featured?: boolean | null;
+  /**
+   * Whether someone added this entry or the automatic YouTube sync did.
+   */
   source?: ('manual' | 'youtube-rss') | null;
   updatedAt: string;
   createdAt: string;
@@ -331,6 +355,9 @@ export interface Video {
  */
 export interface TeamMember {
   id: number;
+  /**
+   * Full name, shown as the heading for this person on the About page.
+   */
   name: string;
   /**
    * e.g. “Founder”. Shown under the name.
@@ -361,11 +388,17 @@ export interface TeamMember {
  */
 export interface Testimonial {
   id: number;
+  /**
+   * The words themselves, without quotation marks.
+   */
   quote: string;
   /**
    * Who said it, e.g. “Deputy Ombudsman”.
    */
   attribution: string;
+  /**
+   * Optional. The speaker’s organisation, shown after their title.
+   */
   organisation?: string | null;
   /**
    * Optional YouTube or TikTok link (an unlisted YouTube video is fine) shown with the quote.
@@ -676,6 +709,9 @@ export interface SiteSetting {
    * e.g. @ethicai. Used for the “Follow us on TikTok” link.
    */
   tiktokHandle?: string | null;
+  /**
+   * e.g. https://www.youtube.com/@ethicai. Used for the “Visit our YouTube channel” link on Watch.
+   */
   youtubeChannelUrl?: string | null;
   /**
    * Starts with “UC”. Only needed for the optional automatic YouTube feed sync.
@@ -685,10 +721,22 @@ export interface SiteSetting {
    * e.g. https://ethicai.substack.com. Drives the subscribe buttons and the recent issues list.
    */
   substackPublicationUrl?: string | null;
+  /**
+   * Shown on the Contact page and in the footer. Leave empty to hide it.
+   */
   contactEmail?: string | null;
+  /**
+   * Icons shown in the site footer, in this order.
+   */
   socialLinks?:
     | {
+        /**
+         * Decides which icon is shown.
+         */
         platform: 'linkedin' | 'tiktok' | 'youtube' | 'substack' | 'instagram';
+        /**
+         * The full link, starting with https://.
+         */
         url: string;
         id?: string | null;
       }[]

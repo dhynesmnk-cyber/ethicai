@@ -42,14 +42,23 @@ export const Testimonials: CollectionConfig = {
     afterDelete: [revalidateDeletedTestimonial],
   },
   fields: [
-    { name: 'quote', type: 'textarea', required: true },
+    {
+      name: 'quote',
+      type: 'textarea',
+      required: true,
+      admin: { description: 'The words themselves, without quotation marks.' },
+    },
     {
       name: 'attribution',
       type: 'text',
       required: true,
       admin: { description: 'Who said it, e.g. “Deputy Ombudsman”.' },
     },
-    { name: 'organisation', type: 'text' },
+    {
+      name: 'organisation',
+      type: 'text',
+      admin: { description: 'Optional. The speaker’s organisation, shown after their title.' },
+    },
     {
       // DECISION: a link rather than a relationship to `videos`, so a testimonial video doesn't
       // also appear in the public video feed on /watch.

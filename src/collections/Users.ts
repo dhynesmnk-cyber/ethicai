@@ -59,7 +59,10 @@ export const Users: CollectionConfig = {
       name: 'avatar',
       type: 'upload',
       relationTo: 'media',
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        description: 'Optional profile picture. It isn’t shown on the public site yet.',
+      },
     },
   ],
 }

@@ -95,6 +95,9 @@ export const Videos: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
+      admin: {
+        description: 'Shown on the video’s card. Usually the same as on YouTube or TikTok.',
+      },
     },
     {
       name: 'publishedAt',
@@ -155,7 +158,11 @@ export const Videos: CollectionConfig = {
         { label: 'Added by hand', value: 'manual' },
         { label: 'YouTube feed sync', value: 'youtube-rss' },
       ],
-      admin: { position: 'sidebar', readOnly: true },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Whether someone added this entry or the automatic YouTube sync did.',
+      },
     },
   ],
 }
