@@ -25,6 +25,14 @@ Client sends raw video(s)
 5. Light touches ────────── Client's socials (optional), skim analytics weekly, tidy tasks
 ```
 
+## One-off: connect the integrations
+
+Admin → **Site settings** (admins only) → *Video & newsletter*. Each one is optional: the site shows a sensible fallback until it's filled in, and changes go live on save (no redeploy).
+
+- **Elfsight TikTok widget ID:** in the Elfsight dashboard open the TikTok Feed widget → *Add to website* → copy the install code and paste the whole thing (the site keeps only the ID). Until it's set, `/watch` shows the TikTok videos you've added with a thumbnail.
+- **Substack publication URL** (e.g. `https://ethicai.substack.com`): drives every Subscribe button and the recent issues list on `/newsletter`.
+- **TikTok handle** and **YouTube channel URL:** the "Follow" and "Visit our channel" links on `/watch`. Footer icons come from *Contact & footer → Social links*.
+
 ## Step 1 — Transcribe (10–20 min, mostly hands-off)
 
 **If the video is already public on YouTube/TikTok:** grab the platform's auto-captions first — often good enough and zero setup. (YouTube: "Show transcript" in the description panel; TikTok: captions toggle.)
@@ -68,12 +76,14 @@ Use a two-pass approach: machine draft, human voice.
 
 In `/admin`, in this order:
 
+Start from the **This week** panel on the admin dashboard: it shows drafts waiting and the latest article, and has the New video / New article buttons.
+
 1. **Videos → New video.** Paste the TikTok/YouTube URL — platform, video ID and YouTube thumbnail fill automatically. Set `publishedAt` to the real platform date. Tick `featured` if it should appear on Home.
-2. **Articles → New article.** Title (slug auto), excerpt, hero image (upload + **alt text is required** — describe the image, don't keyword-stuff), paste/Markdown-convert the body, set author, tags, and **link `relatedVideo`** to the entry from step 1 (this puts the video embed at the top of the article and a "Read the summary" card on the feed).
+2. **Articles → New article.** Title (the web address fills in by itself a few seconds later; wait for it before publishing), excerpt, hero image (upload + **alt text is required** — describe the image, don't keyword-stuff), paste the body (Markdown converts to headings, lists and links as you paste), set author, tags, and **link `relatedVideo`** to the entry from step 1 (this puts the video embed at the top of the article and a "Read the summary" card on the feed).
 3. Save as **draft** → hit **Preview** → read it once on mobile width → **Publish**.
 4. Quick checks: article appears on Home "Latest" and `/articles`; the video shows on `/watch`; the YouTube facade plays.
 
-**Hero images:** if the client doesn't supply artwork, a clean frame grab from the video works (macOS: pause + ⇧⌘4, or `ffmpeg -ss 00:00:12 -i video.mp4 -frames:v 1 grab.jpg`). Keep under ~2 MB, landscape ~16:9.
+**Hero images:** if the client doesn't supply artwork, a clean frame grab from the video works (macOS: pause + ⇧⌘4, or `ffmpeg -ss 00:00:12 -i video.mp4 -frames:v 1 grab.jpg`). Max 20 MB (the admin rejects bigger files; smaller uploads faster), landscape ~16:9.
 
 ## Step 4 — Weekly newsletter on Substack (30–45 min)
 
@@ -124,7 +134,7 @@ Practical notes:
 ## Step 5 — Weekly light touches (10 min)
 
 - Skim Netlify analytics / Plausible (if enabled): what got read? Note for the client.
-- Elfsight dashboard: check TikTok widget **view usage** vs plan limit (free tier = 200/mo — if you're near it, upgrade the plan or the widget silently stops serving).
+- Elfsight dashboard: check TikTok widget **view usage** vs plan limit (free tier = 200/mo; every press of "Show latest TikToks" on `/watch` uses one). If you're near it, upgrade the plan: once it runs out the widget stops serving, and `/watch` falls back to the hand-picked TikTok videos after 15 seconds.
 - Anything the client sent that's queued for next week? Log it.
 
 ---
@@ -151,11 +161,11 @@ Practical notes:
 | Symptom | First move |
 |---|---|
 | Image upload fails in admin (prod) | R2 credentials/CORS — see deployment doc §2; this is never a "Netlify disk" fix, disk storage must stay off |
-| TikTok feed blank on /watch | Elfsight view quota exhausted, or widget ID changed in their dashboard → update `siteSettings.elfsightTikTokWidgetId` (no redeploy needed) |
+| TikTok feed doesn't appear on /watch ("couldn't load just now", then the hand-picked videos) | Elfsight view quota used up, or the widget was replaced in their dashboard → Admin → Site settings → Video & newsletter → paste the new install code into *Elfsight TikTok widget ID* and save (no redeploy needed) |
 | Newsletter page shows no issues | Substack RSS hiccup or publication URL typo in siteSettings; page degrades gracefully by design — fix the URL |
-| New article not on Home | Wait for revalidation (≤ a few seconds on publish hook; ISR max 1h) → or hit `/api/revalidate` with secret |
+| New article not on Home | Publishing refreshes Home and the listing within seconds; pages also refresh hourly. If it's still missing, re-save the article, or refresh every page with `curl -X POST https://www.ethicai.au/api/revalidate -H "Authorization: Bearer $REVALIDATE_SECRET"` (needs the secret set in Netlify) |
 | YouTube facade shows grey box | Video is private/age-restricted/embedding-disabled on YouTube |
-| Admin slow on big uploads | Expected on serverless; keep images < 2 MB (they should be — video files never go here) |
+| Admin slow on big uploads | Expected on serverless; keep images well under the 20 MB limit (they should be — video files never go here) |
 
 ---
 

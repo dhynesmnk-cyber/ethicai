@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>Form definitions</title>
+  </head>
+  <body>
+    <!--
+      Netlify Forms detects forms in static HTML at deploy time, so the contact form is declared
+      here; /contact posts to this file. Keep the fields in step with src/components/ContactForm.tsx.
+      `action` is where Netlify sends people after a submission without JavaScript.
+    -->
+    <form
+      name="contact"
+      method="POST"
+      data-netlify="true"
+      netlify-honeypot="company"
+      action="/contact/thanks"
+      hidden
+    >
+      <input type="hidden" name="form-name" value="contact" />
+      <input name="name" />
+      <input name="email" type="email" />
+      <textarea name="message"></textarea>
+      <input name="company" />
+    </form>
+  </body>
+</html>

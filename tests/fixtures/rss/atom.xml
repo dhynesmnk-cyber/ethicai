@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Atom feed</title>
+  <entry>
+    <title>Older entry</title>
+    <link rel="alternate" href="https://example.com/older"/>
+    <updated>2026-09-01T00:00:00Z</updated>
+    <summary>An older post.</summary>
+  </entry>
+  <entry>
+    <title>Newer entry</title>
+    <link rel="self" href="https://example.com/newer.atom"/>
+    <link rel="alternate" href="https://example.com/newer"/>
+    <published>2026-10-01T00:00:00Z</published>
+    <summary>A newer post.</summary>
+  </entry>
+</feed>
