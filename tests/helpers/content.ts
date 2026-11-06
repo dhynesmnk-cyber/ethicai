@@ -68,12 +68,25 @@ export async function createVideo(
   return payload.create({ collection: 'videos', context: context(), data })
 }
 
+/** Cleanup must not fail because a test already removed the record (e.g. through the API). */
+async function ignoreMissing(run: () => Promise<unknown>): Promise<void> {
+  try {
+    await run()
+  } catch (error) {
+    if (!(error instanceof Error && error.name === 'NotFound')) throw error
+  }
+}
+
 export async function deleteArticles(ids: number[]): Promise<void> {
   const payload = await getPayload({ config })
-  for (const id of ids) await payload.delete({ collection: 'articles', id, context: context() })
+  for (const id of ids) {
+    await ignoreMissing(() => payload.delete({ collection: 'articles', id, context: context() }))
+  }
 }
 
 export async function deleteVideos(ids: number[]): Promise<void> {
   const payload = await getPayload({ config })
-  for (const id of ids) await payload.delete({ collection: 'videos', id, context: context() })
+  for (const id of ids) {
+    await ignoreMissing(() => payload.delete({ collection: 'videos', id, context: context() }))
+  }
 }
