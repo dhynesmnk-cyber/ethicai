@@ -26,5 +26,20 @@ export async function createTestUser(role: TestUser['role'], key: string): Promi
 
 export async function deleteTestUser(email: string): Promise<void> {
   const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'users',
+    depth: 0,
+    limit: 1,
+    where: { email: { equals: email } },
+  })
+  // Opening the article form in the admin autosaves an empty draft under the signed-in user.
+  // Remove what the user left behind, so tests don't pile up drafts (or dashboard counts).
+  if (docs[0]) {
+    await payload.delete({
+      collection: 'articles',
+      context: { disableRevalidate: true },
+      where: { author: { equals: docs[0].id } },
+    })
+  }
   await payload.delete({ collection: 'users', where: { email: { equals: email } } })
 }
