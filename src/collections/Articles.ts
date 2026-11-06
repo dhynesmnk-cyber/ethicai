@@ -62,7 +62,8 @@ const slug = slugField({
         slugInput.validate = validateSlug
         slugInput.admin = {
           ...slugInput.admin,
-          description: 'The article’s web address: /articles/<slug>. Changing it breaks old links.',
+          description:
+            'The article’s web address: /articles/<slug>. It fills in by itself a few seconds after you type the title (wait for it before publishing). Changing it breaks old links.',
         }
       }
     }
