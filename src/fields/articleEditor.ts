@@ -16,11 +16,10 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { YouTubeBlock } from '@/blocks/YouTube'
+import { MarkdownPasteFeature } from '@/fields/markdownPaste'
 
 // Long-form toolbar for articles (BUILD-SPEC §4.3, §8). Every feature enabled here needs a
 // renderer on the frontend, so keep the list deliberate.
-// TODO(Phase 5): Markdown paste converter — Payload has no built-in one; it needs a small
-// client-side editor plugin.
 export const articleEditorFeatures = [
   ParagraphFeature(),
   HeadingFeature({ enabledHeadingSizes: ['h2', 'h3'] }),
@@ -35,6 +34,9 @@ export const articleEditorFeatures = [
   BlockquoteFeature(),
   HorizontalRuleFeature(),
   BlocksFeature({ blocks: [YouTubeBlock] }),
+  // Pasted Markdown becomes formatted text. Placed after the block features so their Markdown
+  // transformers are all known when it runs.
+  MarkdownPasteFeature(),
   FixedToolbarFeature(),
   InlineToolbarFeature(),
 ]
