@@ -1,8 +1,10 @@
 import type {
   CollectionAfterChangeHook,
   CollectionAfterDeleteHook,
+  CollectionBeforeDeleteHook,
   CollectionBeforeValidateHook,
   CollectionConfig,
+  PayloadRequest,
 } from 'payload'
 import { ValidationError } from 'payload'
 
@@ -45,13 +47,38 @@ const deriveFromUrl: CollectionBeforeValidateHook<Video> = async ({ data, origin
   return data
 }
 
-const revalidateVideo: CollectionAfterChangeHook<Video> = ({ context, doc, req }) => {
-  revalidatePaths(req, context, ['/', '/watch'])
+// A video's title and thumbnail also appear on the published articles that link to it, so those
+// pages need refreshing too (otherwise they'd show the old title for up to an hour).
+async function linkedArticlePaths(req: PayloadRequest, videoId: number): Promise<string[]> {
+  const { docs } = await req.payload.find({
+    collection: 'articles',
+    depth: 0,
+    limit: 100,
+    pagination: false,
+    req,
+    select: { slug: true },
+    where: { and: [{ relatedVideo: { equals: videoId } }, { _status: { equals: 'published' } }] },
+  })
+  return docs.flatMap((article) => (article.slug ? [`/articles/${article.slug}`] : []))
+}
+
+const revalidateVideo: CollectionAfterChangeHook<Video> = async ({ context, doc, req }) => {
+  if (context.disableRevalidate) return doc
+  revalidatePaths(req, context, ['/', '/watch', ...(await linkedArticlePaths(req, doc.id))])
   return doc
 }
 
+// Deleting a video clears the link on its articles, so their paths must be found beforehand.
+const rememberLinkedArticles: CollectionBeforeDeleteHook = async ({ context, id, req }) => {
+  if (context.disableRevalidate) return
+  context.linkedArticlePaths = await linkedArticlePaths(req, Number(id))
+}
+
 const revalidateDeletedVideo: CollectionAfterDeleteHook<Video> = ({ context, doc, req }) => {
-  revalidatePaths(req, context, ['/', '/watch'])
+  const linked = Array.isArray(context.linkedArticlePaths)
+    ? (context.linkedArticlePaths as string[])
+    : []
+  revalidatePaths(req, context, ['/', '/watch', ...linked])
   return doc
 }
 
@@ -75,6 +102,7 @@ export const Videos: CollectionConfig = {
   indexes: [{ fields: ['platform', 'videoId'], unique: true }],
   hooks: {
     beforeValidate: [deriveFromUrl],
+    beforeDelete: [rememberLinkedArticles],
     afterChange: [revalidateVideo],
     afterDelete: [revalidateDeletedVideo],
   },

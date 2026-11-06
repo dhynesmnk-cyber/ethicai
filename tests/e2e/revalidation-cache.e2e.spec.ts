@@ -109,6 +109,56 @@ test.describe('publishing refreshes the cached pages', () => {
     await expect.poll(() => html(page, '/'), POLL).not.toContain(title)
   })
 
+  test('editing or deleting a video refreshes the published article that links to it', async ({
+    page,
+  }) => {
+    await login({ page, user: admin })
+    const stamp = Date.now()
+    const heroImage = await anyMediaId()
+    expect(heroImage, 'Run `npm run seed` first').toBeTruthy()
+
+    const video = await page.request.post('/api/videos', {
+      data: {
+        url: 'https://youtu.be/jNQXAC9IVRw',
+        title: `Linked video before ${stamp}`,
+        publishedAt: new Date().toISOString(),
+      },
+    })
+    expect(video.status()).toBe(201)
+    const videoId = (await video.json()).doc.id as number
+    videoIds.push(videoId)
+
+    const created = await page.request.post('/api/articles', {
+      data: {
+        title: `Linked article ${stamp}`,
+        slug: `e2e-linked-${stamp}`,
+        excerpt: 'Written by the revalidation test.',
+        heroImage,
+        author: await currentUserId(page),
+        content: lexicalParagraph('Linked video test body.'),
+        relatedVideo: videoId,
+        _status: 'published',
+      },
+    })
+    expect(created.status()).toBe(201)
+    const article = (await created.json()).doc as { id: number; slug: string }
+    articleIds.push(article.id)
+    const articleHtml = () => html(page, `/articles/${article.slug}`)
+
+    // Warm the cache, so the page below really is served from it.
+    await expect.poll(articleHtml, POLL).toContain(`Linked video before ${stamp}`)
+
+    const renamed = await page.request.patch(`/api/videos/${videoId}`, {
+      data: { title: `Linked video after ${stamp}` },
+    })
+    expect(renamed.status()).toBe(200)
+    await expect.poll(articleHtml, POLL).toContain(`Linked video after ${stamp}`)
+
+    // Deleting the video clears the link, so the article page drops its video section.
+    expect((await page.request.delete(`/api/videos/${videoId}`)).status()).toBe(200)
+    await expect.poll(articleHtml, POLL).not.toContain('Watch the original video')
+  })
+
   test('without the hooks Home stays cached, and /api/revalidate refreshes it', async ({
     page,
   }) => {
