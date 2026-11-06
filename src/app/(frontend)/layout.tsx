@@ -6,7 +6,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { DEFAULT_DESCRIPTION, pageMetadata, SITE_NAME } from '@/lib/seo'
 import { getSiteSettings } from '@/lib/site-settings'
-import { siteUrl } from '@/lib/site-url'
+import { isReviewSite, siteUrl } from '@/lib/site-url'
 import { organisationSchema } from '@/lib/structured-data'
 
 import { fraunces, inter, interItalic } from './fonts'
@@ -21,6 +21,8 @@ export const metadata: Metadata = {
     template: `%s — ${SITE_NAME}`,
   },
   description: DEFAULT_DESCRIPTION,
+  // Review sites (netlify.app) must not be indexed; this also covers crawlers that ignore robots.txt.
+  ...(isReviewSite() && { robots: { index: false, follow: false } }),
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
