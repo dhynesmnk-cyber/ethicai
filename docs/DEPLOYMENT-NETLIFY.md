@@ -47,13 +47,21 @@ R2: 10 GB free, **zero egress fees**, S3-compatible API.
 ]
 ```
 
-Add the Netlify site URL (`https://<site>.netlify.app`) while testing before the domain cutover, and the dev bucket and production bucket each need the rule. Without it, uploads in the admin fail with a CORS error in the browser console. Phase 6: upload a large (15–20 MB) image on the deployed site to confirm Payload can generate the resized versions within the function time limit.
+Add the Netlify site URL (`https://<site>.netlify.app`) while testing before the domain cutover, and the dev bucket and production bucket each need the rule.
+
+To check the rule is live (R2 can take a minute to apply it), `npx wrangler r2 bucket cors list <bucket>` shows what R2 has saved, and this preflight should answer `200` or `204` with an `access-control-allow-origin` header (a `403` without one means no rule matched):
+
+```bash
+curl -sS -o /dev/null -D - -X OPTIONS "https://<accountid>.r2.cloudflarestorage.com/<bucket>/cors-probe.jpg" \
+  -H "Origin: http://localhost:3000" -H "Access-Control-Request-Method: PUT" \
+  -H "Access-Control-Request-Headers: content-type,if-none-match" | grep -iE "^HTTP|^access-control-allow"
+``` Without it, uploads in the admin fail with a CORS error in the browser console. Phase 6: upload a large (15–20 MB) image on the deployed site to confirm Payload can generate the resized versions within the function time limit.
 
 ## 3. Netlify site setup
 
 1. Push repo to GitHub; Netlify → Add new site → import repo.
 2. Framework preset: **Next.js** (auto-detected). Build command `next build`, publish dir `.next` — Netlify's Next runtime handles the rest. Node version: set **22** (site settings → environment, `NODE_VERSION=22`).
-3. Add all env vars from Appendix B of the build spec (Site configuration → Environment variables). Also set them for preview deploys. `DATABASE_URI` must be available at **build** time too: static pages are prerendered with the footer's siteSettings.
+3. Add the env vars from `.env.example` (Site configuration → Environment variables). Also set them for preview deploys. `DATABASE_URI` must be available at **build** time too: static pages are prerendered with the footer's siteSettings. `REVALIDATE_SECRET` is optional (publishing refreshes pages without it); set it to allow `POST /api/revalidate` for scripts and manual refreshes. The Elfsight widget ID and Substack URL are **not** env vars: after the first deploy, enter them in the admin under Site settings (see `docs/WEEKLY-RUNBOOK.md`, "One-off: connect the integrations").
 4. **Migrations workflow (choose one, document it):**
    - **A (recommended, simplest):** run migrations from your machine against prod DB: `DATABASE_URI=<prod-direct-string> npx payload migrate` whenever new migrations are committed. Add an `npm run migrate:prod` script that reads `.env.production.local` (git-ignored).
    - **B:** run in Netlify build: build command `next build && npx payload migrate --prod` (requires `DATABASE_URI` present at build time; watch build-log noise and build-minute usage).
