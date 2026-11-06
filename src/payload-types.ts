@@ -188,7 +188,7 @@ export interface Article {
    */
   generateSlug?: boolean | null;
   /**
-   * The article’s web address: /articles/<slug>. Changing it breaks old links.
+   * The article’s web address: /articles/<slug>. It fills in by itself a few seconds after you type the title (wait for it before publishing). Changing it breaks old links.
    */
   slug: string;
   /**
