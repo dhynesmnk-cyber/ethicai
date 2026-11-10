@@ -2,7 +2,7 @@
 
 New website for [EthicAI](https://www.ethicai.au/) (AI ethics & people-strategy consultancy): a professional marketing site with an engaging TikTok/YouTube video feed, written articles summarising video content, and a weekly Substack newsletter surface — plus a Payload CMS admin for weekly publishing.
 
-**Status:** 📋 Planning complete — build not yet started. This repo currently contains the full build plan; the Next.js + Payload app will be scaffolded into this repo (Phase 0 of the build spec).
+**Status:** 🏗️ Phase 5 (admin polish: dashboard panel, help text, Markdown paste) built, and the review deploy is prepared ([`docs/DEPLOYMENT-NETLIFY.md`](docs/DEPLOYMENT-NETLIFY.md) §3a). Awaiting review. Real content and the Netlify launch (Phase 6) come next.
 
 ## Docs
 
@@ -42,10 +42,38 @@ Estimated running cost: ≈ US$0–30/month (see plan package notes; Elfsight fr
 - [ ] Decision: dedicated Services page? (default: "What we do" section on Home)
 - [ ] Analytics preference: Plausible/Fathom (privacy-friendly) vs GA4 (needs cookie consent banner)
 
-## Getting started (for the coding agent)
+## Local development
+
+Requires Node 22.23.4+ (see `.nvmrc`) and a Postgres database.
+
+1. `npm install` (first time only for e2e tests: `npx playwright install chromium`)
+2. `cp .env.example .env`, then fill in `PAYLOAD_SECRET`, `DATABASE_URI` and the `S3_*` values for the R2 bucket. `docker compose up -d` starts a local Postgres matching the example in `docker-compose.yml`. The app refuses to start without the S3 settings — uploads never go to local disk. The admin uploads images straight from the browser to the bucket, so the bucket needs the CORS rule in [`docs/DEPLOYMENT-NETLIFY.md`](docs/DEPLOYMENT-NETLIFY.md) §2 (including `http://localhost:3000`).
+3. `npm run dev` → <http://localhost:3000/admin> to create the first admin user (the first account is always an admin).
+4. `npm run seed` to add starter content: team, testimonials, two clearly marked demo articles and placeholder images (uploaded to the bucket). Safe to re-run — it only creates what's missing and never overwrites edits.
+
+In development Payload pushes schema changes to the local database automatically. After any schema change, run `npm run migrate:create -- <name>` and commit the generated file in `src/migrations/` — production only ever applies committed migrations (`npm run migrate`).
+
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Dev server on port 3000 |
+| `npm run lint` · `npm run typecheck` · `npm run format:check` | ESLint · TypeScript · Prettier |
+| `npm test` | Vitest unit tests (`tests/unit/`) |
+| `npm run test:e2e` | Playwright smoke tests (`tests/e2e/`; starts the dev server if needed). Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH` to use an already-installed Chromium |
+| `E2E_MEDIA_UPLOAD=1 npm run test:e2e` | Also uploads a test image through the admin to the **real bucket**, checks it renders on `/media-check`, then deletes it |
+| `E2E_REVALIDATION=1 npm run test:e2e -- tests/e2e/revalidation-cache.e2e.spec.ts` | Proves publishing refreshes the cached pages. Needs a production server first (`npm run build && npx next start`) because `next dev` never caches; the last test also needs `REVALIDATE_SECRET` |
+| `npm run bootstrap:admin` | Creates the first admin from `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD`, only if there are no users; with `BOOTSTRAP_ADMIN_RESET_PASSWORD=true` it instead sets that account's password and unlocks it. Used by the Netlify build ([`docs/DEPLOYMENT-NETLIFY.md`](docs/DEPLOYMENT-NETLIFY.md) §3a) |
+| `npm run build:netlify` | What Netlify runs: migrations → first admin → optional demo content → build |
+| `npm run seed` | Idempotent starter content (`scripts/seed.ts`). Don't re-run against production after launch — deleted demo content would come back |
+| `npm run generate:types` · `npm run generate:importmap` | Regenerate `src/payload-types.ts` / the admin import map after config changes |
+
+`/media-check` (latest uploads) and `/kitchen-sink` (every shared component, for design review) are temporary, sign-in-only pages. Remove both before launch.
+
+Home and About page copy lives in `src/content/site-copy.ts`; everything else (articles, videos, team, testimonials, contact details, socials, newsletter URL, Elfsight TikTok widget) is edited in the admin. Publishing refreshes the affected pages straight away; `POST /api/revalidate` (needs `REVALIDATE_SECRET`) refreshes pages after changes made by scripts outside the running site. Old Squarespace URLs that need redirects go in `src/lib/redirects.ts`. The contact form uses Netlify Forms, declared in `public/__forms.html`, so it only delivers on Netlify.
+
+## Working on the build (coding agents)
 
 1. Read [`AGENTS.md`](AGENTS.md), then [`docs/BUILD-SPEC.md`](docs/BUILD-SPEC.md) in full.
-2. Execute **Phase 0** (scaffold + infra) of the spec's milestone list (§10) in this repo.
+2. Work through the spec's milestones (§10) in order; Phases 0–4 are done.
 3. Stop at each ✅ checkpoint for human review; never skip acceptance criteria.
 
 ---

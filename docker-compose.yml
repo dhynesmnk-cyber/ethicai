@@ -1,0 +1,17 @@
+# Optional local Postgres for development: `docker compose up -d`, then use
+# DATABASE_URI=postgres://ethicai:ethicai@127.0.0.1:5432/ethicai in .env
+services:
+  postgres:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ethicai
+      POSTGRES_PASSWORD: ethicai
+      POSTGRES_DB: ethicai
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

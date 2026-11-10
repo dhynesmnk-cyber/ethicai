@@ -1,0 +1,11 @@
+# Netlify build settings. Secrets and per-site values (database, storage keys, site URL) are
+# environment variables set in the Netlify dashboard, never in this file: see
+# docs/DEPLOYMENT-NETLIFY.md. The Next.js runtime is detected and installed by Netlify itself.
+
+[build]
+  # Applies migrations, optionally adds demo content, then builds (scripts/netlify-build.mjs).
+  command = "npm run build:netlify"
+
+[build.environment]
+  # Payload 3.92 needs Node 22.23.4 or newer; keep in step with .nvmrc and package.json "engines".
+  NODE_VERSION = "22.23.4"

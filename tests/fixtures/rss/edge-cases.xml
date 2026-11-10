@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Items a parser must cope with: missing or relative links, no title, no subtitle, odd dates. -->
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Edge cases</title>
+    <item>
+      <title><![CDATA[No subtitle: excerpt comes from the post body]]></title>
+      <description><![CDATA[]]></description>
+      <content:encoded><![CDATA[<p>The body &amp; nothing <em>but</em> the body.</p>]]></content:encoded>
+      <link>https://example.substack.com/p/no-subtitle</link>
+      <pubDate>Mon, 19 Oct 2026 09:00:00 +1100</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Unreadable date: listed last]]></title>
+      <link>https://example.substack.com/p/bad-date</link>
+      <pubDate>sometime last week</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[No link, skipped]]></title>
+    </item>
+    <item>
+      <title><![CDATA[Relative link, skipped]]></title>
+      <link>/p/relative</link>
+    </item>
+    <item>
+      <title><![CDATA[Script link, skipped]]></title>
+      <link>javascript:alert(1)</link>
+    </item>
+    <item>
+      <description><![CDATA[No title, skipped]]></description>
+      <link>https://example.substack.com/p/no-title</link>
+    </item>
+  </channel>
+</rss>

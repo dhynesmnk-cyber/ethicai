@@ -213,7 +213,7 @@ Sections in order:
 - **Optional (Milestone 7):** auto-sync from channel RSS `https://www.youtube.com/feeds/videos.xml?channel_id={youtubeChannelId}` — latest 15 entries, upsert into `videos` keyed on `videoId` (source=`youtube-rss`), triggered by a Netlify scheduled function hitting `POST /api/sync-youtube` with `CRON_SECRET` header auth. Never overwrite manually-edited titles if `source=manual`.
 
 ### 7.4 Video files
-- Raw client video files are **never** uploaded to the site (Netlify function body limits ≈ 6 MB; videos live on TikTok/YouTube). Images only, each ideally < 2 MB.
+- Raw client video files are **never** uploaded to the site (Netlify function body limits ≈ 6 MB; videos live on TikTok/YouTube). Images only, max 20 MB each (enforced in the `media` collection). The admin uploads straight from the browser to R2 via signed URLs, because Netlify Functions cap request bodies at ≈ 4.5 MB of binary data — see `docs/DEPLOYMENT-NETLIFY.md` §2.
 
 ## 8. Admin experience requirements
 
