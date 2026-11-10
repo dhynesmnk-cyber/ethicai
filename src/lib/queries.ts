@@ -218,3 +218,16 @@ export const getPageCopy = cache(async () => {
   const payload = await payloadClient()
   return payload.findGlobal({ slug: 'pageCopy', depth: 1 })
 })
+
+/** Every published article with what the sitemap, feed and llms.txt need, newest first. */
+export async function getPublishedArticlesForIndexes(limit = 0) {
+  const payload = await payloadClient()
+  const { docs } = await payload.find({
+    collection: 'articles',
+    depth: 2,
+    ...(limit ? { limit } : { pagination: false }),
+    sort: '-publishedAt',
+    where: published,
+  })
+  return docs
+}

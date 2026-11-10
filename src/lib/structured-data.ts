@@ -63,7 +63,7 @@ export function siteSchemas({ settings, founders }: SiteSchemaInput): Schema[] {
     ...(organisation.legalName ? { legalName: organisation.legalName } : {}),
     url: `${base}/`,
     logo: { '@type': 'ImageObject', url: `${base}/logo.png`, width: 512, height: 512 },
-    image: `${base}/opengraph-image`,
+    image: `${base}/logo.png`,
     description: ORGANISATION_DESCRIPTION,
     ...(settings.contactEmail ? { email: settings.contactEmail } : {}),
     address: {

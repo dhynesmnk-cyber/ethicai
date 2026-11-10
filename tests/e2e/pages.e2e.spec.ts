@@ -75,7 +75,7 @@ test('home page shows the spec sections in order', async ({ page }) => {
 
 test('sitemap lists the static pages and published articles', async ({ request }) => {
   const xml = await (await request.get('/sitemap.xml')).text()
-  for (const path of ['/about', '/articles', '/watch', '/newsletter', '/contact']) {
+  for (const path of ['/about', '/services', '/articles', '/watch', '/newsletter', '/contact']) {
     expect(xml).toContain(`${path}</loc>`)
   }
   const payload = await getPayload({ config })
