@@ -1,6 +1,8 @@
 import { revalidatePath } from 'next/cache'
 import type { PayloadRequest, RequestContext } from 'payload'
 
+import { notifyIndexNow } from '@/lib/indexnow'
+
 // Content hooks call this so published changes reach the public site within seconds
 // (BUILD-SPEC §9). Payload runs inside Next.js, so hooks can revalidate directly.
 // Scripts that run outside Next (seed, tests) pass `context: { disableRevalidate: true }`.
@@ -21,6 +23,9 @@ export function revalidatePaths(
   const unique = [...new Set(paths)]
   for (const path of unique) revalidatePath(path)
   req.payload.logger.info(`Revalidated ${unique.join(', ')}`)
+  // Search engines that support IndexNow hear about the change straight away (off unless
+  // INDEXNOW_KEY is set on the live site).
+  notifyIndexNow(unique, req.payload.logger)
 }
 
 /** Header/footer data (siteSettings) appears on every page. */
