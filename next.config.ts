@@ -16,6 +16,9 @@ const nextConfig: NextConfig = {
   images: {
     // AVIF first (smaller), WebP as the fallback; the optimiser picks what each browser accepts.
     formats: ['image/avif', 'image/webp'],
+    // 75 is Next's default; 60 is for photos behind text (src/components/family/Photo.tsx), where a
+    // dark fade hides the difference and the smaller file is the page's Largest Contentful Paint.
+    qualities: [60, 75],
     // Only these hosts (BUILD-SPEC §11.10): uploaded media, served from the bucket's public URL
     // (see payload.config.ts), and YouTube thumbnails for video facades.
     remotePatterns: [new URL(`${readS3PublicUrl()}/**`), new URL('https://i.ytimg.com/vi/**')],

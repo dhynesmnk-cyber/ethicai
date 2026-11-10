@@ -16,9 +16,10 @@ type Props = {
  * background behind text, so it's decorative to screen readers (alt=""); /photo-credits
  * describes each one.
  */
-// On phones the photo is cropped to a tall box, so it renders about twice the screen's width;
-// asking for 100vw there made phones download a small image and stretch it (soft and blurry).
-const DEFAULT_SIZES = '(max-width: 640px) 200vw, 100vw'
+// On phones the photo is cropped to a tall box, so it renders wider than the screen (about 1.7–2
+// times on an inner page); asking for 100vw there made phones download a small image and stretch
+// it. 150vw lands on the 1200 px rendition on a typical phone: sharp, and about 100 KB as AVIF.
+const DEFAULT_SIZES = '(max-width: 640px) 150vw, 100vw'
 
 export function Photo({ photo, className, sizes = DEFAULT_SIZES, loading, fetchPriority }: Props) {
   const bundled = typeof photo.src !== 'string'
@@ -28,6 +29,8 @@ export function Photo({ photo, className, sizes = DEFAULT_SIZES, loading, fetchP
       alt=""
       fill
       sizes={sizes}
+      // Always under a dark fade, where 60 looks the same as 75 and the file is about a third smaller.
+      quality={60}
       loading={loading}
       fetchPriority={fetchPriority}
       // Bundled photos carry a tiny blurred preview, so the space never flashes empty.
