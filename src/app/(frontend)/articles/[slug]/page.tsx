@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
+import { Breadcrumbs } from '@/components/family/Breadcrumbs'
 import { JsonLd } from '@/components/JsonLd'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { RichText } from '@/components/blocks/RichText'
@@ -27,8 +28,8 @@ import {
 import { readingMinutes } from '@/lib/reading-time'
 import { pageMetadata } from '@/lib/seo'
 import { siteUrl } from '@/lib/site-url'
-import { articleSchema, breadcrumbSchema, videoSchema } from '@/lib/structured-data'
-import { videoCardProps } from '@/lib/view-models'
+import { articleSchema, breadcrumbSchema, videoSchema, webPageSchema } from '@/lib/structured-data'
+import { teamMemberAnchor, videoCardProps } from '@/lib/view-models'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -74,17 +75,30 @@ export default async function ArticlePage({ params }: Props) {
 
   const hero = toImage(article.heroImage, 'hero')
   const author = typeof article.author === 'object' ? article.author : null
+  // The author's team profile, when their user account is linked to one (Users → Profile).
+  const profile = author && typeof author.profile === 'object' ? author.profile : null
+  const profileHref = profile ? `/about#${teamMemberAnchor(profile.name)}` : null
+  const authorName = profile?.name ?? author?.name
   const video = typeof article.relatedVideo === 'object' ? article.relatedVideo : null
   const publishedAt = article.publishedAt ?? article.createdAt
-  const url = `${siteUrl()}/articles/${article.slug}`
+  // Shown as "Updated" when the article changed more than a day after it went live.
+  const updated =
+    new Date(article.updatedAt).getTime() - new Date(publishedAt).getTime() > 86_400_000
+      ? article.updatedAt
+      : null
+  const path = `/articles/${article.slug}`
+  const url = `${siteUrl()}${path}`
+  const crumbs = [
+    { name: 'Home', path: '/' },
+    { name: 'Articles', path: '/articles' },
+    { name: article.title, path },
+  ]
+  const takeaways = (article.keyTakeaways ?? []).map((item) => item.point).filter(Boolean)
 
   const schemas = [
-    articleSchema(article, hero),
-    breadcrumbSchema([
-      { name: 'Home', path: '/' },
-      { name: 'Articles', path: '/articles' },
-      { name: article.title, path: `/articles/${article.slug}` },
-    ]),
+    webPageSchema({ path, name: article.title, description: article.excerpt }),
+    articleSchema(article, hero, author ? { name: author.name, profile } : null),
+    breadcrumbSchema(crumbs),
     video ? videoSchema(video, article.excerpt, toImage(video.thumbnail, 'hero')?.url) : null,
   ].filter((schema): schema is Record<string, unknown> => schema !== null)
 
@@ -110,25 +124,36 @@ export default async function ArticlePage({ params }: Props) {
           </>
         )}
 
-        <Link
-          href="/articles"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:text-accent-strong"
-        >
-          <ArrowLeftIcon className="size-4" />
-          All articles
-        </Link>
+        <Breadcrumbs items={crumbs} />
 
-        <header className="mt-6">
-          <h1 className="text-4xl sm:text-5xl">{article.title}</h1>
-          <p className="mt-4 text-lg text-muted sm:text-xl">{article.excerpt}</p>
+        <header className="mt-8">
+          <h1 className="text-[clamp(2.25rem,5vw,3.5rem)]">{article.title}</h1>
+          <p className="mt-5 text-lg text-muted sm:text-xl">{article.excerpt}</p>
           <p className="mt-6 text-sm text-muted">
-            {author && (
+            {authorName && (
               <>
-                By <span className="font-medium text-ink">{author.name}</span>
+                By{' '}
+                {profileHref ? (
+                  <Link
+                    href={profileHref}
+                    rel="author"
+                    className="font-semibold text-ink underline-offset-4 hover:text-accent hover:underline"
+                  >
+                    {authorName}
+                  </Link>
+                ) : (
+                  <span className="font-semibold text-ink">{authorName}</span>
+                )}
                 <span aria-hidden="true"> · </span>
               </>
             )}
             <time dateTime={publishedAt}>{formatDate(publishedAt)}</time>
+            {updated && (
+              <>
+                <span aria-hidden="true"> · </span>
+                Updated <time dateTime={updated}>{formatDate(updated)}</time>
+              </>
+            )}
             <span aria-hidden="true"> · </span>
             {readingMinutes(article.content)} min read
           </p>
@@ -142,6 +167,28 @@ export default async function ArticlePage({ params }: Props) {
             </ul>
           )}
         </header>
+
+        {takeaways.length > 0 && (
+          <section
+            aria-labelledby="in-short"
+            className="mt-10 rounded-card border-l-4 border-accent bg-mist p-6 sm:p-7"
+          >
+            <h2 id="in-short" className="eyebrow text-accent">
+              In short
+            </h2>
+            <ul className="mt-4 space-y-3">
+              {takeaways.map((point) => (
+                <li key={point} className="flex gap-3 font-medium text-ink">
+                  <span
+                    aria-hidden="true"
+                    className="mt-2.5 size-1.5 shrink-0 rounded-full bg-accent"
+                  />
+                  {point}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {hero && (
           <Image
@@ -179,6 +226,24 @@ export default async function ArticlePage({ params }: Props) {
           <RichText data={article.content} />
         </Prose>
 
+        {profile && (
+          <aside
+            aria-label="About the author"
+            className="mt-14 flex flex-col gap-2 rounded-card border border-line p-6 sm:p-7"
+          >
+            <p className="eyebrow text-muted">About the author</p>
+            <p className="text-xl font-bold tracking-[-0.02em]">
+              <Link href={profileHref ?? '/about'} className="hover:text-accent">
+                {profile.name}
+              </Link>
+            </p>
+            <p className="font-semibold text-accent">{profile.role}</p>
+            {profile.credentials && profile.credentials.length > 0 && (
+              <p className="text-sm text-muted">{profile.credentials.join(' · ')}</p>
+            )}
+          </aside>
+        )}
+
         <ShareLinks url={url} title={article.title} className="mt-12 border-t border-line pt-8" />
 
         <SubscribeCTA variant="inline" className="mt-12" />
@@ -188,13 +253,13 @@ export default async function ArticlePage({ params }: Props) {
             {older ? (
               <Link
                 href={`/articles/${older.slug}`}
-                className="group rounded-card border border-line bg-surface p-5 hover:border-accent"
+                className="group rounded-card border border-line bg-surface p-5 transition-colors hover:border-accent"
               >
                 <span className="flex items-center gap-1.5 text-sm text-muted">
                   <ArrowLeftIcon className="size-4" />
                   Older
                 </span>
-                <span className="mt-1 block font-serif text-lg group-hover:text-accent">
+                <span className="mt-1 block text-lg font-bold tracking-[-0.015em] group-hover:text-accent">
                   {older.title}
                 </span>
               </Link>
@@ -204,13 +269,13 @@ export default async function ArticlePage({ params }: Props) {
             {newer && (
               <Link
                 href={`/articles/${newer.slug}`}
-                className="group rounded-card border border-line bg-surface p-5 text-right hover:border-accent"
+                className="group rounded-card border border-line bg-surface p-5 text-right transition-colors hover:border-accent"
               >
                 <span className="flex items-center justify-end gap-1.5 text-sm text-muted">
                   Newer
                   <ArrowRightIcon className="size-4" />
                 </span>
-                <span className="mt-1 block font-serif text-lg group-hover:text-accent">
+                <span className="mt-1 block text-lg font-bold tracking-[-0.015em] group-hover:text-accent">
                   {newer.title}
                 </span>
               </Link>
@@ -220,7 +285,7 @@ export default async function ArticlePage({ params }: Props) {
       </Container>
 
       {related.length > 0 && (
-        <section aria-labelledby="related" className="border-t border-line bg-surface py-16">
+        <section aria-labelledby="related" className="border-t border-line bg-mist py-20">
           <Container>
             <h2 id="related" className="text-3xl">
               Related articles

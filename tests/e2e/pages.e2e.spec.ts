@@ -7,7 +7,9 @@ import config from '../../src/payload.config'
 
 const pages = [
   ['/', 'A.I. grounded in human dignity'],
-  ['/about', 'A.I. grounded in human dignity'],
+  ['/about', 'About EthicAI'],
+  ['/services', 'Services'],
+  ['/services/futurefit-diagnostic', 'FutureFit Diagnostic'],
   ['/articles', 'Articles'],
   ['/watch', 'Watch'],
   ['/newsletter', 'The EthicAI newsletter'],
@@ -56,7 +58,13 @@ test('home page shows the spec sections in order', async ({ page }) => {
     .locator('main h2')
     .allTextContents()
     .then((headings) => headings.map((h) => h.trim()))
-  const expected = ['Adaptable by design', 'Latest articles', 'Short videos on AI and people']
+  const expected = [
+    'Why we exist',
+    'Ethical AI adoption, from first question to lasting change',
+    'Meet Selma.',
+    'Latest thinking',
+    'Short videos on AI and people',
+  ]
   expect(sections.slice(0, expected.length)).toEqual(expected)
   await expect(page.getByRole('link', { name: /Load the TikTok feed/ })).toHaveAttribute(
     'href',

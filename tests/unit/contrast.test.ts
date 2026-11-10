@@ -22,11 +22,23 @@ const contrast = (a: string, b: string) => {
   return (hi + 0.05) / (lo + 0.05)
 }
 
-const backgrounds = ['canvas', 'surface', 'sand']
+const backgrounds = ['canvas', 'surface', 'mist']
+const darkBackgrounds = ['night', 'night-raised']
 
 describe('palette contrast', () => {
   it('defines every token the checks rely on', () => {
-    for (const name of [...backgrounds, 'ink', 'muted', 'accent', 'accent-strong', 'accent-tint']) {
+    for (const name of [
+      ...backgrounds,
+      ...darkBackgrounds,
+      'ink',
+      'muted',
+      'accent',
+      'accent-strong',
+      'accent-soft',
+      'accent-tint',
+      'night-muted',
+      'line-strong',
+    ]) {
       expect(tokens[name], name).toMatch(/^#[0-9a-f]{6}$/i)
     }
   })
@@ -39,9 +51,17 @@ describe('palette contrast', () => {
     expect(contrast(tokens[fg], tokens[bg])).toBeGreaterThanOrEqual(4.5)
   })
 
+  // Dark sections (hero, Meet Selma, watch strip, footer).
+  it.each(
+    ['white', 'night-muted', 'accent-soft'].flatMap((fg) => darkBackgrounds.map((bg) => [fg, bg])),
+  )('%s text on %s meets 4.5:1', (fg, bg) => {
+    expect(contrast(tokens[fg], tokens[bg])).toBeGreaterThanOrEqual(4.5)
+  })
+
   it.each([
     ['white', 'accent'],
     ['white', 'accent-strong'],
+    ['accent', 'white'],
     ['accent', 'accent-tint'],
     ['ink', 'accent-tint'],
   ])('%s text on %s meets 4.5:1', (fg, bg) => {
@@ -51,5 +71,9 @@ describe('palette contrast', () => {
   it.each(backgrounds)('focus ring and form borders on %s meet 3:1', (bg) => {
     expect(contrast(tokens.accent, tokens[bg])).toBeGreaterThanOrEqual(3)
     expect(contrast(tokens['line-strong'], tokens[bg])).toBeGreaterThanOrEqual(3)
+  })
+
+  it.each(darkBackgrounds)('the dark-section focus ring on %s meets 3:1', (bg) => {
+    expect(contrast(tokens['accent-soft'], tokens[bg])).toBeGreaterThanOrEqual(3)
   })
 })

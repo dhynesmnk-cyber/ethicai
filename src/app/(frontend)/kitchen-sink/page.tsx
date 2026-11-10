@@ -29,12 +29,15 @@ export const metadata: Metadata = {
 
 const swatches = [
   ['canvas', 'bg-canvas', 'Page background'],
-  ['surface', 'bg-surface', 'Cards'],
-  ['sand', 'bg-sand', 'Section bands'],
+  ['mist', 'bg-mist', 'Light section bands'],
+  ['night', 'bg-night', 'Dark sections, hero, footer'],
+  ['night-raised', 'bg-night-raised', 'Cards on night'],
+  ['night-muted', 'bg-night-muted', 'Secondary text on night'],
   ['ink', 'bg-ink', 'Body text'],
   ['muted', 'bg-muted', 'Secondary text'],
-  ['accent', 'bg-accent', 'Links, primary buttons'],
+  ['accent', 'bg-accent', 'Family indigo: links, buttons'],
   ['accent-strong', 'bg-accent-strong', 'Hover'],
+  ['accent-soft', 'bg-accent-soft', 'Accent and focus on night'],
   ['accent-tint', 'bg-accent-tint', 'Tag chips'],
   ['line', 'bg-line', 'Hairlines'],
   ['line-strong', 'bg-line-strong', 'Form borders'],
@@ -72,7 +75,7 @@ export default async function KitchenSinkPage({ searchParams }: Props) {
       <Container className="py-12">
         <SectionHeading
           as="h1"
-          eyebrow="Phase 2 · temporary"
+          eyebrow="Design review · temporary"
           title="Kitchen sink"
           description="Every shared component in one place, for design review. Only visible when signed in to the admin."
         />
@@ -94,13 +97,18 @@ export default async function KitchenSinkPage({ searchParams }: Props) {
 
       <Demo id="type" title="Typography">
         <div className="space-y-4">
-          <p className="font-serif text-5xl">A.I. grounded in human dignity</p>
-          <p className="font-serif text-4xl">Section heading (Fraunces)</p>
-          <p className="font-serif text-2xl">Card heading</p>
+          <p className="text-6xl font-extrabold tracking-[-0.03em]">
+            A.I. grounded in human dignity
+          </p>
+          <p className="text-4xl font-bold tracking-[-0.025em]">
+            Section heading (Plus Jakarta Sans)
+          </p>
+          <p className="text-2xl font-bold tracking-[-0.02em]">Card heading</p>
+          <p className="font-mono text-3xl font-semibold text-accent">6M+ · 01 02 03</p>
           <p className="max-w-reading">
-            Body text is Inter at 17px on phones and 18px from tablet up, with a 1.65 line height.
-            In a world where AI is reshaping work, the most powerful thing an organisation can be is
-            adaptable.
+            Body text is Plus Jakarta Sans at 17px on phones and 18px from tablet up, with a 1.65
+            line height. Figures and step numbers use JetBrains Mono, as on selma.au. In a world
+            where AI is reshaping work, the most powerful thing an organisation can be is adaptable.
           </p>
           <p className="text-muted">Muted text for dates, captions and secondary details.</p>
           <p className="text-sm text-muted">Small text, e.g. “15 October 2026 · 4 min read”.</p>
@@ -114,6 +122,10 @@ export default async function KitchenSinkPage({ searchParams }: Props) {
           <Button variant="ghost">Ghost</Button>
           <Button size="lg">Large primary</Button>
           <Button disabled>Disabled</Button>
+          <span className="on-night inline-flex gap-4 rounded-card p-4">
+            <Button variant="light">Light (on dark)</Button>
+            <Button variant="underline">Underline (on dark)</Button>
+          </span>
           <ButtonLink href="/newsletter" variant="secondary">
             Link styled as a button
           </ButtonLink>

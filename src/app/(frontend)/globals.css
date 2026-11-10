@@ -1,33 +1,48 @@
 @import 'tailwindcss';
 
 /*
- * Design tokens (BUILD-SPEC §6). Tailwind's default palette is cleared so only these colours
+ * Design tokens: the EthicAI family system, shared with Selma (selma.au) so the two read as one
+ * family (docs/REDESIGN-PLAN.md §3). Tailwind's default palette is cleared so only these colours
  * can be used. Contrast for every text pair is checked in tests/unit/contrast.test.ts.
  */
 @theme static {
   --color-*: initial;
   --color-white: #ffffff;
+  --color-black: #000000;
   --color-transparent: transparent;
   --color-current: currentColor;
 
-  --color-canvas: #fbfaf8; /* page background, warm off-white */
+  --color-canvas: #ffffff; /* page background */
   --color-surface: #ffffff; /* cards */
-  --color-sand: #efe9df; /* section bands */
-  --color-ink: #1c1c1e; /* body text */
-  --color-muted: #5c5c63; /* secondary text */
-  --color-accent: #1f6f5c; /* eucalyptus green: links, primary buttons */
-  --color-accent-strong: #185848; /* hover/pressed accent */
-  --color-accent-tint: #e3efeb; /* tag chips, subtle highlights */
-  --color-line: #e4ded3; /* decorative hairlines */
-  --color-line-strong: #8a8478; /* form control borders (≥ 3:1 against the canvas) */
+  --color-mist: #f5f5f7; /* light section bands */
+  --color-night: #0a0a0c; /* dark, cinematic sections */
+  --color-night-raised: #17171c; /* cards on night */
+  --color-night-muted: #a1a1a6; /* secondary text on night */
+  --color-ink: #1d1d1f; /* body text */
+  --color-muted: #6e6e73; /* secondary text */
+  --color-accent: #534ab7; /* family indigo: links, primary buttons */
+  --color-accent-strong: #3d358a; /* hover/pressed accent */
+  --color-accent-soft: #9b95d8; /* accent on night: eyebrows, links, focus rings */
+  --color-accent-tint: #efeefa; /* tag chips, subtle highlights */
+  --color-line: #e5e5ea; /* decorative hairlines */
+  --color-line-strong: #86868b; /* form control borders (≥ 3:1 against the light backgrounds) */
   --color-danger: #b42318; /* error text */
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --radius-card: 0.875rem;
-  --container-content: 72rem;
+  --radius-card: 1.125rem;
+  --container-content: 75rem;
   --container-reading: 68ch;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The header's text colour animates between white (over a dark hero) and ink (frosted glass). */
+@property --header-fg {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #1d1d1f;
 }
 
 @layer base {
@@ -35,7 +50,7 @@
     background-color: var(--color-canvas);
     color: var(--color-ink);
     /* Keeps in-page anchors clear of the sticky header. */
-    scroll-padding-top: 5rem;
+    scroll-padding-top: 5.5rem;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -56,20 +71,25 @@
   h2,
   h3,
   h4 {
-    font-family: var(--font-serif);
-    font-weight: 500;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
     text-wrap: balance;
+  }
+
+  h1 {
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
   }
 
   p {
     text-wrap: pretty;
   }
 
-  /* Body-text emphasis uses Inter's real italic (see fonts.ts); serif text keeps its own. */
-  :where(em, i, cite):not(:where(h1, h2, h3, h4, blockquote, .font-serif) *) {
-    font-family: var(--font-inter-italic), var(--font-sans);
+  /* Emphasis uses Plus Jakarta Sans's real italic (see fonts.ts), loaded only when needed. */
+  :where(em, i, cite) {
+    font-family: var(--font-jakarta-italic), var(--font-sans);
   }
 
   a {
@@ -85,13 +105,49 @@
 
   ::selection {
     background-color: var(--color-accent-tint);
+    color: var(--color-ink);
   }
+}
+
+/*
+ * Dark sections (hero, Meet Selma, footer). Indigo is under 3:1 against night, so focus rings and
+ * accent text switch to the soft indigo here.
+ */
+@utility on-night {
+  background-color: var(--color-night);
+  color: var(--color-white);
+
+  & :focus-visible {
+    outline-color: var(--color-accent-soft);
+  }
+  & ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-white);
+  }
+}
+
+/* Frosted glass card, for use on night. */
+@utility glass {
+  background-color: rgb(255 255 255 / 0.05);
+  border: 0.5px solid rgb(255 255 255 / 0.12);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+/* Small uppercase label above headings, as on selma.au. */
+@utility eyebrow {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 /* Long-form rich text (articles, bios). Applied by the <Prose> component. */
 @layer components {
   .prose {
     max-width: var(--container-reading);
+    line-height: 1.75;
 
     & > * + * {
       margin-top: 1.25em;
@@ -134,9 +190,10 @@
     & blockquote {
       border-left: 3px solid var(--color-accent);
       padding-left: 1.25em;
-      font-family: var(--font-serif);
       font-size: 1.2em;
+      font-weight: 600;
       line-height: 1.5;
+      letter-spacing: -0.01em;
     }
     & hr {
       border: 0;
@@ -144,15 +201,17 @@
       margin-block: 2.5em;
     }
     & strong {
-      font-weight: 600;
+      font-weight: 700;
     }
   }
 }
 
 /*
- * Motion: content fades up as it scrolls into view, using CSS scroll-driven animations (no JS).
- * Browsers without support, and anyone who prefers reduced motion, just see the content.
+ * Motion. Everything below is CSS only (no JavaScript) and switched off for anyone who prefers
+ * reduced motion; browsers without scroll-driven animations simply show the content.
  */
+
+/* Content fades up as it scrolls into view. */
 @keyframes reveal {
   from {
     opacity: 0;
@@ -174,29 +233,170 @@
 }
 
 /*
- * Sticky header that condenses on scroll: the logo shrinks and a hairline appears. Only
- * transforms and colours change, never the header's height, so nothing on the page shifts.
+ * Hero text rises in once on load. It starts at 1% opacity, not 0, so the browser still counts
+ * the headline as painted for Largest Contentful Paint.
  */
-@keyframes header-condense {
+@keyframes rise {
+  from {
+    opacity: 0.01;
+    transform: translateY(1.5rem);
+  }
   to {
-    border-bottom-color: var(--color-line);
-    box-shadow: 0 1px 12px rgb(28 28 30 / 0.06);
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 0.9s var(--ease-out-soft) both;
+    animation-delay: calc(var(--rise-step, 0) * 90ms);
+  }
+}
+
+/*
+ * Aurora: slow indigo light behind dark heroes. Large blurred gradients drift using transforms
+ * only, so the work stays on the compositor.
+ * DECISION: transforms on a pseudo-element rather than animating gradient positions with
+ * @property; gradient animations repaint every frame, transforms don't.
+ */
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(-6%, -4%, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(5%, 3%, 0) rotate(8deg) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-3%, 6%, 0) rotate(-6deg) scale(1.02);
+  }
+}
+.aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -25%;
+    background:
+      radial-gradient(40% 35% at 28% 32%, rgb(83 74 183 / 0.55), transparent 70%),
+      radial-gradient(35% 30% at 74% 28%, rgb(155 149 216 / 0.28), transparent 70%),
+      radial-gradient(45% 40% at 62% 78%, rgb(61 53 138 / 0.5), transparent 72%);
+    filter: blur(40px);
+  }
+  /* Fades into night at the bottom, like selma.au's hero. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgb(10 10 12 / 0.1) 0%,
+      rgb(10 10 12 / 0.35) 55%,
+      rgb(10 10 12 / 0.92) 100%
+    );
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .aurora::before {
+    animation: aurora-drift 26s ease-in-out infinite alternate;
+  }
+}
+
+/* Fine film grain over dark sections (inline SVG noise, no request). */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.07;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* The family ring mark draws itself in, then its two orbit dots turn slowly. */
+@keyframes ring-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes orbit {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .rings-animated .ring {
+    stroke-dasharray: 1;
+    animation: ring-draw 2.4s var(--ease-out-soft) both;
+    animation-delay: calc(var(--ring-step, 0) * 180ms);
+  }
+  .rings-animated .orbit {
+    transform-box: view-box;
+    transform-origin: 50% 50%;
+    animation: orbit 60s linear infinite;
+  }
+  .rings-animated .orbit-reverse {
+    animation-direction: reverse;
+    animation-duration: 90s;
+  }
+}
+
+/*
+ * Sticky header. Frosted white glass by default. On pages that open with a dark hero
+ * (`.hero-dark`) it starts transparent with white text and turns to glass as the page scrolls,
+ * using a scroll-driven animation (no JavaScript). Browsers without scroll-driven animations keep
+ * the glass header throughout, which reads fine over the dark hero too. The header's height never
+ * changes, so nothing on the page shifts.
+ */
+.site-header {
+  --header-fg: var(--color-ink);
+  color: var(--header-fg);
+  background-color: rgb(255 255 255 / 0.86);
+  /* A hairline drawn as a shadow, so it adds no height (the dark hero tucks under exactly). */
+  box-shadow: 0 0.5px 0 rgb(0 0 0 / 0.12);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+
+  /* Focus rings follow the text colour: white over the dark hero, ink on glass. */
+  & :focus-visible {
+    outline-color: var(--header-fg);
+  }
+}
+
+@keyframes header-to-glass {
+  from {
+    --header-fg: #ffffff;
+    background-color: rgb(255 255 255 / 0);
+    box-shadow: 0 0.5px 0 rgb(0 0 0 / 0);
+    -webkit-backdrop-filter: saturate(100%) blur(0);
+    backdrop-filter: saturate(100%) blur(0);
+  }
+  to {
+    --header-fg: #1d1d1f;
+    background-color: rgb(255 255 255 / 0.86);
+    box-shadow: 0 0.5px 0 rgb(0 0 0 / 0.12);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
   }
 }
 @keyframes logo-condense {
   to {
-    transform: scale(0.88);
+    transform: scale(0.9);
   }
 }
-.site-header {
-  border-bottom: 1px solid var(--color-line);
-}
+
 @supports (animation-timeline: scroll()) {
-  .site-header {
-    border-bottom-color: transparent;
-    animation: header-condense linear both;
+  body:has(.hero-dark) .site-header {
+    animation: header-to-glass linear both;
     animation-timeline: scroll(root);
-    animation-range: 0 6rem;
+    /* Turns to glass over the first stretch of the hero. */
+    animation-range: 0 22rem;
   }
   @media (prefers-reduced-motion: no-preference) {
     .site-header-logo {
@@ -206,4 +406,14 @@
       animation-range: 0 6rem;
     }
   }
+}
+
+/* A dark hero slides up under the sticky header, so the header floats over it. */
+.hero-dark {
+  margin-top: calc(-1 * var(--header-height));
+  padding-top: var(--header-height);
+}
+
+:root {
+  --header-height: 4rem;
 }

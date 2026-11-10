@@ -65,9 +65,10 @@ test('desktop shows every nav link inline', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('button', { name: 'Menu' })).toBeHidden()
   const nav = page.getByRole('navigation', { name: 'Main' })
-  for (const label of ['About', 'Articles', 'Watch', 'Newsletter', 'Contact', 'Subscribe']) {
-    await expect(nav.getByRole('link', { name: label })).toBeVisible()
+  for (const label of ['About', 'Services', 'Articles', 'Watch', 'Contact', 'Subscribe']) {
+    await expect(nav.getByRole('link', { name: label, exact: true })).toBeVisible()
   }
+  await expect(nav.getByRole('link', { name: 'Selma (opens selma.au)' })).toBeVisible()
 })
 
 test('marks the current section in the nav', async ({ page }) => {

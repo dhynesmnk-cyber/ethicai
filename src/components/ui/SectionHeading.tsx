@@ -12,6 +12,10 @@ type Props = {
   as?: 'h1' | 'h2' | 'h3'
   /** Lets a <section aria-labelledby> point at this heading. */
   id?: string
+  /** Centred, as selma.au's statement sections are. */
+  align?: 'start' | 'center'
+  /** Colours for night sections. */
+  tone?: 'light' | 'dark'
   className?: string
 }
 
@@ -22,39 +26,52 @@ export function SectionHeading({
   action,
   as: Heading = 'h2',
   id,
+  align = 'start',
+  tone = 'light',
   className,
 }: Props) {
+  const dark = tone === 'dark'
   return (
     <div
       className={cn(
-        'flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between sm:gap-8',
+        'flex flex-col gap-4',
+        align === 'center' && 'items-center text-center',
+        // Side by side with its "View all" link; on its own it keeps to the top of its box.
+        align !== 'center' && action && 'sm:flex-row sm:items-end sm:justify-between sm:gap-8',
         className,
       )}
     >
-      <div className="max-w-2xl">
+      <div className={cn('max-w-3xl', align === 'center' && 'mx-auto')}>
         {eyebrow && (
-          <p className="mb-2 text-sm font-semibold tracking-wide text-accent uppercase">
-            {eyebrow}
-          </p>
+          <p className={cn('eyebrow mb-4', dark ? 'text-accent-soft' : 'text-accent')}>{eyebrow}</p>
         )}
         <Heading
           id={id}
           className={cn(
-            Heading === 'h1' ? 'text-4xl sm:text-5xl' : 'text-3xl sm:text-4xl',
-            'text-ink',
+            Heading === 'h1'
+              ? 'text-4xl sm:text-5xl lg:text-6xl'
+              : 'text-3xl sm:text-4xl lg:text-[2.75rem]',
+            dark ? 'text-white' : 'text-ink',
           )}
         >
           {title}
         </Heading>
-        {description && <p className="mt-3 text-muted">{description}</p>}
+        {description && (
+          <p className={cn('mt-4 text-lg', dark ? 'text-night-muted' : 'text-muted')}>
+            {description}
+          </p>
+        )}
       </div>
       {action && (
         <Link
           href={action.href}
-          className="inline-flex shrink-0 items-center gap-1.5 font-medium text-accent underline-offset-4 hover:text-accent-strong hover:underline"
+          className={cn(
+            'group inline-flex shrink-0 items-center gap-1.5 font-semibold underline-offset-4 hover:underline',
+            dark ? 'text-accent-soft hover:text-white' : 'text-accent hover:text-accent-strong',
+          )}
         >
           {action.label}
-          <ArrowRightIcon className="size-4" />
+          <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
       )}
     </div>

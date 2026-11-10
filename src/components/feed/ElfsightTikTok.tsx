@@ -79,10 +79,10 @@ export function ElfsightTikTok({ widgetId, children }: Props) {
       {/* DECISION: a light card rather than TikTok black, so the accent focus ring and primary
           button keep their contrast (the accent is under 3:1 against ink). */}
       {status === 'idle' && (
-        <div className="flex max-w-3xl flex-col items-start gap-5 rounded-card border border-line bg-sand p-6 sm:flex-row sm:items-center sm:p-8">
+        <div className="flex max-w-3xl flex-col items-start gap-5 rounded-card border border-line bg-mist p-6 sm:flex-row sm:items-center sm:p-8">
           <SocialIcon platform="tiktok" className="size-10 shrink-0 text-ink" />
           <div className="flex-1">
-            <p className="font-serif text-2xl">Our latest TikToks, right here</p>
+            <p className="text-2xl font-bold tracking-[-0.02em]">Our latest TikToks, right here</p>
             <p className="mt-2 text-muted">
               The feed comes from Elfsight, a third-party service, so it only loads when you ask for
               it. See our{' '}

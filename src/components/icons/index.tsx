@@ -62,3 +62,21 @@ export function PlayIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+/** Solid play triangle, for use inside a round button. */
+export function PlayTriangleIcon({ className }: IconProps) {
+  return (
+    <svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" className={className}>
+      <path d="M7 4.5v15l12.5-7.5z" fill="currentColor" />
+    </svg>
+  )
+}
+
+/** Plus sign that turns into a cross when its <details> is open (FAQ). */
+export function PlusIcon({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}

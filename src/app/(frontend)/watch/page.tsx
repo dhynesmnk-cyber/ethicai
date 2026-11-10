@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 
+import { PageIntro } from '@/components/family/PageIntro'
 import { ElfsightTikTok } from '@/components/feed/ElfsightTikTok'
 import { VideoCard } from '@/components/feed/VideoCard'
 import { ExternalIcon } from '@/components/icons'
@@ -23,7 +24,7 @@ export const metadata: Metadata = pageMetadata({
 })
 
 const externalLink =
-  'inline-flex items-center gap-1.5 font-medium text-accent underline-offset-4 hover:text-accent-strong hover:underline'
+  'inline-flex items-center gap-1.5 font-semibold text-accent underline-offset-4 hover:text-accent-strong hover:underline'
 
 export default async function WatchPage({ searchParams }: Props) {
   const requested = Number((await searchParams).page)
@@ -63,16 +64,16 @@ export default async function WatchPage({ searchParams }: Props) {
 
   return (
     <>
-      <Container className="py-16 sm:py-20">
-        <SectionHeading
-          as="h1"
-          title="Watch"
-          description="Short videos on AI, people and change. Each one has a written summary on our Articles page."
-        />
-      </Container>
+      <PageIntro
+        path="/watch"
+        title="Watch"
+        eyebrow="Video"
+        lead="Short videos on AI, people and change. Each one has a written summary on our Articles page."
+        type="CollectionPage"
+      />
 
       {/* TikTok first: it's where the client posts most (BUILD-SPEC §5.5). */}
-      <section aria-labelledby="tiktok" className="border-t border-line py-16">
+      <section aria-labelledby="tiktok" className="py-20 sm:py-24">
         <Container>
           <SectionHeading id="tiktok" eyebrow="TikTok" title="Latest on TikTok" />
           {/* The Elfsight feed loads only after a click, and only on this page (AGENTS.md #4). */}
@@ -95,7 +96,7 @@ export default async function WatchPage({ searchParams }: Props) {
         </Container>
       </section>
 
-      <section aria-labelledby="youtube" className="border-t border-line bg-surface py-16">
+      <section aria-labelledby="youtube" className="bg-mist py-20 sm:py-24">
         <Container>
           <SectionHeading id="youtube" eyebrow="YouTube" title="Videos on YouTube" />
           {youtubeVideos.length > 0 ? (

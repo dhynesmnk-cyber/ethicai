@@ -1,8 +1,21 @@
 export type NavLink = { href: string; label: string }
 
-// BUILD-SPEC §5.1: About · Articles · Watch · Newsletter · Contact, plus a Subscribe button.
+// The header menu: About · Services · Articles · Watch · Contact, then Selma ↗ (an external link
+// from Site settings) and the Subscribe button.
+// DECISION: Newsletter left the header menu when Services and Selma joined it (docs/REDESIGN-PLAN.md
+// §1); the Subscribe button already goes to /newsletter, and the footer still lists it.
 export const MAIN_NAV: NavLink[] = [
   { href: '/about', label: 'About' },
+  { href: '/services', label: 'Services' },
+  { href: '/articles', label: 'Articles' },
+  { href: '/watch', label: 'Watch' },
+  { href: '/contact', label: 'Contact' },
+]
+
+/** Everything public, for the footer's Explore column. */
+export const FOOTER_NAV: NavLink[] = [
+  { href: '/about', label: 'About' },
+  { href: '/services', label: 'Services' },
   { href: '/articles', label: 'Articles' },
   { href: '/watch', label: 'Watch' },
   { href: '/newsletter', label: 'Newsletter' },

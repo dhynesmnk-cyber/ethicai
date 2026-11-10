@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useRef, useState } from 'react'
 
-import { PlayIcon } from '@/components/icons'
+import { PlayTriangleIcon } from '@/components/icons'
 
 type Props = {
   /** Accessible name for the play button, e.g. "Play video: Why ethical AI starts with people". */
@@ -29,7 +29,7 @@ export function Facade({ label, embedSrc, iframeTitle, children }: Props) {
   }, [active])
 
   return (
-    <div className="relative aspect-video w-full overflow-hidden bg-ink">
+    <div className="relative aspect-video w-full overflow-hidden bg-night">
       {active ? (
         <iframe
           ref={frame}
@@ -49,7 +49,10 @@ export function Facade({ label, embedSrc, iframeTitle, children }: Props) {
           className="group absolute inset-0 size-full cursor-pointer focus-visible:outline-white focus-visible:outline-offset-[-6px]"
         >
           {children}
-          <PlayIcon className="absolute top-1/2 left-1/2 size-16 -translate-x-1/2 -translate-y-1/2 text-accent drop-shadow-lg transition-transform group-hover:scale-110 group-focus-visible:scale-110" />
+          {/* A frosted glass play button, as on selma.au. */}
+          <span className="absolute top-1/2 left-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-white/40 bg-white/15 backdrop-blur-md transition-[transform,background-color] group-hover:scale-110 group-hover:bg-white/25 group-focus-visible:scale-110 sm:size-20">
+            <PlayTriangleIcon className="ml-1 size-7 text-white" />
+          </span>
         </button>
       )}
     </div>

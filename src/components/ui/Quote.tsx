@@ -15,7 +15,7 @@ export function Quote({ quote, attribution, organisation, size = 'lg', className
     <figure className={cn('flex flex-col gap-4', className)}>
       <blockquote
         className={cn(
-          'font-serif leading-relaxed text-ink',
+          'leading-relaxed font-medium tracking-[-0.01em] text-ink',
           size === 'lg' ? 'text-xl sm:text-2xl' : 'text-lg',
         )}
       >
@@ -27,7 +27,7 @@ export function Quote({ quote, attribution, organisation, size = 'lg', className
       </blockquote>
       <figcaption className="mt-auto text-muted">
         <span aria-hidden="true">— </span>
-        <span className="font-medium text-ink">{attribution}</span>
+        <span className="font-semibold text-ink">{attribution}</span>
         {organisation && <>, {organisation}</>}
       </figcaption>
     </figure>

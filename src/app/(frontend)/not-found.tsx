@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <Container width="reading" className="py-20 sm:py-28">
-      <p className="text-sm font-semibold tracking-wide text-accent uppercase">404</p>
+      <p className="eyebrow text-accent">404</p>
       <h1 className="mt-3 text-4xl sm:text-5xl">Page not found</h1>
       <p className="mt-6 text-lg text-muted">
         Sorry, we couldn’t find that page. It may have moved, or the link may be wrong.

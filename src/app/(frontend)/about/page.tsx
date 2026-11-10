@@ -1,70 +1,129 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 
+import { PageIntro } from '@/components/family/PageIntro'
+import { RingMark } from '@/components/family/RingMark'
+import { StatsStrip } from '@/components/family/StatsStrip'
+import { SocialIcon } from '@/components/icons/SocialIcon'
+import { JsonLd } from '@/components/JsonLd'
 import { Container } from '@/components/layout/Container'
 import { ButtonLink } from '@/components/ui/Button'
 import { SectionHeading } from '@/components/ui/SectionHeading'
-import { HERO, INTRO } from '@/content/site-copy'
+import { displayHost, selmaInfo } from '@/lib/family'
 import { toImage } from '@/lib/media'
-import { getTeamMembers } from '@/lib/queries'
-import { teamMemberAnchor } from '@/lib/view-models'
+import { getPageCopy, getTeamMembers } from '@/lib/queries'
 import { pageMetadata } from '@/lib/seo'
+import { getSiteSettings } from '@/lib/site-settings'
+import { personSchema } from '@/lib/structured-data'
+import { teamMemberAnchor } from '@/lib/view-models'
 
 export const revalidate = 3600
 
 export const metadata: Metadata = pageMetadata({
   title: 'About',
   description:
-    'Meet the EthicAI team: operations, people and culture, and digital leaders helping organisations adopt AI ethically.',
+    'EthicAI is a Sydney-based AI ethics and governance consultancy and the maker of Selma. Meet the team helping organisations adopt AI ethically.',
   path: '/about',
 })
 
+const paragraphs = (text: string | null | undefined) =>
+  (text ?? '').split(/\n\s*\n/).filter((p) => p.trim())
+
 export default async function AboutPage() {
-  const team = await getTeamMembers()
+  const [copy, team, settings] = await Promise.all([
+    getPageCopy(),
+    getTeamMembers(),
+    getSiteSettings(),
+  ])
+  const about = copy.about
+  const selma = selmaInfo(settings)
 
   return (
     <>
-      <Container className="py-16 sm:py-24">
-        <p className="mb-3 text-sm font-semibold tracking-wide text-accent uppercase">About us</p>
-        <h1 className="max-w-3xl text-5xl sm:text-6xl">{HERO.headline}</h1>
-        <p className="mt-8 max-w-3xl text-lg sm:text-xl">{INTRO}</p>
-      </Container>
+      <PageIntro
+        path="/about"
+        title={about?.headline || 'About EthicAI'}
+        eyebrow="Who we are"
+        lead={about?.lead}
+        type="AboutPage"
+      />
+      <JsonLd data={team.map((member) => personSchema(member, toImage(member.photo, 'card')))} />
 
-      <section aria-labelledby="our-team" className="border-t border-line py-16 sm:py-20">
+      {paragraphs(about?.story).length > 0 && (
+        <section aria-labelledby="our-story" className="py-24 sm:py-28">
+          <Container className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-16">
+            <SectionHeading id="our-story" eyebrow="Our story" title="Adaptable by design" />
+            <div className="space-y-6 text-xl leading-relaxed text-ink">
+              {paragraphs(about?.story).map((paragraph, i) => (
+                <p key={i}>{paragraph}</p>
+              ))}
+            </div>
+          </Container>
+        </section>
+      )}
+
+      <StatsStrip stats={copy.stats ?? []} />
+
+      <section aria-labelledby="our-team" className="py-24 sm:py-28">
         <Container>
-          <SectionHeading id="our-team" title="Our team" />
+          <SectionHeading id="our-team" eyebrow="People" title="Our team" />
           {team.length === 0 ? (
             <p className="mt-8 text-muted">Team profiles are coming soon.</p>
           ) : (
-            <ul className="mt-12 space-y-16">
+            <ul className="mt-14 space-y-20">
               {team.map((member) => {
                 const photo = toImage(member.photo, 'card')
-                const paragraphs = member.bio.split(/\n\s*\n/).filter((p) => p.trim())
                 return (
                   <li
                     key={member.id}
                     id={teamMemberAnchor(member.name)}
-                    className="grid scroll-mt-28 gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:gap-12"
+                    className="grid scroll-mt-28 gap-8 md:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] md:gap-14"
                   >
-                    <div className="relative aspect-square max-w-sm overflow-hidden rounded-card bg-sand">
+                    <div className="relative aspect-[4/5] max-w-sm overflow-hidden rounded-card bg-mist">
                       {photo && (
                         <Image
                           src={photo.url}
                           alt={photo.alt}
                           fill
-                          sizes="(min-width: 768px) 33vw, 100vw"
+                          sizes="(min-width: 768px) 40vw, 100vw"
                           className="object-cover"
                         />
                       )}
                     </div>
                     <div>
-                      <h3 className="text-3xl">{member.name}</h3>
-                      <p className="mt-1 font-medium text-accent">{member.role}</p>
-                      <div className="mt-5 max-w-reading space-y-4">
-                        {paragraphs.map((paragraph, i) => (
+                      <h3 className="text-3xl sm:text-4xl">{member.name}</h3>
+                      <p className="mt-2 font-semibold text-accent">{member.role}</p>
+                      <div className="mt-6 max-w-reading space-y-4">
+                        {paragraphs(member.bio).map((paragraph, i) => (
                           <p key={i}>{paragraph}</p>
                         ))}
                       </div>
+                      {member.credentials && member.credentials.length > 0 && (
+                        <>
+                          <h4 className="eyebrow mt-8 text-muted">Qualifications</h4>
+                          <ul className="mt-3 flex flex-wrap gap-2">
+                            {member.credentials.map((credential) => (
+                              <li
+                                key={credential}
+                                className="rounded-full bg-accent-tint px-3 py-1 text-sm font-medium text-accent"
+                              >
+                                {credential}
+                              </li>
+                            ))}
+                          </ul>
+                        </>
+                      )}
+                      {member.linkedinUrl && (
+                        <p className="mt-6">
+                          <a
+                            href={member.linkedinUrl}
+                            className="inline-flex items-center gap-2 font-semibold text-accent underline-offset-4 hover:underline"
+                          >
+                            <SocialIcon platform="linkedin" className="size-5" />
+                            {member.name} on LinkedIn
+                          </a>
+                        </p>
+                      )}
                     </div>
                   </li>
                 )
@@ -74,13 +133,38 @@ export default async function AboutPage() {
         </Container>
       </section>
 
-      <section aria-labelledby="work-with-us" className="bg-sand py-16 sm:py-20">
+      {selma.show && (
+        <section
+          aria-labelledby="selma-family"
+          className="on-night grain relative isolate overflow-hidden py-24"
+        >
+          <div className="aurora -z-10 opacity-70" />
+          <RingMark className="pointer-events-none absolute top-1/2 right-[-8rem] -z-10 size-[30rem] -translate-y-1/2 text-accent-soft opacity-25" />
+          <Container className="max-w-3xl">
+            <p className="eyebrow text-accent-soft">The EthicAI family</p>
+            <h2 id="selma-family" className="mt-4 text-4xl text-white sm:text-5xl">
+              Selma is our knowledge, productised.
+            </h2>
+            {selma.summary && <p className="mt-6 text-lg text-night-muted">{selma.summary}</p>}
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <ButtonLink href={selma.url} size="lg">
+                Visit {displayHost(selma.url)}
+              </ButtonLink>
+              <ButtonLink href={selma.waitlistUrl} variant="underline" size="lg">
+                Join the waitlist
+              </ButtonLink>
+            </div>
+          </Container>
+        </section>
+      )}
+
+      <section aria-labelledby="work-with-us" className="bg-mist py-20 sm:py-24">
         <Container className="flex flex-col items-start gap-6 md:flex-row md:items-center md:justify-between">
           <div className="max-w-xl">
             <h2 id="work-with-us" className="text-3xl sm:text-4xl">
               Work with us
             </h2>
-            <p className="mt-3 text-muted">
+            <p className="mt-3 text-lg text-muted">
               Thinking about AI in your organisation? We’d love to hear what you’re working on.
             </p>
           </div>

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 
+import { PageIntro } from '@/components/family/PageIntro'
 import { ArrowRightIcon } from '@/components/icons'
 import { Container } from '@/components/layout/Container'
 import { ButtonLink } from '@/components/ui/Button'
-import { SectionHeading } from '@/components/ui/SectionHeading'
 import { formatDate } from '@/lib/format'
 import { getNewsletterIssues } from '@/lib/rss'
 import { getSiteSettings, subscribeHref } from '@/lib/site-settings'
@@ -32,44 +32,48 @@ export default async function NewsletterPage() {
 
   return (
     <>
-      <Container className="grid gap-12 py-16 sm:py-20 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <PageIntro
+        path="/newsletter"
+        title="The EthicAI newsletter"
+        eyebrow="The weekly note"
+        lead="A weekly note from the EthicAI team on adopting AI with people at the centre: what we’re seeing, reading and recommending."
+      />
+      <Container className="grid gap-12 py-20 sm:py-24 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div>
-          <SectionHeading
-            as="h1"
-            title="The EthicAI newsletter"
-            description="A weekly note from the EthicAI team on adopting AI with people at the centre: what we’re seeing, reading and recommending."
-          />
-          <ul className="mt-8 space-y-3">
+          <h2 className="text-3xl sm:text-4xl">What you’ll get</h2>
+          <ul className="mt-8 space-y-4 text-lg">
             {benefits.map((benefit) => (
               <li key={benefit} className="flex gap-3">
-                <span
-                  aria-hidden="true"
-                  className="mt-2.5 size-2 shrink-0 rounded-full bg-accent"
-                />
+                <span aria-hidden="true" className="mt-3 size-2 shrink-0 rounded-full bg-accent" />
                 {benefit}
               </li>
             ))}
           </ul>
         </div>
-        <div className="self-start rounded-card border border-line bg-sand p-6 sm:p-8">
-          <h2 className="text-2xl">Subscribe for free</h2>
+        <div className="self-start rounded-card bg-accent p-6 text-white sm:p-8">
+          <h2 className="text-2xl text-white">Subscribe for free</h2>
           {base ? (
             <>
-              <p className="mt-2 text-muted">
+              <p className="mt-2 text-white/85">
                 You’ll sign up on Substack, which sends the newsletter. Unsubscribe any time.
               </p>
-              <ButtonLink href={subscribeHref(base)} size="lg" className="mt-6 w-full">
+              <ButtonLink
+                href={subscribeHref(base)}
+                variant="light"
+                size="lg"
+                className="mt-6 w-full"
+              >
                 Subscribe on Substack
               </ButtonLink>
             </>
           ) : (
-            <p className="mt-2 text-muted">Subscriptions open soon. Check back shortly.</p>
+            <p className="mt-2 text-white/85">Subscriptions open soon. Check back shortly.</p>
           )}
         </div>
       </Container>
 
       {base && (
-        <section aria-labelledby="recent-issues" className="border-t border-line py-16">
+        <section aria-labelledby="recent-issues" className="bg-mist py-20 sm:py-24">
           <Container width="reading">
             <h2 id="recent-issues" className="text-3xl">
               Recent issues
@@ -91,7 +95,7 @@ export default async function NewsletterPage() {
                     {issue.excerpt && <p className="mt-2 text-muted">{issue.excerpt}</p>}
                     <a
                       href={issue.link}
-                      className="mt-3 inline-flex items-center gap-1.5 font-medium text-accent hover:text-accent-strong"
+                      className="mt-3 inline-flex items-center gap-1.5 font-semibold text-accent hover:text-accent-strong"
                     >
                       Read on Substack<span className="sr-only">: {issue.title}</span>
                       <ArrowRightIcon className="size-4" />
@@ -107,7 +111,7 @@ export default async function NewsletterPage() {
             )}
             <a
               href={`${base}/archive`}
-              className="mt-8 inline-flex items-center gap-1.5 font-medium text-accent hover:text-accent-strong"
+              className="mt-8 inline-flex items-center gap-1.5 font-semibold text-accent hover:text-accent-strong"
             >
               Read the archive on Substack
               <ArrowRightIcon className="size-4" />
