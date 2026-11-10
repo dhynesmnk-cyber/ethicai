@@ -92,7 +92,7 @@ A working copy of the site for review before launch. It is kept out of search en
 6. **First sign-in.** Open `/admin`, sign in with the bootstrap email and password, and change the password under *Account*. Then **delete `BOOTSTRAP_ADMIN_EMAIL`, `BOOTSTRAP_ADMIN_PASSWORD` and (once real content is in) `SEED_DEMO_CONTENT`**. The bootstrap never touches an existing site, but a password shouldn't sit in the dashboard, and demo content that you delete returns on every build while `SEED_DEMO_CONTENT` is on.
 7. In *Site settings*, enter the Elfsight widget ID, Substack URL, TikTok handle and YouTube channel (see `docs/WEEKLY-RUNBOOK.md`).
 
-If the build fails at the migration step, the log names the cause: usually a wrong `DATABASE_URI` (check the password's encoding, the project reference in the user name, and that it is the session pooler). Re-running a deploy is safe: migrations apply once, and the bootstrap and seed only create what is missing.
+If the build stops at `▶ Checking environment variables`, the log lists every variable that is missing or wrong (names only, never values). Add them, making sure each has the **Builds** scope and applies to all deploy contexts, then trigger a new deploy. If it fails at the migration step, the log names the cause: usually a wrong `DATABASE_URI` (check the password's encoding, the project reference in the user name, and that it is the session pooler). Re-running a deploy is safe: migrations apply once, and the bootstrap and seed only create what is missing.
 
 ## 4. Scheduled functions (only if Milestone 7 YouTube auto-sync is built)
 

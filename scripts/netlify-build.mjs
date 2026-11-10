@@ -1,4 +1,5 @@
 // Netlify's build command (see netlify.toml). Runs in this order, stopping at the first failure:
+//   0. check that every required environment variable is set (scripts/netlify-preflight.mjs)
 //   1. apply the committed Payload migrations to the database (it must already be reachable, and
 //      pages are prerendered from it in step 3, so the tables have to exist first)
 //   2. create the first admin from BOOTSTRAP_ADMIN_* (only if there are no users yet; see
@@ -11,6 +12,8 @@
 // change the schema as written there; nothing here resets or empties data.
 import { spawnSync } from 'node:child_process'
 
+import { checkEnvironment, describeFailure } from './netlify-preflight.mjs'
+
 // Migrations and the seed run as production, as they would anywhere else: Payload's development
 // mode would try to push schema changes straight into the database and could stop to ask.
 const production = { ...process.env, NODE_ENV: 'production' }
@@ -22,6 +25,14 @@ function run(label, args, env = process.env) {
     console.error(`\n✖ ${label} failed`)
     process.exit(result.status ?? 1)
   }
+}
+
+console.log('\n▶ Checking environment variables')
+const environment = checkEnvironment(process.env)
+for (const warning of environment.warnings) console.warn(`⚠ ${warning}`)
+if (environment.missing.length > 0 || environment.problems.length > 0) {
+  console.error(`\n✖ ${describeFailure(environment, process.env)}`)
+  process.exit(1)
 }
 
 run('Applying database migrations', ['run', 'migrate'], production)
