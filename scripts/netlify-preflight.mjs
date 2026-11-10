@@ -120,6 +120,19 @@ export function checkEnvironment(env) {
       `BOOTSTRAP_ADMIN_PASSWORD must be at least ${MIN_ADMIN_PASSWORD_LENGTH} characters.`,
     )
   }
+  if (env.BOOTSTRAP_ADMIN_RESET_PASSWORD?.trim() === 'true') {
+    if (!bootstrapEmail || !bootstrapPassword) {
+      problems.push(
+        'BOOTSTRAP_ADMIN_RESET_PASSWORD is on, but it needs both BOOTSTRAP_ADMIN_EMAIL (the ' +
+          'account to reset) and BOOTSTRAP_ADMIN_PASSWORD (its new password).',
+      )
+    } else {
+      warnings.push(
+        'BOOTSTRAP_ADMIN_RESET_PASSWORD is on: this deploy sets the password of the ' +
+          'BOOTSTRAP_ADMIN_EMAIL account to BOOTSTRAP_ADMIN_PASSWORD. Remove it once you can sign in.',
+      )
+    }
+  }
 
   return { missing, problems, warnings, info }
 }

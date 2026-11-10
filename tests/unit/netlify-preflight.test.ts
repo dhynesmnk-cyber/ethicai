@@ -128,6 +128,31 @@ describe('checkEnvironment', () => {
     expect(short.problems[0]).toMatch(/at least 12/)
   })
 
+  it('warns while the admin password reset is on', () => {
+    const result = checkEnvironment({
+      ...complete,
+      BOOTSTRAP_ADMIN_EMAIL: 'a@b.com',
+      BOOTSTRAP_ADMIN_PASSWORD: 'a-long-enough-password',
+      BOOTSTRAP_ADMIN_RESET_PASSWORD: 'true',
+    })
+    expect(result.problems).toEqual([])
+    expect(result.warnings[0]).toMatch(/BOOTSTRAP_ADMIN_RESET_PASSWORD is on.*Remove it/)
+  })
+
+  it('rejects the admin password reset without an email and a new password', () => {
+    const result = checkEnvironment({
+      ...complete,
+      BOOTSTRAP_ADMIN_EMAIL: 'a@b.com',
+      BOOTSTRAP_ADMIN_RESET_PASSWORD: 'true',
+    })
+    expect(result.problems[0]).toMatch(/needs both BOOTSTRAP_ADMIN_EMAIL/)
+  })
+
+  it('ignores the reset switch unless it is exactly "true"', () => {
+    const result = checkEnvironment({ ...complete, BOOTSTRAP_ADMIN_RESET_PASSWORD: 'false' })
+    expect(result).toMatchObject({ problems: [], warnings: [] })
+  })
+
   it('never puts a secret value in the message', () => {
     const result = checkEnvironment({
       ...complete,

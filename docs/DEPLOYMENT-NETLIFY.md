@@ -98,6 +98,12 @@ If the build stops at `▶ Checking environment variables`, the log lists every 
 
 **The admin or a page crashes with `(EMAXCONNSESSION) max clients reached in session mode` in the function log** (Netlify → *Logs* → *Functions*): `DATABASE_URI` is the Session pooler. Change it to the Transaction pooler string (the same address with port `6543`, step 1) and redeploy. A new environment variable value only reaches the functions after a deploy.
 
+**`/admin` says the email or password is incorrect.** The build creates the admin only while the site has no users, so the account has whatever `BOOTSTRAP_ADMIN_EMAIL` and `BOOTSTRAP_ADMIN_PASSWORD` held on the first successful deploy, and later changes to them are ignored. The site sends no email, so *Forgot password* can't help. The latest deploy log's `bootstrap-admin:` line says whether an account with `BOOTSTRAP_ADMIN_EMAIL` exists; if not, Supabase → *Table editor* → `users` shows the address it was created with. After 5 wrong attempts the account is locked for 10 minutes (the message changes to say so). To set a new password:
+
+1. In Netlify, set `BOOTSTRAP_ADMIN_EMAIL` to the account's email, `BOOTSTRAP_ADMIN_PASSWORD` to a new password (12+ characters, typed rather than pasted so no space or line break slips in), and add `BOOTSTRAP_ADMIN_RESET_PASSWORD` = `true`.
+2. Trigger a deploy. The log shows `bootstrap-admin: set the password of … and unlocked it`; if no account has that email, the build stops and says so, changing nothing.
+3. Sign in, then **delete `BOOTSTRAP_ADMIN_RESET_PASSWORD`** (while it is on, every deploy sets that password again) and the two bootstrap variables, and change the password under *Account*.
+
 ## 4. Scheduled functions (only if Milestone 7 YouTube auto-sync is built)
 
 `netlify.toml`:
