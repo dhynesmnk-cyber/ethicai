@@ -14,6 +14,8 @@ const nextConfig: NextConfig = {
   // curated project guidance and should only change in reviewed commits.
   agentRules: false,
   images: {
+    // AVIF first (smaller), WebP as the fallback; the optimiser picks what each browser accepts.
+    formats: ['image/avif', 'image/webp'],
     // Only these hosts (BUILD-SPEC §11.10): uploaded media, served from the bucket's public URL
     // (see payload.config.ts), and YouTube thumbnails for video facades.
     remotePatterns: [new URL(`${readS3PublicUrl()}/**`), new URL('https://i.ytimg.com/vi/**')],
