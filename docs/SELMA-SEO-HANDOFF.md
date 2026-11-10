@@ -97,7 +97,7 @@ ethicai.au lets AI search and training crawlers in by default. If selma.au wants
 
 ## 5. Look like one family (optional)
 
-ethicai.au now uses selma.au's design system (Plus Jakarta Sans, JetBrains Mono, night `#0A0A0C`, indigo `#534AB7`). To close the loop, selma.au could show the same thin bar at the very top: "EthicAI · **Selma**", with EthicAI linking to `https://ethicai.au`.
+ethicai.au now uses selma.au's design system (Plus Jakarta Sans, night `#0A0A0C`, indigo `#534AB7`, and photographs of Australian native trees). To close the loop, selma.au could show the same thin bar at the very top: "EthicAI · **Selma**", with EthicAI linking to `https://ethicai.au`.
 
 ## 6. Once selma.au is updated
 

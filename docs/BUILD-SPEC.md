@@ -149,7 +149,7 @@ Design principle: **calm, credible, editorial.** Lots of whitespace, strong typo
 
 ### 5.2 Home (`/`)
 Sections in order:
-1. **Hero** — headline "A.I. grounded in human dignity" (retain current messaging unless client supplies new copy), 1–2 sentence subhead, CTAs: "Read the latest" + "Subscribe to the newsletter". Calm imagery or subtle abstract graphic; no stock-photo clichés.
+1. **Hero** — headline "AI grounded in human dignity" (the current messaging; the client writes "AI", never "A.I."), 1–2 sentence subhead, CTAs: "Read the latest" + "Subscribe to the newsletter". A photograph of Australian native trees (see §6); no stock-photo clichés.
 2. **Value prop** — the "adaptable organisation" paragraph (current copy, Appendix A) in a 2–3 column layout: Systems & clarity / People & culture / Ethical AI.
 3. **Latest articles** — 3 most recent published articles as cards (hero image, tag chips, title, excerpt, date, reading time computed from content word count). "View all articles →".
 4. **Watch strip** — horizontal preview: featured videos (up to 4) + embedded Elfsight TikTok widget *facade* (see §7.1 — do not auto-load the third-party script on Home; show a "Load TikTok feed" card linking to `/watch` to protect performance). "See all videos →".
@@ -158,7 +158,7 @@ Sections in order:
 7. **Subscribe CTA** — full-width band with Substack embed.
 
 ### 5.3 About (`/about`)
-- Story section (current "A.I. grounded in human dignity" intro copy).
+- Story section (current "AI grounded in human dignity" intro copy).
 - Team: cards from `teamMembers` (photo, name, role, full bio — bio behind a "More" toggle or on the card, designer's call; keep bios fully readable, they're substantial).
 - Credentials strip: MIT Sloan, LSE mentions come out of the bios naturally; no separate logos section unless client supplies them.
 
@@ -189,13 +189,15 @@ Sections in order:
 ## 6. Design system
 
 > **Updated November 2026 (family redesign, `docs/REDESIGN-PLAN.md`):** the site now uses the design system of selma.au, EthicAI's product site, so the two read as one family. This replaces the original proposal (warm off-white, eucalyptus green, Fraunces and Inter).
+>
+> **Revised 10 November 2026 (photography, `docs/REDESIGN-PLAN.md` §3a):** the client found the first version too much like a generic SaaS/AI site. The counters (stats strip) and the AI-site tropes (indigo aurora glow, orbiting ring mark, film grain, glass cards, monospace figures, numbered 01–04 cards, uppercase eyebrow labels, hover glow, scroll-reveal animation) are gone; the site is led by photographs of Australian native trees, as selma.au uses Australian places.
 
-- **Palette** (tokens in `src/app/(frontend)/globals.css`, contrast checked by `tests/unit/contrast.test.ts`): white page, mist `#F5F5F7` bands, night `#0A0A0C` for dark sections (hero, Meet Selma, watch strip, footer), ink `#1D1D1F`, muted `#6E6E73`, family indigo `#534AB7` (hover `#3D358A`; on night, soft indigo `#9B95D8` for text, links and focus rings), tint `#EFEEFA`.
-- **Type:** Plus Jakarta Sans for everything (headings 700–800, tight tracking), JetBrains Mono for figures and step numbers, both self-hosted with `next/font/local`, 17–18px body, line-height 1.65.
-- **Shape:** 18px card radius, 1px hairlines, pill buttons; frosted glass header (transparent over dark heroes, glass once scrolled).
-- **Components:** the originals plus `DarkHero`, `PageIntro` (dark opening with breadcrumbs and page structured data), `FamilyBar`, `RingMark` (the shared family mark), `Statement`, `StatsStrip`, `SelmaShowcase`, `NumberedSteps`, `FaqList` (native `<details>`), `PressStrip`, `Breadcrumbs`, `FeatureArticleCard` (`src/components/family/`, `src/components/ui/`).
-- **Imagery:** real team photos; no AI/robot stock imagery. Selma's background video is **not** reused (video files stay off this site and would cost LCP): dark heroes use an optional uploaded photo or a CSS indigo aurora.
-- **Motion:** CSS only (scroll-driven reveals, the aurora, the ring mark drawing in, hero text rising once); all of it off under `prefers-reduced-motion`.
+- **Palette** (tokens in `src/app/(frontend)/globals.css`, contrast checked by `tests/unit/contrast.test.ts`): white page, mist `#F5F5F7` bands, night `#0A0A0C` for dark sections (the fade over photographs, Meet Selma, watch strip, footer), ink `#1D1D1F`, muted `#6E6E73`, family indigo `#534AB7` (hover `#3D358A`; on night, soft indigo `#9B95D8` for text, links and focus rings), tint `#EFEEFA`.
+- **Type:** Plus Jakarta Sans for everything (headings 700–800, tight tracking), self-hosted with `next/font/local`, 17–18px body, line-height 1.65. No monospace. Section headings stand alone, without uppercase "eyebrow" labels.
+- **Shape:** 18px card radius, 1px hairlines, pill buttons; lists of services and steps sit under hairlines rather than in cards; frosted glass header (transparent over photo heroes, glass once scrolled).
+- **Components:** the originals plus `PageHero` (photographic opening; a plain light header when a page has no photo), `PageIntro` (the hero with breadcrumbs and page structured data), `Photo`, `PhotoBand` (text over a photograph), `FamilyBar`, `Statement`, `SelmaShowcase`, `NumberedSteps`, `FaqList` (native `<details>`), `PressStrip`, `Breadcrumbs`, `FeatureArticleCard` (`src/components/family/`, `src/components/ui/`).
+- **Imagery:** photographs of Australian native trees (Sydney blue and red gums, spotted and scribbly gums, snow gums), one per page, in the hero, the Meet Selma band and the closing newsletter band; real team photos; no AI/robot stock imagery. The defaults are Creative Commons photos bundled in `src/assets/photos/` (`src/lib/photography.ts`), credited on `/photo-credits`, and each can be replaced in the admin (*Page copy → Photos*; Home under *Home → Hero*). Selma's background video is **not** reused (video files stay off this site and would cost LCP).
+- **Motion:** none for decoration. Only small hover transitions and the header's scroll-driven change to frosted glass (CSS, no JavaScript).
 
 ## 7. Integrations — implementation details
 
@@ -316,7 +318,7 @@ Work in small, reviewable increments. Commit after each passing milestone (conve
 
 ## Appendix A — Current site copy (captured 22 Oct 2026, for seeding/migration)
 
-**Hero headline:** "A.I. grounded in human dignity"
+**Hero headline:** "AI grounded in human dignity" (written "A.I." on the old site; the client asked for "AI")
 
 **Intro:** "In a world where AI is reshaping work and certainty is in short supply, the most powerful thing an organisation can be is adaptable. At EthicAI, we help organisations build the systems, culture, and clarity to move with change. We blend sharp operational insight with deep people strategy to create workplaces that are data led, ethical, and energised for what's next."
 

@@ -1,11 +1,12 @@
 # Session handover: EthicAI website
 
-Working notes for the next coding session, last updated 10 November 2026 (after the family redesign; Phase 5 notes below still apply). **Delete this file before merging to `main`.**
+Working notes for the next coding session, last updated 10 November 2026 (after the photography revision of the family redesign; Phase 5 notes below still apply). **Delete this file before merging to `main`.**
 
 Read `AGENTS.md` and `docs/BUILD-SPEC.md` first. They are the source of truth; this file only records where things stand and what earlier sessions learnt the hard way.
 
 ## 1. Where things stand
 
+- **Photography revision (10 November 2026), branch `claude/determined-cerf-s9l7ne`**, stacked on the family redesign's head (`d796f79`, branch `claude/peaceful-sagan-9iylgh`). The owner found the redesign too much like a generic SaaS/AI website: the counters (stats strip) and the AI-site tropes are gone, every main page now opens on a photograph of Australian native trees (as selma.au uses Australian places), and "A.I." is written "AI". The why is `docs/REDESIGN-PLAN.md` §3a; what was built is §3d below. No PR was opened (the user hadn't asked). Merge order: PR #1, then `peaceful-sagan`, then this branch (it contains both).
 - **Family redesign (10 November 2026), branch `claude/peaceful-sagan-9iylgh`**, stacked on PR #1's head (`673e508`). The owner asked for a more impressive design taken from selma.au (the client's product site) so Selma reads as part of the EthicAI family, links to selma.au, and current Google SEO and AI search (GEO) practice. The plan is `docs/REDESIGN-PLAN.md`; what was built is in §3c. It is built and verified in the sandbox; no PR was opened (the user hadn't asked). Merge order: PR #1 first, then this branch (or retarget it onto #1's branch).
 - The live site is still **Squarespace on ethicai.au** (apex redirects to www). The new build runs only at `https://ethicaiau1.netlify.app` (noindex). The owner chose **`https://ethicai.au` (apex) as the canonical address** for the cutover.
 - Repo `dhynesmnk-cyber/ethicai`, branch `claude/confident-feynman-bep01v`, **PR [#1](https://github.com/dhynesmnk-cyber/ethicai/pull/1)** (open). Do not open another PR; keep updating #1's title and body at each phase (what / why / how verified / criteria checked / open items). The user does **not** want PR activity subscriptions.
@@ -28,10 +29,11 @@ Read `AGENTS.md` and `docs/BUILD-SPEC.md` first. They are the source of truth; t
 
 **From the family redesign** (defaults in place until answered, each marked `// DECISION:` where it lives in code):
 
-- **Client sign-off on new copy:** the Home FAQ answers, the stats strip (taken from selma.au's "Who we are"), the press list (IT Brief and SecurityBrief, June 2026), the four services (from the old /services, /academy and /publicsector pages) and the Services "how we work" steps. All of it is editable in *Page copy*, *Services* and *Site settings*.
+- **Client sign-off on new copy:** the Home FAQ answers, the press list (IT Brief and SecurityBrief, June 2026), the four services (from the old /services, /academy and /publicsector pages) and the Services "how we work" steps. All of it is editable in *Page copy*, *Services* and *Site settings*.
 - **Where the old campaign pages go:** `/bootcamp`, `/movement`, `/startmate` and `/moodi` redirect to `/services`; the AI Academy shop pages (`/aiacademy/p/*`) and `/cart` go to `/services/academy` and `/`. The shop is e-commerce, out of scope here: keep it on a subdomain or another platform if it's still selling.
 - **Logo files** (EthicAI and Selma, SVG) and a favicon. `public/logo.png`, `icon.svg` and the header wordmark are placeholders.
-- **Hero photography** (optional): *Page copy → Home → Hero → Image*. Without one, the animated indigo light shows.
+- **Photography:** nine Creative Commons photos of Australian native trees are bundled as defaults (`src/lib/photography.ts`, credited on `/photo-credits`). Does the client want their own photos, or a commissioned shoot? Each place can be replaced in *Page copy → Photos* (Home in *Home → Hero*). Keep the footer's "Photo credits" link while any bundled photo is in use: the CC licences require the attribution.
+- **The proof points from the removed stats strip** (6M+ TikTok views, the Global AI Impact Summit delegation, Governance Institute of Australia board training, Selma in pilot) are no longer anywhere on the site. If the client wants them, they read better as a sentence in the About story (*Page copy → About*) than as counters.
 - **Simon Brock's role:** the review database still says "Digital agency leader"; the press calls him Partner and Chief Product Officer, selma.au says Co-founder. The seed now uses "Partner and Chief Product Officer" for new databases only.
 - **Team LinkedIn URLs** for *Team members* (they feed the Person structured data).
 - **User accounts for Kara and Katriel**, linked to their team profiles (*Users → Profile*), before running the Squarespace import against production, so the old posts keep their bylines.
@@ -116,6 +118,19 @@ See `docs/REDESIGN-PLAN.md` for the why. Thirteen commits on top of PR #1 (`git 
   - New e2e tests: Selma links, header colour over the hero and after scrolling, FAQ from the keyboard, reduced motion, every JSON-LD reference resolves, and all 28 old URLs ending on a 200.
   - Lighthouse mobile on the production build: Home 100/100/100/100 (LCP 0.9 s, CLS 0); article 96/100/100/100 (CLS 0). The article's *simulated* LCP is 2.8 s against the 2.5 s target, while the observed LCP was 0.14 s and the image starts at 43 ms with high priority. Lighthouse's slow-4G model counts the framework scripts (about 160 KB) as competing with the image. Re-check on Netlify, where its image CDN serves `next/image`.
 
+## 3d. What the photography revision built
+
+Why and what was removed: `docs/REDESIGN-PLAN.md` §3a. On top of `d796f79`:
+
+- **Photos:** `src/assets/photos/` (nine JPEGs, 1920 px wide, Home 2400 px; 4.4 MB in all), registered with alt text, crop position and TASL credit in `src/lib/photography.ts`. `photoFor(copy, slot)` returns the editor's upload if there is one, else the default. Static imports, so `next/image` gets sizes and a blur placeholder and serves AVIF/WebP.
+- **Components:** `PageHero` (replaces `DarkHero`; plain light header when there's no photo), `Photo`, `PhotoBand`. `RingMark` and `StatsStrip` are deleted. `SelmaShowcase`, `Statement`, `NumberedSteps`, `PressStrip`, `SectionHeading` (no `eyebrow` prop now), `Card`, `SubscribeCTA`, `Footer`, `OgImage` and `icon.svg` restyled. JetBrains Mono is uninstalled.
+- **CSS:** the aurora, grain, ring and rise/reveal animations and the `glass` and `eyebrow` utilities are gone from `globals.css`. The only animation left is the header turning to glass.
+- **Content model** (migration `20261110_202619_photos_and_ai`): Page copy loses `stats` and gains a *Photos* tab (eight upload slots, `src/content/photo-slots.ts`); "A.I." becomes "AI" in every plain-text copy field; the starting copy is filled on an empty database. The `pageCopy` hook now also revalidates every page (photos appear site-wide).
+- **Bug fixed on the way:** `family_redesign` filled the starting copy through the Local API, which reads the *current* config; once `page_copy` gained columns, a brand-new database could no longer be migrated (the query asked for `photos_about_id` before it existed). The fill now lives in the newest migration, guarded by "Page copy has never been saved" so databases that already had it are left alone, and `tests/unit/migrations.test.ts` fails if a newer migration is added without moving it.
+- **`/photo-credits`**, linked from the footer and listed in the sitemap: title, author, Wikimedia Commons link and licence for each bundled photo still in use.
+- **Sharpness on phones:** a photo cropped with `object-fit: cover` into a tall box renders wider than the screen, so `sizes="100vw"` made phones fetch a 750 px image and stretch it. `Photo` defaults to `(max-width: 640px) 200vw, 100vw`; the full-screen Home hero uses `(orientation: portrait) 80vh, 100vw`. AVIF sizes for the Home photo: 140 KB at 1200 px, 320 KB at 1920 px.
+- **Legibility:** the hero fades were tuned until white text measured at least 4.5:1 against the 90th-percentile brightest pixel behind every line of hero text and every menu link, on all seven photo pages at 375 and 1440 px (a Playwright + sharp check; the text hidden, the background sampled).
+
 ## 4. Sandbox bootstrap (a fresh container each session)
 
 Check which cloud environment the session is on first (`get_environment`):
@@ -189,6 +204,10 @@ cd /home/user/ethicai && nohup npx next dev > /home/user/.sandbox-ethicai/dev.lo
 - **`ss` isn't installed** in this image: find the dev server's PIDs through `/proc/*/cmdline` (and see the warning above about patterns in your own command line).
 - **Full-page screenshots** need `reducedMotion: 'reduce'`, or the scroll-driven `.reveal` blocks below the fold come out invisible.
 - **Payload's generated `down` migrations** can fail when a `DROP TABLE … CASCADE` already removed a constraint that a later line drops again; use `IF EXISTS`.
+- **`payload migrate:down` rolls back the whole last batch**, not one migration. On a database where everything ran in one batch, that's every table. To test one migration's `down`, first move it into its own batch (`update payload_migrations set batch = <max+1> where name = '<it>'`).
+- **Never use the Local API in an old migration.** It reads the current config, so a later column breaks the old migration on an empty database. See §3d and `tests/unit/migrations.test.ts`.
+- **Wikimedia Commons** throttles full-size downloads hard (`Retry-After: 600`); its standard 1920 px renditions download without trouble.
+- **Full-page screenshots** also need lazy images loaded: scroll through the page first, or the photo bands come out as their blurred placeholder.
 - The sandbox's "Ethicai" environment now reaches `selma.au` and `ethicai.au` (the owner widened it), and R2 images render through `next/image` here.
 
 ## 6. Repo map
@@ -198,9 +217,10 @@ cd /home/user/ethicai && nohup npx next dev > /home/user/.sandbox-ethicai/dev.lo
 - `src/app/(frontend)/`: the pages, `sitemap.ts`, share images, `kitchen-sink/` and `media-check/` (**both temporary, remove before launch**). `src/app/robots.ts`, `src/app/api/{preview,exit-preview,revalidate}`.
 - `src/components/{ui,layout,feed,newsletter,blocks,icons}`, `ContactForm.tsx`, `JsonLd.tsx`, `OgImage.tsx`.
 - `src/lib/`: `queries`, `rss`, `elfsight`, `revalidate`, `revalidate-request`, `seo`, `structured-data`, `storage`, `video-url`, `reading-time`, `site-settings`, `redirects`, and others.
-- `src/content/site-copy.ts`: Home/About copy. `public/__forms.html`: the Netlify Forms declaration (keep in step with `ContactForm.tsx`).
+- `public/__forms.html`: the Netlify Forms declaration (keep in step with `ContactForm.tsx`).
+- Photography: `src/assets/photos/`, `src/lib/photography.ts`, `src/content/photo-slots.ts`, `src/components/family/{PageHero,Photo,PhotoBand}.tsx`, `src/app/(frontend)/photo-credits/`.
 - Family redesign: `src/components/family/*`, `src/globals/PageCopy.ts`, `src/collections/Services.ts`, `src/content/{defaults,apply-defaults}.ts`, `src/fields/slug.ts`, `src/lib/{family,robots,llms,feed,indexnow,html-to-markdown,plain-content}.ts`, routes `src/app/{llms.txt,llms-full.txt,indexnow-key.txt}`, `src/app/(frontend)/{services,articles/feed.xml}`, `scripts/import-squarespace.ts`.
-- `scripts/seed.ts` (idempotent; don't re-run on production), `src/migrations/` (two so far), `tests/{unit,e2e,helpers,fixtures}`.
+- `scripts/seed.ts` (idempotent; don't re-run on production), `src/migrations/` (four so far; the newest must hold the `applyContentDefaults` call), `tests/{unit,e2e,helpers,fixtures}`.
 
 ## 7. Decisions already made (don't reopen without cause)
 
@@ -225,6 +245,7 @@ Family redesign decisions:
 - `next/image` rendering R2 images through the optimiser; `E2E_MEDIA_UPLOAD=1 npm run test:e2e` covers it on a machine with normal network access.
 - YouTube thumbnails, a real Netlify Forms submission, and anything on Netlify itself (Phase 6). Lighthouse numbers are from a local production build.
 
+- The photos through Netlify's image CDN, and the photo heroes' LCP on a real phone.
 - The family redesign on Netlify, and in Safari and Firefox. Browsers without scroll-driven animations keep the frosted header throughout, by design; that fallback was not seen in a real browser.
 - The Squarespace import against production, Search Console and Bing, an IndexNow ping from the live site, and selma.au's side of the hand-off.
 
@@ -232,4 +253,4 @@ Family redesign decisions:
 
 - **Still open from Phase 5:** real content in place of the two demo articles (acceptance: no demo content remains), the page-copy decision, a timed weekly-workflow run by a person, and the JS budget question. The Markdown converter, dashboard panel, help-text pass and linked-article revalidation are done.
 - **Phase 6** (`docs/DEPLOYMENT-NETLIFY.md`): Supabase in Sydney (transaction pooler for Netlify, build migrations included), production bucket and CORS, `DATABASE_URI` at build time, `REVALIDATE_SECRET` if wanted, a 15–20 MB upload test, a real form submission, Elfsight on production after a click, the domain cutover (keep MX/SPF/DKIM untouched), old-URL redirects, and removing `/media-check` and `/kitchen-sink`.
-- **Other open items:** swap the wordmark and placeholder favicon for the client's logo; `npm audit` still shows high/moderate issues in packages Payload depends on (`braces`, `esbuild`), with no upstream fix and none handling visitor input.
+- **Other open items:** swap the wordmark and placeholder favicon (a plain "E") for the client's logo; `npm audit` still shows high/moderate issues in packages Payload depends on (`braces`, `esbuild`), with no upstream fix and none handling visitor input.

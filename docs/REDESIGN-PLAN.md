@@ -2,6 +2,8 @@
 
 **Status:** built and verified in the sandbox (10 November 2026) on branch `claude/peaceful-sagan-9iylgh`, on top of PR [#1](https://github.com/dhynesmnk-cyber/ethicai/pull/1) (Phases 0–5). The domain cutover (BUILD-SPEC §10, Phase 6) is next and stays with the owner. What was built, how it was verified and what still needs the client: `docs/HANDOVER.md` §2 and §3c.
 
+**Revised the same day (§3a):** the owner found the result too much like a generic SaaS/AI website. The counters and the AI-site tropes were removed and the site is now led by photographs of Australian native trees, as selma.au uses Australian places; "A.I." is written "AI" everywhere.
+
 ## 1. Where things stand
 
 - **The new site** (Next.js 16 + Payload 3.92) runs at `https://ethicaiau1.netlify.app`. Search engines are kept out on purpose (`noindex`, `Disallow: /`) because it's a `*.netlify.app` address (`isReviewSite()` in `src/lib/site-url.ts`).
@@ -29,29 +31,56 @@
 
 | Element | Selma (reference) | EthicAI after the redesign |
 |---|---|---|
-| Type | Plus Jakarta Sans 300–800; JetBrains Mono 500 for labels | Same, self-hosted with `next/font/local` from `@fontsource-variable` (no Google Fonts call) |
+| Type | Plus Jakarta Sans 300–800; JetBrains Mono 500 for labels | Plus Jakarta Sans only, self-hosted with `next/font/local` from `@fontsource-variable` (no Google Fonts call). No monospace (§3a) |
 | Colours | night `#0A0A0C`, ink `#1D1D1F`, grey `#6E6E73`, mist `#F5F5F7`, white, indigo `#534AB7` / `#9B95D8` / `#3D358A` | The same tokens in `globals.css` `@theme`. `canvas` and `sand` go; the contrast test is rewritten for light and dark sections |
 | Headlines | 700–800 weight, tracking −0.02 to −0.03em, line-height 1.0–1.15, hero 52–108px | Same |
-| Hero | Full-screen dark, content at the bottom, fade to black, eyebrow in light indigo | Same layout. Background is an image uploaded in the admin (AVIF, `priority`) or a slow CSS indigo aurora with the ring motif |
+| Hero | Full-screen photograph, content at the bottom, fade to black, eyebrow in light indigo | Same layout over a photograph of Australian native trees (a bundled default per page, replaceable in the admin). A plain sentence-case line above the headline, no eyebrow |
 | Menu bar | Transparent over the hero, frosted white on scroll (`saturate(180%) blur(20px)`) | Same, in CSS only (scroll-driven animation plus `body:has(.hero-dark)`); no new client JavaScript |
 | Buttons | Indigo pills; underlined ghost links on dark | Same (`Button` variants) |
-| Cards and sections | 16–18px radius, 0.5px hairlines, mist bands, numbered 01–04 steps, stats strip, indigo promo band, FAQ | Same patterns as shared components |
-| Motion | Fade-in on scroll | The existing `.reveal` plus the aurora and the rings drawing in. All CSS, all off under `prefers-reduced-motion` |
+| Cards and sections | 16–18px radius, 0.5px hairlines, mist bands, numbered 01–04 steps, stats strip, indigo promo band, FAQ | Radius, hairlines, mist bands and FAQ kept. Services and steps sit under hairlines (no numbered cards), no stats strip, and the closing band is a photograph |
+| Motion | Fade-in on scroll | None for decoration (§3a). Only hover transitions and the header turning to glass |
 
 **Accessibility:** focus rings are indigo on light sections and light indigo on dark ones (indigo is too dark against night). The skip link stays the first Tab stop. Each page keeps one `h1`. Contrast stays at AA.
 
 ### Family cues (how visitors see that Selma is part of EthicAI)
 - **Family bar:** a thin night strip above the menu: "EthicAI · Selma ↗", plus an announcement editable in the admin (e.g. "Selma ships January 2027: join the waitlist ↗").
 - **Menu:** a "Selma ↗" item linking to `https://selma.au`, with the accessible name "Selma (opens selma.au)".
-- **"Meet Selma" on Home:** a night band with glass cards for the five Human at the Helm™ parts (Constitution, Stitch, Trace, Guardrail, Ledger), and "Visit selma.au" and "Join the waitlist" buttons.
-- **Shared proof:** the stats strip Selma already uses (6M+ TikTok views · Global AI Impact Summit delegation · Governance Institute of Australia board training · Selma in pilot), plus press coverage (IT Brief, SecurityBrief, the launch release).
+- **"Meet Selma" on Home:** a photograph (snow gums) with the headline over it, then the five Human at the Helm™ parts as a plain list on night (Constitution, Stitch, Trace, Guardrail, Ledger), and "Visit selma.au" and "Join the waitlist" buttons.
+- **Shared proof:** press coverage (IT Brief, SecurityBrief, the launch release). The stats strip was removed in §3a.
 - **Footer:** a night footer with an "EthicAI family" column (EthicAI, Selma ↗), "EthicAI Pty Ltd · ABN 13 686 628 848 · Sydney", and the Acknowledgement of Country and inclusion statement from the current site.
-- **Shared ring mark** in indigo for both brands, until the client's logo files arrive.
+- ~~Shared ring mark~~: removed in §3a (it read as an "AI" motif). The favicon is a plain "E" until the client's logo files arrive.
+
+## 3a. Photography revision (10 November 2026)
+
+The owner's feedback on the first build: *"too much like a generic SaaS website. Remove the counters and the tropes used a lot in AI website design. Use Australian photography like the Selma website does (I like the native trees). Change A.I. to AI."*
+
+**Removed:** the stats strip ("counters") on Home and About and its admin field; the indigo aurora glow; the orbiting ring mark (heroes, Meet Selma, footer, newsletter band, share images, favicon); film grain; frosted glass cards; JetBrains Mono; numbered 01–04 service cards; uppercase "eyebrow" labels over every heading; cards lifting with an indigo glow on hover; fade-up-on-scroll and the hero text rising in. The solid indigo promo boxes became calm mist boxes.
+
+**Added:** a photograph of Australian native trees at the top of every main page, behind Meet Selma and behind the closing newsletter band, the way selma.au uses Australian places. Nine Creative Commons photos from Wikimedia Commons (no watermarks; real places, mostly around Sydney) are bundled as defaults:
+
+| Place | Photo | Licence |
+|---|---|---|
+| Home | Sydney blue gum forest, Westleigh | CC BY-SA 4.0 |
+| About | Sydney red gum canopy, Palm Beach | CC BY-SA 4.0 |
+| Services | Spotted gum forest, Pokolbin | CC BY 2.0 |
+| Articles | Scribbly gum bark, Royal National Park | CC BY 2.0 |
+| Watch | Eucalypt at golden hour, Gundaroo | CC BY 2.0 |
+| Newsletter | Gums in the Sydney winter fog | CC BY 2.0 |
+| Contact | Sydney red gums, Royal National Park | CC BY-SA 4.0 |
+| Meet Selma | Snow gums, Kosciuszko National Park | CC BY 2.0 |
+| Closing band | Gum tree under the moon, Mount Majura | CC BY-SA 4.0 |
+
+- Each one can be replaced in the admin (*Page copy → Photos*, Home under *Home → Hero*), so changing a photo needs no code change. The credits the licences ask for are on `/photo-credits`, linked from the footer; a replaced photo drops off that list.
+- Text over a photo sits on a dark fade, checked at 4.5:1 or better behind every line of hero text at 375px and 1440px.
+- Privacy, the 404 page and the contact thank-you page open on a plain light header instead.
+- The share images are plain typographic cards (no glow or rings); a photo there would need the image read from disk inside the share-image function, which depends on how Netlify bundles files.
+
+**Content model:** migration `20261110_202619_photos_and_ai` drops `page_copy_stats`, adds the eight photo slots, rewrites "A.I." as "AI" in every plain-text copy field, and fills the starting copy on an empty database (moved there from `family_redesign`; see `docs/HANDOVER.md` §5).
 
 ## 4. Content model (all editable in the admin; each change ships with a migration)
 
 - **New `pageCopy` global.** It replaces `src/content/site-copy.ts` and closes the handover's open "page copy" item.
-  - Home: hero (eyebrow, headline, subhead, image), statement, value props, stats, FAQ, press.
+  - Home: hero (eyebrow, headline, subhead, image), statement, value props, FAQ, press. (Stats removed and a Photos tab added in §3a.)
   - About: the story.
 - **`siteSettings`** gains three tabs:
   - **Selma & family:** show/hide, Selma URL (default `https://selma.au`), tagline "AI that answers only to you.", summary, the five suite items, waitlist URL, announcement text and link, on/off.
@@ -68,9 +97,9 @@
 
 - **Home**, top to bottom:
   1. Family bar and menu.
-  2. Dark full-screen hero: "A.I. grounded in human dignity", with "Work with us" and "Meet Selma ↗".
+  2. Full-screen photo hero: "AI grounded in human dignity", with "Work with us" and "Meet Selma ↗".
   3. A large centred statement (the current intro).
-  4. Stats strip.
+  4. ~~Stats strip~~ (removed in §3a).
   5. What we do (services).
   6. **Meet Selma.**
   7. Latest thinking: one lead article and two cards.
@@ -174,7 +203,7 @@ Each step stops for review, as the build spec does.
 
 These don't block the build.
 
-- EthicAI and Selma logo SVGs and a favicon; hero photography (otherwise the CSS aurora is used).
+- EthicAI and Selma logo SVGs and a favicon; the client's own photography, if they want to replace the bundled Creative Commons photos (§3a).
 - What happens to the **AI Academy shop** (`/aiacademy/p/*`, cart). E-commerce is out of scope for this site (BUILD-SPEC §12): keep it on a subdomain or move it elsewhere.
 - Where `/bootcamp`, `/movement`, `/startmate`, `/moodi` and `/report` should go.
 - Sign-off on the stats, press items and services copy; team LinkedIn URLs.
