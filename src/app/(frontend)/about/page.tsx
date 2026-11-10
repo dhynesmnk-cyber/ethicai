@@ -3,7 +3,6 @@ import Image from 'next/image'
 
 import { PageIntro } from '@/components/family/PageIntro'
 import { RingMark } from '@/components/family/RingMark'
-import { StatsStrip } from '@/components/family/StatsStrip'
 import { SocialIcon } from '@/components/icons/SocialIcon'
 import { JsonLd } from '@/components/JsonLd'
 import { Container } from '@/components/layout/Container'
@@ -61,8 +60,6 @@ export default async function AboutPage() {
           </Container>
         </section>
       )}
-
-      <StatsStrip stats={copy.stats ?? []} />
 
       <section aria-labelledby="our-team" className="py-24 sm:py-28">
         <Container>

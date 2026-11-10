@@ -7,7 +7,6 @@ import { FaqList } from '@/components/family/FaqList'
 import { PressStrip } from '@/components/family/PressStrip'
 import { SelmaShowcase } from '@/components/family/SelmaShowcase'
 import { Statement } from '@/components/family/Statement'
-import { StatsStrip } from '@/components/family/StatsStrip'
 import { VideoCard } from '@/components/feed/VideoCard'
 import { ArrowRightIcon, PlayTriangleIcon } from '@/components/icons'
 import { JsonLd } from '@/components/JsonLd'
@@ -78,7 +77,7 @@ export default async function HomePage() {
       <DarkHero
         size="full"
         eyebrow={copy.hero?.eyebrow}
-        title={copy.hero?.headline ?? 'A.I. grounded in human dignity'}
+        title={copy.hero?.headline ?? 'AI grounded in human dignity'}
         lead={copy.hero?.subhead}
         image={toImage(copy.hero?.image, 'hero')}
         actions={
@@ -101,9 +100,6 @@ export default async function HomePage() {
 
       {/* 2. What we're for */}
       {copy.statement && <Statement text={copy.statement} />}
-
-      {/* 3. Proof */}
-      <StatsStrip stats={copy.stats ?? []} />
 
       {/* 4. What we do */}
       {services.length > 0 && (

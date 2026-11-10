@@ -7,7 +7,7 @@ import type { Metadata } from 'next'
 export const SITE_NAME = 'EthicAI'
 /**
  * The Home page title. It names what EthicAI is and where, which is what people (and AI
- * assistants) search for; the "A.I. grounded in human dignity" line stays as the visible headline.
+ * assistants) search for; the "AI grounded in human dignity" line stays as the visible headline.
  */
 export const HOME_TITLE = `${SITE_NAME}: AI ethics and governance consultancy, Sydney`
 export const DEFAULT_DESCRIPTION =

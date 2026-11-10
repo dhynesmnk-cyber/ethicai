@@ -98,7 +98,7 @@ export default async function KitchenSinkPage({ searchParams }: Props) {
       <Demo id="type" title="Typography">
         <div className="space-y-4">
           <p className="text-6xl font-extrabold tracking-[-0.03em]">
-            A.I. grounded in human dignity
+            AI grounded in human dignity
           </p>
           <p className="text-4xl font-bold tracking-[-0.025em]">
             Section heading (Plus Jakarta Sans)

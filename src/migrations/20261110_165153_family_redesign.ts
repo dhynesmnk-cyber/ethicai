@@ -1,12 +1,12 @@
 import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 
-import { applyContentDefaults } from '../content/apply-defaults'
-
 // Family redesign (docs/REDESIGN-PLAN.md §4): page copy global, Selma/organisation/search
 // settings, services, team LinkedIn and credentials, author profiles and article key takeaways.
-// The schema changes only add tables and columns. After them, the starting copy is written into
-// fields that are still empty (never overwriting anything), so production has the new sections
-// filled on its first deploy. `down` removes only what `up` added.
+// The schema changes only add tables and columns. `down` removes only what `up` added.
+//
+// The starting copy used to be written here too. It goes through Payload's Local API, which reads
+// the *current* config, so on an empty database it broke as soon as a later migration added a
+// column. It now runs from the newest migration instead (see applyContentDefaultsOnce).
 
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
@@ -168,9 +168,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_services_fk" FOREIGN KEY ("services_id") REFERENCES "public"."services"("id") ON DELETE cascade ON UPDATE no action;
   CREATE INDEX "users_profile_idx" ON "users" USING btree ("profile_id");
   CREATE INDEX "payload_locked_documents_rels_services_id_idx" ON "payload_locked_documents_rels" USING btree ("services_id");`)
-
-  const changed = await applyContentDefaults({ payload, req })
-  if (changed.length > 0) payload.logger.info(`family_redesign: filled ${changed.join('; ')}`)
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {

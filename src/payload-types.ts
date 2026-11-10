@@ -1011,7 +1011,7 @@ export interface SiteSetting {
   createdAt?: string | null;
 }
 /**
- * The fixed text on the Home, About and Services pages.
+ * The fixed text on the Home, About and Services pages, and the photo on each page.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pageCopy".
@@ -1019,11 +1019,11 @@ export interface SiteSetting {
 export interface PageCopy {
   id: number;
   /**
-   * The dark, full-screen opening of the Home page.
+   * The full-screen photographic opening of the Home page.
    */
   hero: {
     /**
-     * Small capitals above the headline, e.g. “AI ethics and governance · Sydney”.
+     * A short line above the headline, e.g. “AI ethics and governance · Sydney”.
      */
     eyebrow?: string | null;
     /**
@@ -1035,7 +1035,7 @@ export interface PageCopy {
      */
     subhead?: string | null;
     /**
-     * Optional background photo. Choose a dark, calm landscape image (at least 1920 pixels wide); the text sits over its lower left. Leave empty for the animated indigo light.
+     * Background photo (landscape, at least 2400 pixels wide). The text sits over its lower left, so choose a photo whose lower part is calm. Leave empty for the default photo of Sydney blue gums.
      */
     image?: (number | null) | Media;
   };
@@ -1043,22 +1043,6 @@ export interface PageCopy {
    * The large centred paragraph after the opening: what EthicAI is for.
    */
   statement?: string | null;
-  /**
-   * Up to four short proof points, shown in a strip. Only use claims you can stand behind.
-   */
-  stats?:
-    | {
-        /**
-         * The big figure or word, e.g. “6M+”.
-         */
-        value: string;
-        /**
-         * What it means, e.g. “TikTok views in under a year”.
-         */
-        label: string;
-        id?: string | null;
-      }[]
-    | null;
   /**
    * Questions and answers near the end of the Home page. Answer in the first sentence: search engines and AI assistants quote these.
    */
@@ -1125,7 +1109,7 @@ export interface PageCopy {
      */
     intro?: string | null;
     /**
-     * How we work, shown as numbered steps (01 to 04).
+     * How we work, shown as a short numbered list.
      */
     steps?:
       | {
@@ -1140,6 +1124,43 @@ export interface PageCopy {
           id?: string | null;
         }[]
       | null;
+  };
+  /**
+   * The Home page photo is under Home → Hero. Only upload photos EthicAI owns or has a licence to use.
+   */
+  photos?: {
+    /**
+     * Shown at the top of the About page.
+     */
+    about?: (number | null) | Media;
+    /**
+     * Shown at the top of the Services page and each service page.
+     */
+    services?: (number | null) | Media;
+    /**
+     * Shown at the top of the Articles page.
+     */
+    articles?: (number | null) | Media;
+    /**
+     * Shown at the top of the Watch page.
+     */
+    watch?: (number | null) | Media;
+    /**
+     * Shown at the top of the Newsletter page.
+     */
+    newsletter?: (number | null) | Media;
+    /**
+     * Shown at the top of the Contact page.
+     */
+    contact?: (number | null) | Media;
+    /**
+     * Shown behind “Meet Selma” on the Home page and the Selma section of the About page.
+     */
+    selma?: (number | null) | Media;
+    /**
+     * Shown behind the newsletter sign-up at the end of the Home page.
+     */
+    closing?: (number | null) | Media;
   };
   updatedAt?: string | null;
   createdAt?: string | null;
@@ -1224,13 +1245,6 @@ export interface PageCopySelect<T extends boolean = true> {
         image?: T;
       };
   statement?: T;
-  stats?:
-    | T
-    | {
-        value?: T;
-        label?: T;
-        id?: T;
-      };
   faq?:
     | T
     | {
@@ -1265,6 +1279,18 @@ export interface PageCopySelect<T extends boolean = true> {
               body?: T;
               id?: T;
             };
+      };
+  photos?:
+    | T
+    | {
+        about?: T;
+        services?: T;
+        articles?: T;
+        watch?: T;
+        newsletter?: T;
+        contact?: T;
+        selma?: T;
+        closing?: T;
       };
   updatedAt?: T;
   createdAt?: T;

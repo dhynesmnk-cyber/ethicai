@@ -1,14 +1,18 @@
 import type { GlobalAfterChangeHook, GlobalConfig } from 'payload'
 
 import { adminOnly, isAdmin } from '@/access'
+import { PHOTO_SLOTS } from '@/content/photo-slots'
 import { httpsUrl } from '@/fields/slug'
-import { revalidatePaths } from '@/lib/revalidate'
+import { revalidateEverything, revalidatePaths } from '@/lib/revalidate'
 
-// The fixed text on Home, About and Services (docs/REDESIGN-PLAN.md §4), so changing a headline
-// or an FAQ answer never needs a code change. Starting values come from src/content/defaults.ts.
+// The fixed text on Home, About and Services (docs/REDESIGN-PLAN.md §4) and the photograph on
+// each page, so changing a headline, an FAQ answer or a photo never needs a code change.
+// Starting text comes from src/content/defaults.ts; starting photos from src/lib/photography.ts.
 
 const revalidatePages: GlobalAfterChangeHook = ({ context, doc, req }) => {
+  // The text pages (these also tell IndexNow), then everything else: photos appear on every page.
   revalidatePaths(req, context, ['/', '/about', '/services', '/llms.txt'])
+  revalidateEverything(req, context)
   return doc
 }
 
@@ -22,7 +26,8 @@ export const PageCopy: GlobalConfig = {
   },
   admin: {
     group: 'Site',
-    description: 'The fixed text on the Home, About and Services pages.',
+    description:
+      'The fixed text on the Home, About and Services pages, and the photo on each page.',
     hidden: ({ user }) => !isAdmin(user),
   },
   hooks: {
@@ -38,14 +43,14 @@ export const PageCopy: GlobalConfig = {
             {
               name: 'hero',
               type: 'group',
-              admin: { description: 'The dark, full-screen opening of the Home page.' },
+              admin: { description: 'The full-screen photographic opening of the Home page.' },
               fields: [
                 {
                   name: 'eyebrow',
                   type: 'text',
                   admin: {
                     description:
-                      'Small capitals above the headline, e.g. “AI ethics and governance · Sydney”.',
+                      'A short line above the headline, e.g. “AI ethics and governance · Sydney”.',
                   },
                 },
                 {
@@ -67,7 +72,7 @@ export const PageCopy: GlobalConfig = {
                   relationTo: 'media',
                   admin: {
                     description:
-                      'Optional background photo. Choose a dark, calm landscape image (at least 1920 pixels wide); the text sits over its lower left. Leave empty for the animated indigo light.',
+                      'Background photo (landscape, at least 2400 pixels wide). The text sits over its lower left, so choose a photo whose lower part is calm. Leave empty for the default photo of Sydney blue gums.',
                   },
                 },
               ],
@@ -78,31 +83,6 @@ export const PageCopy: GlobalConfig = {
               admin: {
                 description: 'The large centred paragraph after the opening: what EthicAI is for.',
               },
-            },
-            {
-              name: 'stats',
-              type: 'array',
-              maxRows: 4,
-              labels: { singular: 'Stat', plural: 'Stats' },
-              admin: {
-                description:
-                  'Up to four short proof points, shown in a strip. Only use claims you can stand behind.',
-              },
-              fields: [
-                {
-                  name: 'value',
-                  type: 'text',
-                  required: true,
-                  maxLength: 16,
-                  admin: { description: 'The big figure or word, e.g. “6M+”.' },
-                },
-                {
-                  name: 'label',
-                  type: 'text',
-                  required: true,
-                  admin: { description: 'What it means, e.g. “TikTok views in under a year”.' },
-                },
-              ],
             },
             {
               name: 'faq',
@@ -224,7 +204,7 @@ export const PageCopy: GlobalConfig = {
                   type: 'array',
                   maxRows: 4,
                   labels: { singular: 'Step', plural: 'Steps' },
-                  admin: { description: 'How we work, shown as numbered steps (01 to 04).' },
+                  admin: { description: 'How we work, shown as a short numbered list.' },
                   fields: [
                     {
                       name: 'title',
@@ -241,6 +221,28 @@ export const PageCopy: GlobalConfig = {
                   ],
                 },
               ],
+            },
+          ],
+        },
+        {
+          label: 'Photos',
+          description:
+            'The photograph on each page. Leave a slot empty to use the default photo of Australian native trees (credited on the Photo credits page). Use landscape photos at least 2400 pixels wide, with a calm lower part: text sits over it.',
+          fields: [
+            {
+              name: 'photos',
+              type: 'group',
+              admin: {
+                description:
+                  'The Home page photo is under Home → Hero. Only upload photos EthicAI owns or has a licence to use.',
+              },
+              fields: PHOTO_SLOTS.map((slot) => ({
+                name: slot.name,
+                label: slot.label,
+                type: 'upload' as const,
+                relationTo: 'media' as const,
+                admin: { description: `Shown ${slot.where}.` },
+              })),
             },
           ],
         },

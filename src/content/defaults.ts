@@ -4,29 +4,20 @@
 // admin is never overwritten. After that, the admin is the source of truth: the site reads the
 // database, never this file.
 //
-// Sources: Home/About copy from the current ethicai.au; Selma copy verbatim from selma.au; stats
-// from selma.au's "Who we are"; services from ethicai.au/services, /academy and /publicsector.
+// Sources: Home/About copy from the current ethicai.au (with "A.I." written "AI", at the client's
+// request); Selma copy verbatim from selma.au; services from ethicai.au/services, /academy and
+// /publicsector.
 // The FAQ answers and the press list are new and need the client's sign-off.
 
 export const HOME_DEFAULTS = {
   hero: {
     eyebrow: 'AI ethics and governance · Sydney',
-    headline: 'A.I. grounded in human dignity',
+    headline: 'AI grounded in human dignity',
     subhead:
       'We help organisations adopt AI ethically, building the systems, culture and clarity to move with change.',
   },
   statement:
     'In a world where AI is reshaping work and certainty is in short supply, the most powerful thing an organisation can be is adaptable. At EthicAI, we help organisations build the systems, culture, and clarity to move with change. We blend sharp operational insight with deep people strategy to create workplaces that are data led, ethical, and energised for what’s next.',
-  stats: [
-    { value: '6M+', label: 'TikTok views in under a year' },
-    { value: 'AI Summit', label: 'Global AI Impact Summit, Australian Government delegation' },
-    {
-      value: 'GIA',
-      label:
-        'Selected by the Governance Institute of Australia to develop national AI board training',
-    },
-    { value: 'In pilot', label: 'Selma is running with Australian partner organisations now' },
-  ],
   faq: [
     {
       question: 'What does EthicAI do?',

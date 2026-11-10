@@ -53,7 +53,6 @@ export async function applyContentDefaults({ payload, req }: Args): Promise<stri
   }
   if (heroChanged) copyData.hero = hero
   if (isBlank(copy.statement)) copyData.statement = HOME_DEFAULTS.statement
-  if (isBlank(copy.stats)) copyData.stats = HOME_DEFAULTS.stats
   if (isBlank(copy.faq)) copyData.faq = HOME_DEFAULTS.faq
   if (isBlank(copy.press)) copyData.press = HOME_DEFAULTS.press
 

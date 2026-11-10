@@ -6,7 +6,7 @@ import config from '../../src/payload.config'
 // Phase 3 acceptance: every page renders from seeded/real data (BUILD-SPEC §10).
 
 const pages = [
-  ['/', 'A.I. grounded in human dignity'],
+  ['/', 'AI grounded in human dignity'],
   ['/about', 'About EthicAI'],
   ['/services', 'Services'],
   ['/services/futurefit-diagnostic', 'FutureFit Diagnostic'],
