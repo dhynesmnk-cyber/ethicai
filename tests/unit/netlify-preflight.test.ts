@@ -16,7 +16,11 @@ const complete = {
 
 describe('checkEnvironment', () => {
   it('accepts a complete, sensible setup', () => {
-    expect(checkEnvironment(complete)).toEqual({ missing: [], problems: [], warnings: [] })
+    const result = checkEnvironment(complete)
+    expect(result).toMatchObject({ missing: [], problems: [], warnings: [] })
+    expect(result.info).toEqual([
+      'Database: host aws-0-ap-southeast-2.pooler.supabase.com, port 5432, user postgres.abc',
+    ])
   })
 
   it('lists every missing variable at once, as the failed Netlify build needed', () => {
@@ -40,6 +44,43 @@ describe('checkEnvironment', () => {
       DATABASE_URI: 'postgresql://postgres:pw@db.abcdefgh.supabase.co:5432/postgres',
     })
     expect(result.problems[0]).toMatch(/Session pooler/)
+  })
+
+  it('rejects a pooler address whose user is plain postgres, as the failed deploy may have had', () => {
+    const result = checkEnvironment({
+      ...complete,
+      DATABASE_URI:
+        'postgresql://postgres:pw@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
+    })
+    expect(result.problems[0]).toMatch(/postgres\.<project-ref>/)
+  })
+
+  it('rejects an address that still has the [YOUR-PASSWORD] placeholder', () => {
+    const result = checkEnvironment({
+      ...complete,
+      DATABASE_URI:
+        'postgresql://postgres.abc:[YOUR-PASSWORD]@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
+    })
+    expect(result.problems[0]).toMatch(/square brackets/)
+  })
+
+  it('explains an address that can’t be read because of special characters in the password', () => {
+    const result = checkEnvironment({
+      ...complete,
+      DATABASE_URI:
+        'postgresql://postgres.abc:pa#ss@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
+    })
+    expect(result.problems[0]).toMatch(/URL-encoded/)
+  })
+
+  it('shows the host, port and user in the log but never the password', () => {
+    const result = checkEnvironment({
+      ...complete,
+      DATABASE_URI:
+        'postgresql://postgres.abc:hunter2@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
+    })
+    expect(result.info.join(' ')).not.toContain('hunter2')
+    expect(result.info[0]).toContain('user postgres.abc')
   })
 
   it('warns, without failing, about the transaction pooler', () => {

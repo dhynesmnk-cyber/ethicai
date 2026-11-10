@@ -29,6 +29,7 @@ function run(label, args, env = process.env) {
 
 console.log('\n▶ Checking environment variables')
 const environment = checkEnvironment(process.env)
+for (const line of environment.info) console.log(`  ${line}`)
 for (const warning of environment.warnings) console.warn(`⚠ ${warning}`)
 if (environment.missing.length > 0 || environment.problems.length > 0) {
   console.error(`\n✖ ${describeFailure(environment, process.env)}`)
