@@ -56,7 +56,9 @@ export function DarkHero({
             src={image.url}
             alt=""
             fill
-            priority
+            // The Largest Contentful Paint element: fetch it first (`priority` is deprecated in Next 16).
+            loading="eager"
+            fetchPriority="high"
             sizes="100vw"
             className="-z-10 object-cover object-[center_30%]"
           />

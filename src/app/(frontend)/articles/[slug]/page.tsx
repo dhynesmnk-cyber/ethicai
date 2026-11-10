@@ -187,7 +187,9 @@ export default async function ArticlePage({ params }: Props) {
             height={hero.height}
             sizes="(min-width: 768px) 68ch, 100vw"
             className="mt-10 h-auto w-full rounded-card"
-            priority
+            // The Largest Contentful Paint element: fetch it first (`priority` is deprecated in Next 16).
+            loading="eager"
+            fetchPriority="high"
           />
         )}
 
