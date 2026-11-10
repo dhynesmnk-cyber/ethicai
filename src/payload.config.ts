@@ -43,7 +43,15 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
+      // On Netlify this must be Supabase's Transaction pooler (port 6543), not the Session pooler:
+      // see scripts/netlify-preflight.mjs and docs/DEPLOYMENT-NETLIFY.md §3a.
       connectionString: process.env.DATABASE_URI || '',
+      // DECISION: at most 5 connections per process instead of node-postgres's default 10. Every
+      // Netlify function instance has its own pool, and idle instances keep their connections
+      // open, so this halves the most a burst of instances can hold against the pooler's client
+      // limit. Payload keeps one of the five checked out for the life of the process, which
+      // leaves four for the handful of queries a page or admin request runs at once.
+      max: 5,
     },
   }),
   sharp,
