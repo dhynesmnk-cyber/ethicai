@@ -5,7 +5,7 @@ import { checkEnvironment, describeFailure } from '../../scripts/netlify-preflig
 const complete = {
   PAYLOAD_SECRET: 'x'.repeat(64),
   DATABASE_URI:
-    'postgresql://postgres.abc:pw@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
+    'postgresql://postgres.abc:pw@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres',
   NEXT_PUBLIC_SITE_URL: 'https://ethicaiau1.netlify.app',
   S3_BUCKET: 'ethicai-media',
   S3_ENDPOINT: 'https://acct.r2.cloudflarestorage.com',
@@ -19,7 +19,7 @@ describe('checkEnvironment', () => {
     const result = checkEnvironment(complete)
     expect(result).toMatchObject({ missing: [], problems: [], warnings: [] })
     expect(result.info).toEqual([
-      'Database: host aws-0-ap-southeast-2.pooler.supabase.com, port 5432, user postgres.abc',
+      'Database: host aws-0-ap-southeast-2.pooler.supabase.com, port 6543, user postgres.abc',
     ])
   })
 
@@ -43,14 +43,14 @@ describe('checkEnvironment', () => {
       ...complete,
       DATABASE_URI: 'postgresql://postgres:pw@db.abcdefgh.supabase.co:5432/postgres',
     })
-    expect(result.problems[0]).toMatch(/Session pooler/)
+    expect(result.problems[0]).toMatch(/Transaction pooler/)
   })
 
   it('rejects a pooler address whose user is plain postgres, as the failed deploy may have had', () => {
     const result = checkEnvironment({
       ...complete,
       DATABASE_URI:
-        'postgresql://postgres:pw@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
+        'postgresql://postgres:pw@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres',
     })
     expect(result.problems[0]).toMatch(/postgres\.<project-ref>/)
   })
@@ -59,7 +59,7 @@ describe('checkEnvironment', () => {
     const result = checkEnvironment({
       ...complete,
       DATABASE_URI:
-        'postgresql://postgres.abc:[YOUR-PASSWORD]@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
+        'postgresql://postgres.abc:[YOUR-PASSWORD]@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres',
     })
     expect(result.problems[0]).toMatch(/square brackets/)
   })
@@ -68,7 +68,7 @@ describe('checkEnvironment', () => {
     const result = checkEnvironment({
       ...complete,
       DATABASE_URI:
-        'postgresql://postgres.abc:pa#ss@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
+        'postgresql://postgres.abc:pa#ss@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres',
     })
     expect(result.problems[0]).toMatch(/URL-encoded/)
   })
@@ -77,20 +77,37 @@ describe('checkEnvironment', () => {
     const result = checkEnvironment({
       ...complete,
       DATABASE_URI:
-        'postgresql://postgres.abc:hunter2@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
+        'postgresql://postgres.abc:hunter2@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres',
     })
     expect(result.info.join(' ')).not.toContain('hunter2')
     expect(result.info[0]).toContain('user postgres.abc')
   })
 
-  it('warns, without failing, about the transaction pooler', () => {
+  it('rejects the Supabase session pooler, which ran out of connections on the review site', () => {
     const result = checkEnvironment({
       ...complete,
       DATABASE_URI:
-        'postgresql://postgres.abc:pw@aws-0-ap-southeast-2.pooler.supabase.com:6543/postgres',
+        'postgresql://postgres.abc:pw@aws-0-ap-southeast-2.pooler.supabase.com:5432/postgres',
     })
+    expect(result.problems).toHaveLength(1)
+    expect(result.problems[0]).toMatch(/Session pooler \(port 5432\)/)
+    expect(result.problems[0]).toMatch(/Transaction pooler/)
+    expect(result.problems[0]).toMatch(/6543/)
+  })
+
+  it('treats a pooler address without a port as the session pooler', () => {
+    const result = checkEnvironment({
+      ...complete,
+      DATABASE_URI:
+        'postgresql://postgres.abc:pw@aws-0-ap-southeast-2.pooler.supabase.com/postgres',
+    })
+    expect(result.problems[0]).toMatch(/Session pooler \(port 5432\)/)
+  })
+
+  it('accepts the transaction pooler without a warning', () => {
+    const result = checkEnvironment(complete)
     expect(result.problems).toEqual([])
-    expect(result.warnings[0]).toMatch(/transaction pooler/)
+    expect(result.warnings).toEqual([])
   })
 
   it('rejects a site address that is not a URL', () => {

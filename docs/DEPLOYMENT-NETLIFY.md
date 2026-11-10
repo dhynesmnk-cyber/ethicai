@@ -15,7 +15,7 @@ Companion to `docs/BUILD-SPEC.md` Phase 6. Audience: you (developer) + coding ag
 Both have generous free tiers and a Netlify integration (Supabase's is one-click from the Netlify integrations directory). Pick one:
 
 - **Neon** — serverless Postgres, simple connection string, built-in point-in-time restore (7 days on free), branch databases for preview deploys (nice bonus with Netlify preview URLs).
-- **Supabase** — Postgres + dashboard UI + daily backups (7 days free tier); use the **pooler (pgBouncer) connection string** for serverless.
+- **Supabase** — Postgres + dashboard UI + daily backups (7 days free tier); use the **Transaction pooler** connection string (port 6543) for Netlify. Not the Session pooler (port 5432): it caps the total number of connections at the plan's pool size, and serverless functions use them all up (§3a step 1).
 
 Steps:
 1. Create project in region **Sydney (ap-southeast-2)** — closest to AU users and to Netlify's Sydney region if selected.
@@ -73,14 +73,16 @@ A working copy of the site for review before launch. It is kept out of search en
 
 **You need:** a Supabase project in Sydney, the R2 bucket and keys, and this repo on GitHub. Nothing is run on anyone's machine: the build applies the migrations, creates your admin account and (optionally) adds the demo content (`netlify.toml` → `scripts/netlify-build.mjs`).
 
-1. **Database string.** Supabase → *Connect* → **Session pooler** (port 5432, host like `aws-0-ap-southeast-2.pooler.supabase.com`, user `postgres.<project-ref>`). Put your database password in. Use the session pooler here, not the direct connection (IPv6 only, which Netlify's build can't reach) and not the transaction pooler (port 6543), which suits running the site later but isn't meant for migrations. Special characters in the password must be URL-encoded.
+1. **Database string.** Supabase → *Connect* → **Transaction pooler** (port **6543**, host like `aws-0-ap-southeast-2.pooler.supabase.com`, user `postgres.<project-ref>`). Put your database password in. Special characters in the password must be URL-encoded. The site and the build (migrations included) both use this one string. Don't use:
+   - the **Session pooler** (port 5432): it gives every client its own connection for as long as the client stays connected, up to the plan's pool size (15 on the free plan). Each Netlify function instance holds its connections while idle, so a few admin page loads use them all up and the admin crashes with `max clients reached in session mode`. The build refuses it.
+   - the **direct connection** (`db.<project-ref>.supabase.co`): IPv6 only, which Netlify can't reach.
 2. **Create the site.** Netlify → *Add new site* → *Import an existing project* → GitHub → `dhynesmnk-cyber/ethicai`. Choose the branch to deploy (`claude/confident-feynman-bep01v` until it is merged to `main`), leave the build settings as they are (they come from `netlify.toml`), then *Site configuration → Change site name* to `ethicaiau1`.
 3. **Environment variables** (*Site configuration → Environment variables*; give each the **Builds**, **Functions** and **Runtime** scopes, and tick *Contains secret values* on the secrets):
 
    | Variable | Value |
    |---|---|
    | `PAYLOAD_SECRET` | New random value: `openssl rand -hex 32` (never reuse the local one) |
-   | `DATABASE_URI` | The session pooler string from step 1 |
+   | `DATABASE_URI` | The **transaction pooler** string from step 1 (port 6543) |
    | `NEXT_PUBLIC_SITE_URL` | `https://ethicaiau1.netlify.app` (no trailing slash) |
    | `S3_BUCKET`, `S3_REGION` (`auto`), `S3_ENDPOINT`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`, `S3_PUBLIC_URL` | The same values as in `.env.example`'s Media section |
    | `BOOTSTRAP_ADMIN_EMAIL`, `BOOTSTRAP_ADMIN_PASSWORD` | Your email and a temporary password of 12+ characters. The build creates this admin only if the site has no users, which also stops anyone else claiming `/admin` first |
@@ -92,7 +94,9 @@ A working copy of the site for review before launch. It is kept out of search en
 6. **First sign-in.** Open `/admin`, sign in with the bootstrap email and password, and change the password under *Account*. Then **delete `BOOTSTRAP_ADMIN_EMAIL`, `BOOTSTRAP_ADMIN_PASSWORD` and (once real content is in) `SEED_DEMO_CONTENT`**. The bootstrap never touches an existing site, but a password shouldn't sit in the dashboard, and demo content that you delete returns on every build while `SEED_DEMO_CONTENT` is on.
 7. In *Site settings*, enter the Elfsight widget ID, Substack URL, TikTok handle and YouTube channel (see `docs/WEEKLY-RUNBOOK.md`).
 
-If the build stops at `▶ Checking environment variables`, the log lists every variable that is missing or wrong (names only, never values). Add them, making sure each has the **Builds** scope and applies to all deploy contexts, then trigger a new deploy. If it fails at the migration step, the log names the cause: usually a wrong `DATABASE_URI` (check the password's encoding, the project reference in the user name, and that it is the session pooler). Re-running a deploy is safe: migrations apply once, and the bootstrap and seed only create what is missing.
+If the build stops at `▶ Checking environment variables`, the log lists every variable that is missing or wrong (names only, never values). Add them, making sure each has the **Builds** scope and applies to all deploy contexts, then trigger a new deploy. If it fails at the migration step, the log names the cause: usually a wrong `DATABASE_URI` (check the password's encoding, the project reference in the user name, and that it is the transaction pooler on port 6543). Re-running a deploy is safe: migrations apply once, and the bootstrap and seed only create what is missing.
+
+**The admin or a page crashes with `(EMAXCONNSESSION) max clients reached in session mode` in the function log** (Netlify → *Logs* → *Functions*): `DATABASE_URI` is the Session pooler. Change it to the Transaction pooler string (the same address with port `6543`, step 1) and redeploy. A new environment variable value only reaches the functions after a deploy.
 
 ## 4. Scheduled functions (only if Milestone 7 YouTube auto-sync is built)
 

@@ -23,7 +23,7 @@ Read `AGENTS.md` and `docs/BUILD-SPEC.md` first. They are the source of truth; t
 
 ## 2. Waiting on the user
 
-0. **Deploy the review site** (`docs/DEPLOYMENT-NETLIFY.md` §3a): a Supabase **session pooler** string, the Netlify site (`ethicaiau1`) connected to this branch, the environment variables (including `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD` and `SEED_DEMO_CONTENT=true`), and `https://ethicaiau1.netlify.app` added to the R2 CORS rule. After the first sign-in: change the password, delete the bootstrap variables and, once real content is in, `SEED_DEMO_CONTENT`.
+0. **Deploy the review site** (`docs/DEPLOYMENT-NETLIFY.md` §3a): a Supabase **transaction pooler** string (port 6543; the session pooler ran out of connections on the review site, see §8), the Netlify site (`ethicaiau1`) connected to this branch, the environment variables (including `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD` and `SEED_DEMO_CONTENT=true`), and `https://ethicaiau1.netlify.app` added to the R2 CORS rule. After the first sign-in: change the password, delete the bootstrap variables and, once real content is in, `SEED_DEMO_CONTENT`.
 1. **R2 CORS rule: fixed (8 November).** The owner rewrote the rule (origins `http://localhost:3000` and `https://ethicaiau1.netlify.app`, methods `GET`, `PUT`, `HEAD`, headers `*`) and the preflight from the sandbox now returns `204` with `access-control-allow-origin` for both origins. Before that it returned `403` for every origin (checked 6 November). A real browser upload through the admin has **not** been tried yet: do that on the review site. The bucket token can't read the rule back (`GetBucketCors` is `AccessDenied`), so this probe is the way to check it, from a session on the "Ethicai" environment or any machine with the values:
    ```bash
    H=$(node -e "console.log(new URL(process.env.S3_ENDPOINT).origin)")
@@ -157,7 +157,7 @@ Netlify stays. Uploads go browser → R2 by signed URL (Netlify Functions cap bo
 ## 8. Not yet verified
 
 - A browser upload straight to R2 (the preflight passes now, see §2.1; the upload itself hasn't been tried).
-- **Anything on Netlify:** the build itself (Next 16 on Netlify's Next.js runtime), the Supabase session-pooler connection, Payload running as a function, `NODE_VERSION` 22.23.4 for the build (Lambda's own Node 22 patch version may be older; Payload only declares this in `engines`). None of it could be reached from the sandbox.
+- **Anything on Netlify:** the build itself (Next 16 on Netlify's Next.js runtime), Payload running as a function on the Supabase transaction pooler (the first review deploy used the session pooler, and `/admin` crashed with `max clients reached in session mode`; the build now refuses it; migrations, the admin bootstrap, the build and the admin were checked locally through PgBouncer in transaction mode, the seed was not because it needs R2), `NODE_VERSION` 22.23.4 for the build (Lambda's own Node 22 patch version may be older; Payload only declares this in `engines`). None of it could be reached from the sandbox.
 - A real person timing the weekly workflow (§3b), and Lighthouse on the current build.
 - The Elfsight widget with a **real** widget ID (only stubbed, and the real script with a made-up ID).
 - EthicAI's own Substack feed (other live Substack feeds parse correctly).
@@ -167,5 +167,5 @@ Netlify stays. Uploads go browser → R2 by signed URL (Netlify Functions cap bo
 ## 9. After Phase 5
 
 - **Still open from Phase 5:** real content in place of the two demo articles (acceptance: no demo content remains), the page-copy decision, a timed weekly-workflow run by a person, and the JS budget question. The Markdown converter, dashboard panel, help-text pass and linked-article revalidation are done.
-- **Phase 6** (`docs/DEPLOYMENT-NETLIFY.md`): Supabase in Sydney (transaction pooler for Netlify; session pooler for running migrations from a machine), production bucket and CORS, `DATABASE_URI` at build time, `REVALIDATE_SECRET` if wanted, a 15–20 MB upload test, a real form submission, Elfsight on production after a click, the domain cutover (keep MX/SPF/DKIM untouched), old-URL redirects, and removing `/media-check` and `/kitchen-sink`.
+- **Phase 6** (`docs/DEPLOYMENT-NETLIFY.md`): Supabase in Sydney (transaction pooler for Netlify, build migrations included), production bucket and CORS, `DATABASE_URI` at build time, `REVALIDATE_SECRET` if wanted, a 15–20 MB upload test, a real form submission, Elfsight on production after a click, the domain cutover (keep MX/SPF/DKIM untouched), old-URL redirects, and removing `/media-check` and `/kitchen-sink`.
 - **Other open items:** swap the wordmark and placeholder favicon for the client's logo; `npm audit` still shows high/moderate issues in packages Payload depends on (`braces`, `esbuild`), with no upstream fix and none handling visitor input.

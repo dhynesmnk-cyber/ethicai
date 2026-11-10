@@ -64,19 +64,29 @@ export function checkEnvironment(env) {
         if (/^db\.[^.]+\.supabase\.co$/.test(url.hostname)) {
           problems.push(
             'DATABASE_URI is the Supabase direct connection, which is IPv6-only and unreachable ' +
-              'from Netlify builds. Use the Session pooler string (Supabase → Connect → Session pooler).',
+              'from Netlify. Use the Transaction pooler string (Supabase → Connect → Transaction pooler).',
           )
         } else if (url.hostname.endsWith('.pooler.supabase.com')) {
           if (!user.startsWith('postgres.')) {
             problems.push(
               `The Supabase pooler needs the user to be postgres.<project-ref>, but this one is “${user}”. ` +
-                'Copy the string again from Supabase → Connect → Session pooler.',
+                'Copy the string again from Supabase → Connect → Transaction pooler.',
             )
           }
-          if (port === '6543') {
-            warnings.push(
-              'DATABASE_URI looks like the Supabase transaction pooler (port 6543). Migrations can ' +
-                'fail there; the Session pooler (port 5432) is the one to use for the first deploy.',
+          // DECISION: the session pooler (port 5432) fails the build instead of warning. It gives
+          // each client its own database connection for as long as the client stays connected,
+          // and caps them at the plan's pool size (15 on the free plan). Every Netlify function
+          // instance keeps its connections open while idle, so a few admin page loads use them
+          // all up and the admin crashes ("max clients reached in session mode"). The transaction
+          // pooler only lends a connection for the length of each query or transaction. Payload,
+          // migrations included, uses no session-level features (advisory locks, named prepared
+          // statements, SET), so everything runs on it.
+          if (port !== '6543') {
+            problems.push(
+              `DATABASE_URI is the Supabase Session pooler (port ${port}). It allows only a few ` +
+                'connections in total and the live site runs out of them (“max clients reached in ' +
+                'session mode”). Use the Transaction pooler instead: Supabase → Connect → ' +
+                'Transaction pooler, which is the same address with port 6543.',
             )
           }
         }
