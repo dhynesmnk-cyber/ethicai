@@ -9,7 +9,7 @@ export const contentType = 'image/png'
 
 export default function Image() {
   return new ImageResponse(
-    <OgCard eyebrow="ethicai.au" title="Helping organisations adopt AI ethically" />,
+    <OgCard kicker="ethicai.au" title="Helping organisations adopt AI ethically" />,
     size,
   )
 }

@@ -4,6 +4,8 @@ import { ContactForm } from '@/components/ContactForm'
 import { PageIntro } from '@/components/family/PageIntro'
 import { Container } from '@/components/layout/Container'
 import { displayHost, selmaInfo } from '@/lib/family'
+import { photoFor } from '@/lib/photography'
+import { getPageCopy } from '@/lib/queries'
 import { getSiteSettings } from '@/lib/site-settings'
 import { pageMetadata } from '@/lib/seo'
 
@@ -17,7 +19,7 @@ export const metadata: Metadata = pageMetadata({
 })
 
 export default async function ContactPage() {
-  const settings = await getSiteSettings()
+  const [settings, copy] = await Promise.all([getSiteSettings(), getPageCopy()])
   const { contactEmail } = settings
   const selma = selmaInfo(settings)
 
@@ -26,7 +28,7 @@ export default async function ContactPage() {
       <PageIntro
         path="/contact"
         title="Contact us"
-        eyebrow="Work with us"
+        photo={photoFor(copy, 'contact')}
         lead="Thinking about AI in your organisation, or want to talk about something you’ve seen us share? Send us a message."
         type="ContactPage"
       />

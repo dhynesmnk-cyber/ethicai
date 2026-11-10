@@ -15,6 +15,7 @@ const pages = [
   ['/newsletter', 'The EthicAI newsletter'],
   ['/contact', 'Contact us'],
   ['/privacy-policy', 'Privacy policy'],
+  ['/photo-credits', 'Photo credits'],
 ] as const
 
 for (const [path, heading] of pages) {

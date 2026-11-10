@@ -1,7 +1,6 @@
 import Link from 'next/link'
 
 import { RichText } from '@/components/blocks/RichText'
-import { RingMark } from '@/components/family/RingMark'
 import {
   SOCIAL_LABELS,
   SOCIAL_PLATFORMS,
@@ -18,7 +17,7 @@ const isSocialPlatform = (value: string): value is SocialPlatform =>
 
 const footerLink =
   'rounded-sm text-night-muted underline-offset-4 transition-colors hover:text-white hover:underline'
-const columnHeading = 'eyebrow text-accent-soft'
+const columnHeading = 'text-base font-semibold text-white'
 
 /**
  * Site footer (night). Contact details, socials, the family column, the legal line and the
@@ -36,9 +35,8 @@ export async function Footer() {
   ].filter(Boolean)
 
   return (
-    <footer className="on-night relative overflow-hidden">
-      <RingMark className="pointer-events-none absolute -bottom-56 -left-40 size-[34rem] text-accent opacity-20" />
-      <Container className="relative grid gap-12 pt-20 pb-14 md:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
+    <footer className="on-night">
+      <Container className="grid gap-12 pt-20 pb-14 md:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
         <div className="max-w-sm">
           <p className="text-4xl font-extrabold tracking-[-0.03em]">EthicAI</p>
           {footerText ? (
@@ -59,7 +57,7 @@ export async function Footer() {
                 <li key={link.id ?? link.url}>
                   <a
                     href={link.url}
-                    className="inline-flex size-11 items-center justify-center rounded-full border border-white/15 text-white transition-colors hover:border-accent-soft hover:text-accent-soft"
+                    className="inline-flex size-11 items-center justify-center rounded-full border border-white/15 text-white transition-colors hover:border-white/60"
                   >
                     <SocialIcon platform={link.platform} className="size-5" />
                     <span className="sr-only">EthicAI on {SOCIAL_LABELS[link.platform]}</span>
@@ -94,7 +92,10 @@ export async function Footer() {
                 <p className="text-sm text-night-muted">AI ethics and governance</p>
               </li>
               <li>
-                <a href={selma.url} className="font-semibold text-white hover:text-accent-soft">
+                <a
+                  href={selma.url}
+                  className="font-semibold text-white underline-offset-4 hover:underline"
+                >
                   Selma <span aria-hidden="true">↗</span>
                   <span className="sr-only"> (opens {displayHost(selma.url)})</span>
                 </a>
@@ -117,16 +118,23 @@ export async function Footer() {
         )}
       </Container>
 
-      <Container className="relative">
+      <Container>
         <div className="flex flex-col gap-2 border-t border-white/10 py-6 text-sm text-night-muted sm:flex-row sm:justify-between">
           <p>
             © {new Date().getFullYear()} {legal.length > 0 ? legal.join(' · ') : 'EthicAI'}
           </p>
-          <p>
-            <Link href="/privacy-policy" className={footerLink}>
-              Privacy policy
-            </Link>
-          </p>
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+            <li>
+              <Link href="/privacy-policy" className={footerLink}>
+                Privacy policy
+              </Link>
+            </li>
+            <li>
+              <Link href="/photo-credits" className={footerLink}>
+                Photo credits
+              </Link>
+            </li>
+          </ul>
         </div>
       </Container>
     </footer>

@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import type { ReactNode } from 'react'
 
 import { RichText } from '@/components/blocks/RichText'
+import { Photo } from '@/components/family/Photo'
 import { VideoCard } from '@/components/feed/VideoCard'
 import { YouTubeFacade } from '@/components/feed/YouTubeFacade'
 import { SOCIAL_LABELS, SOCIAL_PLATFORMS, SocialIcon } from '@/components/icons/SocialIcon'
@@ -19,6 +20,7 @@ import { Quote } from '@/components/ui/Quote'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { TagChip } from '@/components/ui/TagChip'
 import { toImage } from '@/lib/media'
+import { DEFAULT_PHOTOS } from '@/lib/photography'
 
 // TEMPORARY (Phase 2 review): every shared component on one page (BUILD-SPEC §10). Signed-in
 // users only and hidden from search engines. Remove before launch.
@@ -30,7 +32,7 @@ export const metadata: Metadata = {
 const swatches = [
   ['canvas', 'bg-canvas', 'Page background'],
   ['mist', 'bg-mist', 'Light section bands'],
-  ['night', 'bg-night', 'Dark sections, hero, footer'],
+  ['night', 'bg-night', 'Dark sections, the fade over photos, footer'],
   ['night-raised', 'bg-night-raised', 'Cards on night'],
   ['night-muted', 'bg-night-muted', 'Secondary text on night'],
   ['ink', 'bg-ink', 'Body text'],
@@ -75,7 +77,6 @@ export default async function KitchenSinkPage({ searchParams }: Props) {
       <Container className="py-12">
         <SectionHeading
           as="h1"
-          eyebrow="Design review · temporary"
           title="Kitchen sink"
           description="Every shared component in one place, for design review. Only visible when signed in to the admin."
         />
@@ -97,18 +98,15 @@ export default async function KitchenSinkPage({ searchParams }: Props) {
 
       <Demo id="type" title="Typography">
         <div className="space-y-4">
-          <p className="text-6xl font-extrabold tracking-[-0.03em]">
-            AI grounded in human dignity
-          </p>
+          <p className="text-6xl font-extrabold tracking-[-0.03em]">AI grounded in human dignity</p>
           <p className="text-4xl font-bold tracking-[-0.025em]">
             Section heading (Plus Jakarta Sans)
           </p>
           <p className="text-2xl font-bold tracking-[-0.02em]">Card heading</p>
-          <p className="font-mono text-3xl font-semibold text-accent">6M+ · 01 02 03</p>
           <p className="max-w-reading">
             Body text is Plus Jakarta Sans at 17px on phones and 18px from tablet up, with a 1.65
-            line height. Figures and step numbers use JetBrains Mono, as on selma.au. In a world
-            where AI is reshaping work, the most powerful thing an organisation can be is adaptable.
+            line height. In a world where AI is reshaping work, the most powerful thing an
+            organisation can be is adaptable.
           </p>
           <p className="text-muted">Muted text for dates, captions and secondary details.</p>
           <p className="text-sm text-muted">Small text, e.g. “15 October 2026 · 4 min read”.</p>
@@ -134,7 +132,6 @@ export default async function KitchenSinkPage({ searchParams }: Props) {
 
       <Demo id="section-heading" title="Section heading">
         <SectionHeading
-          eyebrow="Latest"
           title="Articles"
           description="Short reads that summarise each video, written for busy leaders."
           action={{ href: '/articles', label: 'View all articles' }}
@@ -250,18 +247,23 @@ export default async function KitchenSinkPage({ searchParams }: Props) {
         </ul>
       </Demo>
 
-      <Demo id="motion" title="Motion">
+      <Demo id="photos" title="Photographs">
         <p className="mb-6 max-w-reading text-muted">
-          Blocks fade up as they scroll into view. Turned off for anyone who prefers reduced motion,
-          and absent in browsers without scroll-driven animations.
+          The default photo for each place on the site. Each can be replaced under Page copy →
+          Photos; the credits are on /photo-credits.
         </p>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {['First', 'Second', 'Third'].map((label) => (
-            <div key={label} className="reveal rounded-card border border-line bg-surface p-8">
-              {label}
-            </div>
+        <ul className="grid gap-4 sm:grid-cols-3">
+          {Object.entries(DEFAULT_PHOTOS).map(([slot, photo]) => (
+            <li key={slot}>
+              <div className="relative aspect-[3/2] overflow-hidden rounded-card bg-mist">
+                <Photo photo={photo} sizes="(min-width: 640px) 33vw, 100vw" />
+              </div>
+              <p className="mt-2 text-sm">
+                <span className="font-semibold">{slot}</span>: {photo.credit.title}
+              </p>
+            </li>
           ))}
-        </div>
+        </ul>
       </Demo>
 
       <SubscribeCTA />

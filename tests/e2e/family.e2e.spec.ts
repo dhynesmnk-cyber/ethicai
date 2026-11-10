@@ -2,8 +2,8 @@ import { expect, type Page, test } from '@playwright/test'
 
 import { gotoHydrated } from '../helpers/navigation'
 
-// The family redesign (docs/REDESIGN-PLAN.md): Selma links, the dark hero and its header, the FAQ,
-// reduced motion and the linked structured data.
+// The family redesign (docs/REDESIGN-PLAN.md): Selma links, the photo hero and its header, the
+// FAQ, no counters or decorative motion, and the linked structured data.
 
 const SELMA = 'https://selma.au'
 
@@ -40,7 +40,7 @@ test('the skip link is still the first thing you can tab to', async ({ page }) =
 const headerColour = (page: Page) =>
   page.locator('.site-header').evaluate((el) => getComputedStyle(el).color)
 
-test('the header is white over the dark hero and ink once the page scrolls', async ({ page }) => {
+test('the header is white over the photo hero and ink once the page scrolls', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
   await expect.poll(() => headerColour(page)).toBe('rgb(255, 255, 255)')
@@ -49,7 +49,7 @@ test('the header is white over the dark hero and ink once the page scrolls', asy
   await expect.poll(() => headerColour(page)).toBe('rgb(29, 29, 31)')
 })
 
-test('pages without a dark hero start with the frosted header', async ({ page }) => {
+test('pages without a photo hero start with the frosted header', async ({ page }) => {
   await page.goto('/no-such-page')
   await expect.poll(() => headerColour(page)).toBe('rgb(29, 29, 31)')
 })
@@ -65,16 +65,23 @@ test('FAQ answers open from the keyboard', async ({ page }) => {
   await expect(first.locator('p')).toBeVisible()
 })
 
-test('reduced motion turns the animations off', async ({ browser }) => {
+test('Home opens on a photograph, with no counters and no decorative motion', async ({
+  browser,
+}) => {
   const context = await browser.newContext({ reducedMotion: 'reduce' })
   const page = await context.newPage()
   await page.goto('/')
-  const animations = await page.evaluate(() => ({
-    aurora: getComputedStyle(document.querySelector('.aurora')!, '::before').animationName,
-    headline: getComputedStyle(document.querySelector('h1')!).animationName,
-    ring: getComputedStyle(document.querySelector('.rings-animated .ring')!).animationName,
-  }))
-  expect(animations).toEqual({ aurora: 'none', headline: 'none', ring: 'none' })
+  await expect(page.locator('.hero-dark').first().locator('img')).toHaveCount(1)
+  // The stats strip ("counters") is gone for good.
+  await expect(page.getByRole('region', { name: 'EthicAI in numbers' })).toHaveCount(0)
+  // Only the header's scroll-driven change to frosted glass may animate.
+  const animated = await page.evaluate(() =>
+    [...document.querySelectorAll('body *')]
+      .filter((el) => !el.closest('.site-header'))
+      .filter((el) => getComputedStyle(el).animationName !== 'none')
+      .map((el) => `${el.tagName.toLowerCase()}.${el.getAttribute('class') ?? ''}`),
+  )
+  expect(animated).toEqual([])
   await context.close()
 })
 

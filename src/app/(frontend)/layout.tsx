@@ -11,7 +11,7 @@ import { isReviewSite, siteUrl } from '@/lib/site-url'
 import { getTeamMembers } from '@/lib/queries'
 import { siteSchemas } from '@/lib/structured-data'
 
-import { jakarta, jakartaItalic, jetbrains } from './fonts'
+import { jakarta, jakartaItalic } from './fonts'
 import './globals.css'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -41,10 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const founders = team.filter((member) => /founder/i.test(member.role))
 
   return (
-    <html
-      lang="en-AU"
-      className={`${jakarta.variable} ${jakartaItalic.variable} ${jetbrains.variable}`}
-    >
+    <html lang="en-AU" className={`${jakarta.variable} ${jakartaItalic.variable}`}>
       <body className="flex min-h-dvh flex-col bg-canvas font-sans text-ink antialiased">
         <JsonLd data={siteSchemas({ settings, founders })} />
         <a

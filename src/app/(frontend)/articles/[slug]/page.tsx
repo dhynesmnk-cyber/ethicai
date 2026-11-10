@@ -162,7 +162,7 @@ export default async function ArticlePage({ params }: Props) {
             aria-labelledby="in-short"
             className="mt-10 rounded-card border-l-4 border-accent bg-mist p-6 sm:p-7"
           >
-            <h2 id="in-short" className="eyebrow text-accent">
+            <h2 id="in-short" className="text-xl">
               In short
             </h2>
             <ul className="mt-4 space-y-3">
@@ -222,7 +222,7 @@ export default async function ArticlePage({ params }: Props) {
             aria-label="About the author"
             className="mt-14 flex flex-col gap-2 rounded-card border border-line p-6 sm:p-7"
           >
-            <p className="eyebrow text-muted">About the author</p>
+            <p className="text-sm font-semibold text-muted">About the author</p>
             <p className="text-xl font-bold tracking-[-0.02em]">
               <Link href={profileHref ?? '/about'} className="hover:text-accent">
                 {profile.name}

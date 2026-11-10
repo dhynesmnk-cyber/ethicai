@@ -1,7 +1,8 @@
 import localFont from 'next/font/local'
 
-// The family typefaces, shared with selma.au: Plus Jakarta Sans for everything, JetBrains Mono
-// for figures and small labels (docs/REDESIGN-PLAN.md §3).
+// The family typeface, shared with selma.au: Plus Jakarta Sans for everything
+// (docs/REDESIGN-PLAN.md §3). selma.au also uses JetBrains Mono for figures and labels; this site
+// dropped it with the stats strip and numbered cards, as monospace reads as "tech product".
 // DECISION: self-hosted from the @fontsource-variable packages via next/font/local rather than
 // next/font/google (selma.au loads them from Google Fonts), so builds never depend on reaching
 // Google and visitors make no third-party request. Latin subset only. next/font generates
@@ -25,16 +26,5 @@ export const jakartaItalic = localFont({
   display: 'swap',
   preload: false,
   variable: '--font-jakarta-italic',
-  adjustFontFallback: false,
-})
-
-// Figures and labels only (stats, step numbers), so it isn't preloaded either.
-export const jetbrains = localFont({
-  src: '../../../node_modules/@fontsource-variable/jetbrains-mono/files/jetbrains-mono-latin-wght-normal.woff2',
-  style: 'normal',
-  weight: '100 800',
-  display: 'swap',
-  preload: false,
-  variable: '--font-jetbrains',
   adjustFontFallback: false,
 })

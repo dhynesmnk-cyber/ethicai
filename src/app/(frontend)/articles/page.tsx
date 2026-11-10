@@ -9,7 +9,8 @@ import { ArticleCard } from '@/components/ui/Card'
 import { Pagination } from '@/components/ui/Pagination'
 import { TagChip } from '@/components/ui/TagChip'
 import { toImage } from '@/lib/media'
-import { getAllTags, getArticlesPage } from '@/lib/queries'
+import { photoFor } from '@/lib/photography'
+import { getAllTags, getArticlesPage, getPageCopy } from '@/lib/queries'
 import { readingMinutes } from '@/lib/reading-time'
 import { pageMetadata } from '@/lib/seo'
 
@@ -48,7 +49,11 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 
 export default async function ArticlesPage({ searchParams }: Props) {
   const { page, tag, query } = parse(await searchParams)
-  const [results, tags] = await Promise.all([getArticlesPage({ page, tag, query }), getAllTags()])
+  const [results, tags, copy] = await Promise.all([
+    getArticlesPage({ page, tag, query }),
+    getAllTags(),
+    getPageCopy(),
+  ])
   if (page > 1 && page > results.totalPages) notFound()
 
   const filtered = Boolean(tag || query)
@@ -58,7 +63,7 @@ export default async function ArticlesPage({ searchParams }: Props) {
       <PageIntro
         path="/articles"
         title="Articles"
-        eyebrow="Read"
+        photo={photoFor(copy, 'articles')}
         lead="Short reads on adopting AI with people at the centre, written for busy leaders. Many summarise one of our videos."
         type="CollectionPage"
       />

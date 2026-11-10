@@ -13,7 +13,7 @@ export function Card({ children, className }: { children: ReactNode; className?:
     <article
       className={cn(
         'group relative flex flex-col overflow-hidden rounded-card border border-line bg-surface',
-        'transition-[transform,box-shadow] duration-300 ease-out-soft hover:-translate-y-1 hover:shadow-[0_18px_40px_-24px_rgb(29_29_31/0.35)] motion-reduce:hover:translate-y-0',
+        'transition-colors duration-200 hover:border-line-strong',
         // The whole card is one click target; show focus around the card, not just the title.
         'has-[a[data-card-link]:focus-visible]:outline-[3px] has-[a[data-card-link]:focus-visible]:outline-offset-[3px] has-[a[data-card-link]:focus-visible]:outline-accent has-[a[data-card-link]:focus-visible]:outline-solid',
         className,
@@ -54,7 +54,7 @@ export function ArticleCard({
             alt={image.alt}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-[1.03]"
+            className="object-cover"
           />
         )}
       </div>
@@ -72,7 +72,7 @@ export function ArticleCard({
           <Link
             href={href}
             data-card-link
-            className="text-ink after:absolute after:inset-0 hover:text-accent focus-visible:outline-none"
+            className="text-ink decoration-2 underline-offset-4 group-hover:underline after:absolute after:inset-0 focus-visible:outline-none"
           >
             {title}
           </Link>
@@ -111,12 +111,12 @@ export function FeatureArticleCard({
             alt={image.alt}
             fill
             sizes="(min-width: 768px) 60vw, 100vw"
-            className="object-cover transition-transform duration-500 ease-out-soft group-hover:scale-[1.03]"
+            className="object-cover"
           />
         )}
       </div>
       <div className="flex flex-col gap-4 p-6 sm:p-8 lg:p-10">
-        <p className="eyebrow text-accent">Latest</p>
+        <p className="text-sm font-semibold text-muted">Latest</p>
         {tags && tags.length > 0 && (
           <ul className="flex flex-wrap gap-2" aria-label="Tags">
             {tags.map((tag) => (
@@ -130,7 +130,7 @@ export function FeatureArticleCard({
           <Link
             href={href}
             data-card-link
-            className="text-ink after:absolute after:inset-0 hover:text-accent focus-visible:outline-none"
+            className="text-ink decoration-2 underline-offset-4 group-hover:underline after:absolute after:inset-0 focus-visible:outline-none"
           >
             {title}
           </Link>

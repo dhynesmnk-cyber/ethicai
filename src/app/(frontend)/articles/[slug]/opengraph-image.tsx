@@ -27,7 +27,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
       />
     ) : (
-      <OgCard eyebrow="Article" title={article?.title ?? 'EthicAI'} />
+      <OgCard kicker="Article" title={article?.title ?? 'EthicAI'} />
     ),
     size,
   )

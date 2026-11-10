@@ -10,7 +10,8 @@ import { JsonLd } from '@/components/JsonLd'
 import { Container } from '@/components/layout/Container'
 import { ButtonLink } from '@/components/ui/Button'
 import { Prose } from '@/components/ui/Prose'
-import { getServiceBySlug, getServices } from '@/lib/queries'
+import { photoFor } from '@/lib/photography'
+import { getPageCopy, getServiceBySlug, getServices } from '@/lib/queries'
 import { pageMetadata } from '@/lib/seo'
 import { faqSchema, serviceSchema } from '@/lib/structured-data'
 
@@ -39,7 +40,8 @@ export default async function ServicePage({ params }: Props) {
   const service = await getServiceBySlug(slug)
   if (!service) notFound()
 
-  const others = (await getServices()).filter((s) => s.id !== service.id)
+  const [all, copy] = await Promise.all([getServices(), getPageCopy()])
+  const others = all.filter((s) => s.id !== service.id)
   const path = `/services/${service.slug}`
   const faq = service.faq ?? []
 
@@ -48,8 +50,8 @@ export default async function ServicePage({ params }: Props) {
       <PageIntro
         path={path}
         title={service.title}
-        eyebrow="Service"
         lead={service.summary}
+        photo={photoFor(copy, 'services')}
         parents={[{ name: 'Services', path: '/services' }]}
         actions={
           <ButtonLink href="/contact" size="lg">
@@ -73,15 +75,12 @@ export default async function ServicePage({ params }: Props) {
           </section>
         )}
 
-        <aside
-          aria-label="Get in touch"
-          className="mt-16 rounded-card bg-accent p-7 text-white sm:p-9"
-        >
-          <h2 className="text-2xl text-white sm:text-3xl">Is this right for your organisation?</h2>
-          <p className="mt-3 text-white/85">
+        <aside aria-label="Get in touch" className="mt-16 border-t border-line-strong/50 pt-10">
+          <h2 className="text-2xl sm:text-3xl">Is this right for your organisation?</h2>
+          <p className="mt-3 text-muted">
             Tell us what you’re working on and we’ll suggest the right first step.
           </p>
-          <ButtonLink href="/contact" variant="light" className="mt-6">
+          <ButtonLink href="/contact" className="mt-6">
             Get in touch
           </ButtonLink>
         </aside>

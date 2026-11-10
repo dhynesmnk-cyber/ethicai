@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 
 import { PageIntro } from '@/components/family/PageIntro'
-import { RingMark } from '@/components/family/RingMark'
+import { PhotoBand } from '@/components/family/PhotoBand'
 import { SocialIcon } from '@/components/icons/SocialIcon'
 import { JsonLd } from '@/components/JsonLd'
 import { Container } from '@/components/layout/Container'
@@ -10,6 +10,7 @@ import { ButtonLink } from '@/components/ui/Button'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { displayHost, selmaInfo } from '@/lib/family'
 import { toImage } from '@/lib/media'
+import { photoFor } from '@/lib/photography'
 import { getPageCopy, getTeamMembers } from '@/lib/queries'
 import { pageMetadata } from '@/lib/seo'
 import { getSiteSettings } from '@/lib/site-settings'
@@ -42,8 +43,8 @@ export default async function AboutPage() {
       <PageIntro
         path="/about"
         title={about?.headline || 'About EthicAI'}
-        eyebrow="Who we are"
         lead={about?.lead}
+        photo={photoFor(copy, 'about')}
         type="AboutPage"
       />
       <JsonLd data={team.map((member) => personSchema(member, toImage(member.photo, 'card')))} />
@@ -51,7 +52,7 @@ export default async function AboutPage() {
       {paragraphs(about?.story).length > 0 && (
         <section aria-labelledby="our-story" className="py-24 sm:py-28">
           <Container className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-16">
-            <SectionHeading id="our-story" eyebrow="Our story" title="Adaptable by design" />
+            <SectionHeading id="our-story" title="Adaptable by design" />
             <div className="space-y-6 text-xl leading-relaxed text-ink">
               {paragraphs(about?.story).map((paragraph, i) => (
                 <p key={i}>{paragraph}</p>
@@ -63,7 +64,7 @@ export default async function AboutPage() {
 
       <section aria-labelledby="our-team" className="py-24 sm:py-28">
         <Container>
-          <SectionHeading id="our-team" eyebrow="People" title="Our team" />
+          <SectionHeading id="our-team" title="Our team" />
           {team.length === 0 ? (
             <p className="mt-8 text-muted">Team profiles are coming soon.</p>
           ) : (
@@ -97,7 +98,7 @@ export default async function AboutPage() {
                       </div>
                       {member.credentials && member.credentials.length > 0 && (
                         <>
-                          <h4 className="eyebrow mt-8 text-muted">Qualifications</h4>
+                          <h4 className="mt-8 text-base text-muted">Qualifications</h4>
                           <ul className="mt-3 flex flex-wrap gap-2">
                             {member.credentials.map((credential) => (
                               <li
@@ -131,28 +132,21 @@ export default async function AboutPage() {
       </section>
 
       {selma.show && (
-        <section
-          aria-labelledby="selma-family"
-          className="on-night grain relative isolate overflow-hidden py-24"
-        >
-          <div className="aurora -z-10 opacity-70" />
-          <RingMark className="pointer-events-none absolute top-1/2 right-[-8rem] -z-10 size-[30rem] -translate-y-1/2 text-accent-soft opacity-25" />
-          <Container className="max-w-3xl">
-            <p className="eyebrow text-accent-soft">The EthicAI family</p>
-            <h2 id="selma-family" className="mt-4 text-4xl text-white sm:text-5xl">
-              Selma is our knowledge, productised.
-            </h2>
-            {selma.summary && <p className="mt-6 text-lg text-night-muted">{selma.summary}</p>}
-            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
-              <ButtonLink href={selma.url} size="lg">
-                Visit {displayHost(selma.url)}
-              </ButtonLink>
-              <ButtonLink href={selma.waitlistUrl} variant="underline" size="lg">
-                Join the waitlist
-              </ButtonLink>
-            </div>
-          </Container>
-        </section>
+        <PhotoBand photo={photoFor(copy, 'selma')} labelledBy="selma-family">
+          <p className="text-lg font-medium text-white/85">The EthicAI family</p>
+          <h2 id="selma-family" className="mt-3 max-w-3xl text-4xl text-white sm:text-5xl">
+            Selma is our knowledge, productised.
+          </h2>
+          {selma.summary && <p className="mt-6 max-w-2xl text-lg text-white/85">{selma.summary}</p>}
+          <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+            <ButtonLink href={selma.url} size="lg">
+              Visit {displayHost(selma.url)}
+            </ButtonLink>
+            <ButtonLink href={selma.waitlistUrl} variant="underline" size="lg">
+              Join the waitlist
+            </ButtonLink>
+          </div>
+        </PhotoBand>
       )}
 
       <section aria-labelledby="work-with-us" className="bg-mist py-20 sm:py-24">

@@ -1,12 +1,14 @@
-import { RingMark } from '@/components/family/RingMark'
+import { PhotoBand } from '@/components/family/PhotoBand'
 import { Container } from '@/components/layout/Container'
 import { ButtonLink } from '@/components/ui/Button'
 import { cn } from '@/lib/cn'
+import { photoFor } from '@/lib/photography'
+import { getPageCopy } from '@/lib/queries'
 import { getSiteSettings, subscribeHref } from '@/lib/site-settings'
 
 type Props = {
   /**
-   * `band`: full-width section (end of Home). `inline`: compact box (end of an article).
+   * `band`: full-width photo band (end of Home). `inline`: compact box (end of an article).
    * `slim`: a one-line strip (middle of Home).
    */
   variant?: 'band' | 'inline' | 'slim'
@@ -46,38 +48,30 @@ export async function SubscribeCTA({ variant = 'band', className }: Props) {
 
   if (variant === 'inline') {
     return (
-      <aside
-        aria-label="Newsletter"
-        className={cn(
-          'relative overflow-hidden rounded-card bg-accent p-6 text-white sm:p-8',
-          className,
-        )}
-      >
-        <p className="eyebrow text-white/85">The weekly note</p>
-        <h2 className="mt-3 text-2xl text-white">{heading}</h2>
-        <p className="mt-2 text-white/80">{body}</p>
-        <ButtonLink href={href} variant="light" className="mt-6">
+      <aside aria-label="Newsletter" className={cn('rounded-card bg-mist p-6 sm:p-8', className)}>
+        <h2 className="text-2xl">{heading}</h2>
+        <p className="mt-2 text-muted">{body}</p>
+        <ButtonLink href={href} className="mt-6">
           {label}
         </ButtonLink>
       </aside>
     )
   }
 
-  // The full-width indigo band, as selma.au's promo band.
+  // The closing band over a photograph, as selma.au ends its page.
+  const copy = await getPageCopy()
   return (
-    <section
-      aria-label="Newsletter"
-      className={cn('relative overflow-hidden bg-accent py-16 text-white sm:py-24', className)}
+    <PhotoBand
+      photo={photoFor(copy, 'closing')}
+      label="Newsletter"
+      align="center"
+      className={className}
     >
-      <RingMark className="pointer-events-none absolute top-1/2 -left-40 size-[28rem] -translate-y-1/2 text-white opacity-10" />
-      <Container className="relative flex flex-col items-center text-center">
-        <p className="eyebrow text-white/85">The weekly note</p>
-        <h2 className="mt-4 max-w-2xl text-3xl text-white sm:text-[2.5rem]">{heading}</h2>
-        <p className="mt-4 max-w-xl text-lg text-white/80">{body}</p>
-        <ButtonLink href={href} variant="light" size="lg" className="mt-8">
-          {label}
-        </ButtonLink>
-      </Container>
-    </section>
+      <h2 className="max-w-2xl text-[clamp(2rem,5vw,3.25rem)] text-white">{heading}</h2>
+      <p className="mt-4 max-w-xl text-lg text-white/85">{body}</p>
+      <ButtonLink href={href} variant="light" size="lg" className="mt-8">
+        {label}
+      </ButtonLink>
+    </PhotoBand>
   )
 }

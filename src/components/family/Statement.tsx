@@ -1,16 +1,16 @@
 import { Container } from '@/components/layout/Container'
 
-type Props = { eyebrow?: string; text: string; id?: string }
+type Props = { heading?: string; text: string; id?: string }
 
-/** A large, centred statement, like selma.au's "Meet Selma" section. */
-export function Statement({ eyebrow, text, id = 'statement' }: Props) {
+/** What EthicAI is for, in large type: a short heading beside the paragraph. */
+export function Statement({ heading, text, id = 'statement' }: Props) {
   return (
     <section aria-labelledby={id} className="py-24 sm:py-32">
-      <Container className="max-w-4xl text-center">
-        <h2 id={id} className="eyebrow mb-7 text-accent">
-          {eyebrow ?? 'Why we exist'}
+      <Container className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] lg:gap-16">
+        <h2 id={id} className="text-xl text-muted lg:pt-2">
+          {heading ?? 'Why we exist'}
         </h2>
-        <p className="reveal text-[clamp(1.375rem,3vw,2.25rem)] leading-[1.4] font-semibold tracking-[-0.02em] text-ink">
+        <p className="text-[clamp(1.375rem,2.6vw,2.125rem)] leading-[1.4] font-semibold tracking-[-0.02em] text-ink">
           {text}
         </p>
       </Container>

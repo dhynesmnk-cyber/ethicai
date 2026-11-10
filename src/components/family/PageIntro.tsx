@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 
 import type { Crumb } from '@/components/family/Breadcrumbs'
-import { DarkHero } from '@/components/family/DarkHero'
+import { PageHero } from '@/components/family/PageHero'
 import { JsonLd } from '@/components/JsonLd'
+import type { Photo } from '@/lib/photography'
 import { breadcrumbSchema, webPageSchema } from '@/lib/structured-data'
 
 type Props = {
@@ -10,7 +11,8 @@ type Props = {
   path: string
   title: string
   lead?: string | null
-  eyebrow?: string | null
+  /** The page's photograph (see photoFor); utility pages leave it out for a plain header. */
+  photo?: Photo | null
   /** Parents of this page, after Home; this page is added at the end. */
   parents?: Crumb[]
   type?: Parameters<typeof webPageSchema>[0]['type']
@@ -19,14 +21,14 @@ type Props = {
 }
 
 /**
- * The opening of an inner page: the dark hero with breadcrumbs, plus the page's WebPage and
- * BreadcrumbList structured data (which point back to the site-wide Organization and WebSite).
+ * The opening of an inner page: the photographic hero with breadcrumbs, plus the page's WebPage
+ * and BreadcrumbList structured data (which point back to the site-wide Organization and WebSite).
  */
 export function PageIntro({
   path,
   title,
   lead,
-  eyebrow,
+  photo,
   parents = [],
   type,
   description,
@@ -41,13 +43,7 @@ export function PageIntro({
           breadcrumbSchema(crumbs),
         ]}
       />
-      <DarkHero
-        eyebrow={eyebrow}
-        title={title}
-        lead={lead}
-        breadcrumbs={crumbs}
-        actions={actions}
-      />
+      <PageHero title={title} lead={lead} photo={photo} breadcrumbs={crumbs} actions={actions} />
     </>
   )
 }

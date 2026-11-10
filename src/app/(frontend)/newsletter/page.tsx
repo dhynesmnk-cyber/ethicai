@@ -5,6 +5,8 @@ import { ArrowRightIcon } from '@/components/icons'
 import { Container } from '@/components/layout/Container'
 import { ButtonLink } from '@/components/ui/Button'
 import { formatDate } from '@/lib/format'
+import { photoFor } from '@/lib/photography'
+import { getPageCopy } from '@/lib/queries'
 import { getNewsletterIssues } from '@/lib/rss'
 import { getSiteSettings, subscribeHref } from '@/lib/site-settings'
 import { pageMetadata } from '@/lib/seo'
@@ -26,7 +28,7 @@ const benefits = [
 ]
 
 export default async function NewsletterPage() {
-  const { substackPublicationUrl } = await getSiteSettings()
+  const [{ substackPublicationUrl }, copy] = await Promise.all([getSiteSettings(), getPageCopy()])
   const base = substackPublicationUrl?.replace(/\/+$/, '')
   const issues = await getNewsletterIssues(base)
 
@@ -35,7 +37,7 @@ export default async function NewsletterPage() {
       <PageIntro
         path="/newsletter"
         title="The EthicAI newsletter"
-        eyebrow="The weekly note"
+        photo={photoFor(copy, 'newsletter')}
         lead="A weekly note from the EthicAI team on adopting AI with people at the centre: what we’re seeing, reading and recommending."
       />
       <Container className="grid gap-12 py-20 sm:py-24 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
@@ -50,24 +52,19 @@ export default async function NewsletterPage() {
             ))}
           </ul>
         </div>
-        <div className="self-start rounded-card bg-accent p-6 text-white sm:p-8">
-          <h2 className="text-2xl text-white">Subscribe for free</h2>
+        <div className="self-start rounded-card bg-mist p-6 sm:p-8">
+          <h2 className="text-2xl">Subscribe for free</h2>
           {base ? (
             <>
-              <p className="mt-2 text-white/85">
+              <p className="mt-2 text-muted">
                 You’ll sign up on Substack, which sends the newsletter. Unsubscribe any time.
               </p>
-              <ButtonLink
-                href={subscribeHref(base)}
-                variant="light"
-                size="lg"
-                className="mt-6 w-full"
-              >
+              <ButtonLink href={subscribeHref(base)} size="lg" className="mt-6 w-full">
                 Subscribe on Substack
               </ButtonLink>
             </>
           ) : (
-            <p className="mt-2 text-white/85">Subscriptions open soon. Check back shortly.</p>
+            <p className="mt-2 text-muted">Subscriptions open soon. Check back shortly.</p>
           )}
         </div>
       </Container>

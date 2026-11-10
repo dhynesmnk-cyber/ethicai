@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 
-import { DarkHero } from '@/components/family/DarkHero'
 import { FaqList } from '@/components/family/FaqList'
+import { PageHero } from '@/components/family/PageHero'
 import { PressStrip } from '@/components/family/PressStrip'
 import { SelmaShowcase } from '@/components/family/SelmaShowcase'
 import { Statement } from '@/components/family/Statement'
@@ -18,6 +18,7 @@ import { Quote } from '@/components/ui/Quote'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { selmaInfo } from '@/lib/family'
 import { toImage } from '@/lib/media'
+import { photoFor } from '@/lib/photography'
 import {
   getLatestArticles,
   getPageCopy,
@@ -73,13 +74,13 @@ export default async function HomePage() {
         ]}
       />
 
-      {/* 1. The dark opening */}
-      <DarkHero
+      {/* 1. The photographic opening */}
+      <PageHero
         size="full"
-        eyebrow={copy.hero?.eyebrow}
+        kicker={copy.hero?.eyebrow}
         title={copy.hero?.headline ?? 'AI grounded in human dignity'}
         lead={copy.hero?.subhead}
-        image={toImage(copy.hero?.image, 'hero')}
+        photo={photoFor(copy, 'home')}
         actions={
           <>
             <ButtonLink href="/contact" size="lg">
@@ -101,34 +102,27 @@ export default async function HomePage() {
       {/* 2. What we're for */}
       {copy.statement && <Statement text={copy.statement} />}
 
-      {/* 4. What we do */}
+      {/* 3. What we do */}
       {services.length > 0 && (
         <section aria-labelledby="what-we-do" className="py-24 sm:py-28">
           <Container>
             <SectionHeading
               id="what-we-do"
-              eyebrow="What we do"
               title="Ethical AI adoption, from first question to lasting change"
               action={{ href: '/services', label: 'All services' }}
             />
-            <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {services.map((service, index) => (
-                <li key={service.id} className="reveal flex">
+            <ul className="mt-12 grid gap-x-12 gap-y-2 md:grid-cols-2">
+              {services.map((service) => (
+                <li key={service.id} className="flex">
                   <Link
                     href={`/services/${service.slug}`}
-                    className="group flex w-full flex-col rounded-card border border-line bg-surface p-6 transition-[border-color,transform,box-shadow] duration-300 ease-out-soft hover:-translate-y-1 hover:border-accent hover:shadow-[0_18px_40px_-24px_rgb(83_74_183/0.45)] motion-reduce:hover:translate-y-0 sm:p-7"
+                    className="group flex w-full flex-col border-t border-line-strong/50 py-7"
                   >
-                    <span
-                      aria-hidden="true"
-                      className="font-mono text-sm font-semibold text-accent"
-                    >
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <span className="mt-6 text-xl font-bold tracking-[-0.02em] text-ink group-hover:text-accent">
+                    <span className="text-2xl font-bold tracking-[-0.02em] text-ink decoration-2 underline-offset-4 group-hover:underline">
                       {service.title}
                     </span>
                     <span className="mt-3 text-base text-muted">{service.summary}</span>
-                    <span className="mt-auto inline-flex items-center gap-1.5 pt-6 font-semibold text-accent">
+                    <span className="mt-4 inline-flex items-center gap-1.5 font-semibold text-accent">
                       Learn more
                       <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
                     </span>
@@ -140,27 +134,26 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 5. The family's product */}
-      <SelmaShowcase selma={selma} />
+      {/* 4. The family's product, over a photograph */}
+      <SelmaShowcase selma={selma} photo={photoFor(copy, 'selma')} />
 
-      {/* 6. Latest thinking */}
+      {/* 5. Latest thinking */}
       <section aria-labelledby="latest-articles" className="py-24 sm:py-28">
         <Container>
           <SectionHeading
             id="latest-articles"
-            eyebrow="Read"
             title="Latest thinking"
             action={{ href: '/articles', label: 'View all articles' }}
           />
           {lead ? (
             <div className="mt-12 grid gap-6">
-              <div className="reveal flex">
+              <div className="flex">
                 <FeatureArticleCard {...articleCardProps(lead)} />
               </div>
               {rest.length > 0 && (
                 <ul className="grid gap-6 sm:grid-cols-2">
                   {rest.map((article) => (
-                    <li key={article.id} className="reveal flex">
+                    <li key={article.id} className="flex">
                       <ArticleCard {...articleCardProps(article)} />
                     </li>
                   ))}
@@ -173,12 +166,11 @@ export default async function HomePage() {
         </Container>
       </section>
 
-      {/* 7. Watch strip: featured videos plus a link to the TikTok feed (no third-party script here) */}
+      {/* 6. Watch strip: featured videos plus a link to the TikTok feed (no third-party script here) */}
       <section aria-labelledby="watch" className="on-night py-24 sm:py-28">
         <Container>
           <SectionHeading
             id="watch"
-            eyebrow="Watch"
             title="Short videos on AI and people"
             tone="dark"
             action={{ href: '/watch', label: 'See all videos' }}
@@ -202,9 +194,9 @@ export default async function HomePage() {
               <li className="flex w-[85%] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)]">
                 <Link
                   href="/watch"
-                  className="glass group flex min-h-72 w-full flex-col justify-between gap-6 rounded-card p-6 text-white sm:p-8"
+                  className="group flex min-h-72 w-full flex-col justify-between gap-6 rounded-card border border-white/15 bg-night-raised p-6 text-white transition-colors hover:border-white/40 sm:p-8"
                 >
-                  <span className="flex size-14 items-center justify-center rounded-full bg-accent transition-transform group-hover:scale-110">
+                  <span className="flex size-14 items-center justify-center rounded-full bg-accent">
                     <PlayTriangleIcon className="ml-0.5 size-6 text-white" />
                   </span>
                   <span>
@@ -230,19 +222,14 @@ export default async function HomePage() {
       {/* Slim newsletter strip, mid-way down (BUILD-SPEC §5.1); the full band is at the end. */}
       <SubscribeCTA variant="slim" />
 
-      {/* 8. Testimonials */}
+      {/* 7. Testimonials */}
       {testimonials.length > 0 && (
         <section aria-labelledby="testimonials" className="py-24 sm:py-28">
           <Container>
-            <SectionHeading
-              id="testimonials"
-              eyebrow="Clients"
-              title="What our clients say"
-              align="center"
-            />
+            <SectionHeading id="testimonials" title="What our clients say" align="center" />
             <ul className="mt-14 grid gap-6 lg:grid-cols-3">
               {testimonials.map((t) => (
-                <li key={t.id} className="reveal flex rounded-card bg-mist p-7 sm:p-8">
+                <li key={t.id} className="flex rounded-card bg-mist p-7 sm:p-8">
                   <Quote
                     quote={t.quote}
                     attribution={t.attribution}
@@ -256,13 +243,12 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 9. Team */}
+      {/* 8. Team */}
       {team.length > 0 && (
         <section aria-labelledby="team" className="pb-24 sm:pb-28">
           <Container>
             <SectionHeading
               id="team"
-              eyebrow="People"
               title="The team"
               action={{ href: '/about', label: 'Meet the team' }}
             />
@@ -270,7 +256,7 @@ export default async function HomePage() {
               {team.map((member) => {
                 const photo = toImage(member.photo, 'card')
                 return (
-                  <li key={member.id} className="reveal">
+                  <li key={member.id}>
                     <Link href={`/about#${teamMemberAnchor(member.name)}`} className="group block">
                       <div className="relative aspect-[4/5] overflow-hidden rounded-card bg-mist">
                         {photo && (
@@ -279,7 +265,7 @@ export default async function HomePage() {
                             alt=""
                             fill
                             sizes="(min-width: 640px) 33vw, 100vw"
-                            className="object-cover grayscale-[35%] transition-[transform,filter] duration-500 ease-out-soft group-hover:scale-[1.03] group-hover:grayscale-0"
+                            className="object-cover"
                           />
                         )}
                         <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-night/80 to-transparent p-5 pt-16">
@@ -298,13 +284,12 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 10. Questions people ask (also given to search engines as FAQPage data) */}
+      {/* 9. Questions people ask (also given to search engines as FAQPage data) */}
       {faq.length > 0 && (
         <section aria-labelledby="faq" className="bg-mist py-24 sm:py-28">
           <Container className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-16">
             <SectionHeading
               id="faq"
-              eyebrow="FAQ"
               title="Questions we’re often asked"
               description="About EthicAI, Selma and how we work."
               className="self-start lg:sticky lg:top-28"
@@ -314,10 +299,10 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* 11. Independent coverage */}
+      {/* 10. Independent coverage */}
       <PressStrip mentions={copy.press ?? []} />
 
-      {/* 12. Subscribe band */}
+      {/* 11. Subscribe band, over a photograph */}
       <SubscribeCTA />
     </>
   )

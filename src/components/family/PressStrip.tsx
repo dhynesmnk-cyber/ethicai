@@ -15,7 +15,7 @@ export function PressStrip({ mentions }: { mentions: Mention[] }) {
   return (
     <section aria-labelledby="in-the-press" className="border-t border-line py-16 sm:py-20">
       <Container>
-        <h2 id="in-the-press" className="eyebrow text-accent">
+        <h2 id="in-the-press" className="text-3xl sm:text-4xl">
           In the press
         </h2>
         <ul className="mt-8 grid gap-6 md:grid-cols-2">
@@ -25,7 +25,7 @@ export function PressStrip({ mentions }: { mentions: Mention[] }) {
                 href={mention.url}
                 className="group block rounded-card border border-line p-6 transition-colors hover:border-accent sm:p-7"
               >
-                <p className="text-sm font-semibold tracking-wide text-muted uppercase">
+                <p className="text-sm font-semibold text-muted">
                   {mention.outlet}
                   {mention.date && (
                     <>

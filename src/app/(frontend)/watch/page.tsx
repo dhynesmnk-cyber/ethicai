@@ -9,7 +9,8 @@ import { Container } from '@/components/layout/Container'
 import { Pagination } from '@/components/ui/Pagination'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { isElfsightWidgetId } from '@/lib/elfsight'
-import { getVideos } from '@/lib/queries'
+import { photoFor } from '@/lib/photography'
+import { getPageCopy, getVideos } from '@/lib/queries'
 import { getSiteSettings } from '@/lib/site-settings'
 import { isDisplayableVideo, videoCardProps } from '@/lib/view-models'
 import { pageMetadata } from '@/lib/seo'
@@ -30,10 +31,11 @@ export default async function WatchPage({ searchParams }: Props) {
   const requested = Number((await searchParams).page)
   const page = Number.isInteger(requested) && requested > 0 ? requested : 1
 
-  const [settings, tiktok, youtube] = await Promise.all([
+  const [settings, tiktok, youtube, copy] = await Promise.all([
     getSiteSettings(),
     getVideos({ platform: 'tiktok', limit: 6 }),
     getVideos({ platform: 'youtube', page }),
+    getPageCopy(),
   ])
   if (page > 1 && page > youtube.totalPages) notFound()
 
@@ -67,7 +69,7 @@ export default async function WatchPage({ searchParams }: Props) {
       <PageIntro
         path="/watch"
         title="Watch"
-        eyebrow="Video"
+        photo={photoFor(copy, 'watch')}
         lead="Short videos on AI, people and change. Each one has a written summary on our Articles page."
         type="CollectionPage"
       />
@@ -75,7 +77,7 @@ export default async function WatchPage({ searchParams }: Props) {
       {/* TikTok first: it's where the client posts most (BUILD-SPEC §5.5). */}
       <section aria-labelledby="tiktok" className="py-20 sm:py-24">
         <Container>
-          <SectionHeading id="tiktok" eyebrow="TikTok" title="Latest on TikTok" />
+          <SectionHeading id="tiktok" title="Latest on TikTok" />
           {/* The Elfsight feed loads only after a click, and only on this page (AGENTS.md #4). */}
           {widgetId ? (
             <ElfsightTikTok widgetId={widgetId}>{curatedTikToks}</ElfsightTikTok>
@@ -98,7 +100,7 @@ export default async function WatchPage({ searchParams }: Props) {
 
       <section aria-labelledby="youtube" className="bg-mist py-20 sm:py-24">
         <Container>
-          <SectionHeading id="youtube" eyebrow="YouTube" title="Videos on YouTube" />
+          <SectionHeading id="youtube" title="Videos on YouTube" />
           {youtubeVideos.length > 0 ? (
             <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {youtubeVideos.map((video) => (

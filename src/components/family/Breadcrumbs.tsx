@@ -26,7 +26,7 @@ export function Breadcrumbs({
           return (
             <li key={item.path} className="flex items-center gap-2">
               {last ? (
-                <span aria-current="page" className={dark ? 'text-white/80' : 'text-muted'}>
+                <span aria-current="page" className={dark ? 'text-white/85' : 'text-muted'}>
                   {item.name}
                 </span>
               ) : (
@@ -34,13 +34,15 @@ export function Breadcrumbs({
                   <Link
                     href={item.path}
                     className={cn(
-                      'rounded-sm font-medium underline-offset-4 hover:underline',
-                      dark ? 'text-accent-soft' : 'text-accent',
+                      'rounded-sm font-medium underline-offset-4',
+                      dark
+                        ? 'text-white underline decoration-white/40 hover:decoration-white'
+                        : 'text-accent hover:underline',
                     )}
                   >
                     {item.name}
                   </Link>
-                  <span aria-hidden="true" className={dark ? 'text-white/40' : 'text-line-strong'}>
+                  <span aria-hidden="true" className={dark ? 'text-white/50' : 'text-line-strong'}>
                     /
                   </span>
                 </>

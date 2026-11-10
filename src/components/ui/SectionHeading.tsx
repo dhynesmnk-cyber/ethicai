@@ -5,14 +5,13 @@ import { cn } from '@/lib/cn'
 
 type Props = {
   title: string
-  eyebrow?: string
   description?: string
   /** e.g. "View all articles" linking to the listing. */
   action?: { href: string; label: string }
   as?: 'h1' | 'h2' | 'h3'
   /** Lets a <section aria-labelledby> point at this heading. */
   id?: string
-  /** Centred, as selma.au's statement sections are. */
+  /** Centred, for short sections such as testimonials. */
   align?: 'start' | 'center'
   /** Colours for night sections. */
   tone?: 'light' | 'dark'
@@ -21,7 +20,6 @@ type Props = {
 
 export function SectionHeading({
   title,
-  eyebrow,
   description,
   action,
   as: Heading = 'h2',
@@ -42,9 +40,6 @@ export function SectionHeading({
       )}
     >
       <div className={cn('max-w-3xl', align === 'center' && 'mx-auto')}>
-        {eyebrow && (
-          <p className={cn('eyebrow mb-4', dark ? 'text-accent-soft' : 'text-accent')}>{eyebrow}</p>
-        )}
         <Heading
           id={id}
           className={cn(

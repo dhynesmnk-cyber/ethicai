@@ -36,6 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: url('/newsletter') },
     { url: url('/contact') },
     { url: url('/privacy-policy') },
+    { url: url('/photo-credits') },
   ]
 
   return [
