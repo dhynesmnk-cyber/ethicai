@@ -120,6 +120,18 @@ export function checkEnvironment(env) {
       `BOOTSTRAP_ADMIN_PASSWORD must be at least ${MIN_ADMIN_PASSWORD_LENGTH} characters.`,
     )
   }
+  const adminPassword = env.BOOTSTRAP_ADMIN_PASSWORD ?? ''
+  if (
+    bootstrapPassword &&
+    (adminPassword !== adminPassword.trim() || /^(["']).*\1$/s.test(adminPassword))
+  ) {
+    // Netlify stores the value exactly as pasted, and the account gets exactly that password.
+    problems.push(
+      'BOOTSTRAP_ADMIN_PASSWORD starts or ends with a space, line break or quote mark. They ' +
+        'would become part of the password, so typing it at the sign-in page would fail. Retype ' +
+        'the value in Netlify without them.',
+    )
+  }
   if (env.BOOTSTRAP_ADMIN_RESET_PASSWORD?.trim() === 'true') {
     if (!bootstrapEmail || !bootstrapPassword) {
       problems.push(

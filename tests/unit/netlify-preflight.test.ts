@@ -148,6 +148,31 @@ describe('checkEnvironment', () => {
     expect(result.problems[0]).toMatch(/needs both BOOTSTRAP_ADMIN_EMAIL/)
   })
 
+  it.each([
+    ['a trailing line break', 'a-long-enough-password\n'],
+    ['a leading space', ' a-long-enough-password'],
+    ['wrapping double quotes', '"a-long-enough-password"'],
+    ['wrapping single quotes', "'a-long-enough-password'"],
+  ])('rejects a bootstrap password with %s', (_, password) => {
+    const result = checkEnvironment({
+      ...complete,
+      BOOTSTRAP_ADMIN_EMAIL: 'a@b.com',
+      BOOTSTRAP_ADMIN_PASSWORD: password,
+    })
+    expect(result.problems).toHaveLength(1)
+    expect(result.problems[0]).toMatch(/space, line break or quote mark/)
+    expect(result.problems[0]).not.toContain('a-long-enough-password')
+  })
+
+  it('accepts quote marks and spaces inside a bootstrap password', () => {
+    const result = checkEnvironment({
+      ...complete,
+      BOOTSTRAP_ADMIN_EMAIL: 'a@b.com',
+      BOOTSTRAP_ADMIN_PASSWORD: 'it\'s a "long" password',
+    })
+    expect(result.problems).toEqual([])
+  })
+
   it('ignores the reset switch unless it is exactly "true"', () => {
     const result = checkEnvironment({ ...complete, BOOTSTRAP_ADMIN_RESET_PASSWORD: 'false' })
     expect(result).toMatchObject({ problems: [], warnings: [] })
