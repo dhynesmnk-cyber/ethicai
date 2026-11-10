@@ -1,11 +1,13 @@
 # Session handover: EthicAI website
 
-Working notes for the next coding session, last updated 6 November 2026 (after Phase 5 and the review-deploy preparation). **Delete this file before merging to `main`.**
+Working notes for the next coding session, last updated 10 November 2026 (after the family redesign; Phase 5 notes below still apply). **Delete this file before merging to `main`.**
 
 Read `AGENTS.md` and `docs/BUILD-SPEC.md` first. They are the source of truth; this file only records where things stand and what earlier sessions learnt the hard way.
 
 ## 1. Where things stand
 
+- **Family redesign (10 November 2026), branch `claude/peaceful-sagan-9iylgh`**, stacked on PR #1's head (`673e508`). The owner asked for a more impressive design taken from selma.au (the client's product site) so Selma reads as part of the EthicAI family, links to selma.au, and current Google SEO and AI search (GEO) practice. The plan is `docs/REDESIGN-PLAN.md`; what was built is in §3c. It is built and verified in the sandbox; no PR was opened (the user hadn't asked). Merge order: PR #1 first, then this branch (or retarget it onto #1's branch).
+- The live site is still **Squarespace on ethicai.au** (apex redirects to www). The new build runs only at `https://ethicaiau1.netlify.app` (noindex). The owner chose **`https://ethicai.au` (apex) as the canonical address** for the cutover.
 - Repo `dhynesmnk-cyber/ethicai`, branch `claude/confident-feynman-bep01v`, **PR [#1](https://github.com/dhynesmnk-cyber/ethicai/pull/1)** (open). Do not open another PR; keep updating #1's title and body at each phase (what / why / how verified / criteria checked / open items). The user does **not** want PR activity subscriptions.
 - Phases 0–5 of BUILD-SPEC §10 are built and verified in the sandbox and are waiting on the owner's review. Phase 5's "no demo content remains" is **not** met: the two demo articles stay until the maintainer supplies real ones. The sandbox has no route to Netlify, so the review site at `https://ethicaiau1.netlify.app` is **prepared, not deployed**: the owner connects the repo and sets the variables (`docs/DEPLOYMENT-NETLIFY.md` §3a). **Phase 6** (launch) comes next, and only when the user says so (the spec stops at each ✅ checkpoint).
 - Last verified (Phase 5): lint, typecheck and Prettier clean; 139 unit tests; 62 e2e tests pass (5 opt-in skipped); `npm run build` passes. The 5 production-build revalidation tests pass on `next build && next start` (`E2E_REVALIDATION=1`, see below). The Netlify build sequence (migrate → bootstrap admin → seed → build) was run against an empty local database and served the seeded site. Lighthouse wasn't re-run in Phases 4 or 5: the public pages changed only by the slim Home strip, and Phase 5 is admin-side.
@@ -20,8 +22,22 @@ Read `AGENTS.md` and `docs/BUILD-SPEC.md` first. They are the source of truth; t
 | 5 | Admin polish, real content | built (real content pending) |
 | 6 | Netlify deploy | review deploy prepared; launch to do |
 | 7 | Optional extras | to do |
+| — | Family redesign, SEO and GEO (`docs/REDESIGN-PLAN.md`) | built on `claude/peaceful-sagan-9iylgh`, awaiting review |
 
 ## 2. Waiting on the user
+
+**From the family redesign** (defaults in place until answered, each marked `// DECISION:` where it lives in code):
+
+- **Client sign-off on new copy:** the Home FAQ answers, the stats strip (taken from selma.au's "Who we are"), the press list (IT Brief and SecurityBrief, June 2026), the four services (from the old /services, /academy and /publicsector pages) and the Services "how we work" steps. All of it is editable in *Page copy*, *Services* and *Site settings*.
+- **Where the old campaign pages go:** `/bootcamp`, `/movement`, `/startmate` and `/moodi` redirect to `/services`; the AI Academy shop pages (`/aiacademy/p/*`) and `/cart` go to `/services/academy` and `/`. The shop is e-commerce, out of scope here: keep it on a subdomain or another platform if it's still selling.
+- **Logo files** (EthicAI and Selma, SVG) and a favicon. `public/logo.png`, `icon.svg` and the header wordmark are placeholders.
+- **Hero photography** (optional): *Page copy → Home → Hero → Image*. Without one, the animated indigo light shows.
+- **Simon Brock's role:** the review database still says "Digital agency leader"; the press calls him Partner and Chief Product Officer, selma.au says Co-founder. The seed now uses "Partner and Chief Product Officer" for new databases only.
+- **Team LinkedIn URLs** for *Team members* (they feed the Person structured data).
+- **User accounts for Kara and Katriel**, linked to their team profiles (*Users → Profile*), before running the Squarespace import against production, so the old posts keep their bylines.
+- **selma.au:** send `docs/SELMA-SEO-HANDOFF.md` to whoever maintains it.
+
+**From earlier phases:**
 
 0. **Deploy the review site** (`docs/DEPLOYMENT-NETLIFY.md` §3a): a Supabase **transaction pooler** string (port 6543; the session pooler ran out of connections on the review site, see §8), the Netlify site (`ethicaiau1`) connected to this branch, the environment variables (including `BOOTSTRAP_ADMIN_EMAIL` / `BOOTSTRAP_ADMIN_PASSWORD` and `SEED_DEMO_CONTENT=true`), and `https://ethicaiau1.netlify.app` added to the R2 CORS rule. After the first sign-in: change the password, delete the bootstrap variables and, once real content is in, `SEED_DEMO_CONTENT`.
 1. **R2 CORS rule: fixed (8 November).** The owner rewrote the rule (origins `http://localhost:3000` and `https://ethicaiau1.netlify.app`, methods `GET`, `PUT`, `HEAD`, headers `*`) and the preflight from the sandbox now returns `204` with `access-control-allow-origin` for both origins. Before that it returned `403` for every origin (checked 6 November). A real browser upload through the admin has **not** been tried yet: do that on the review site. The bucket token can't read the rule back (`GetBucketCors` is `AccessDenied`), so this probe is the way to check it, from a session on the "Ethicai" environment or any machine with the values:
@@ -70,6 +86,35 @@ Expect 4 passed. The spec publishes and deletes an article and a featured video 
 - **Video changes refresh linked articles** (edit and delete). Deleting needed the paths found in `beforeDelete`, and Payload gives the two delete hooks different `context` objects, so they travel in a `WeakMap` keyed by the request. This only showed up on a production build (`tests/e2e/revalidation-cache.e2e.spec.ts`).
 - **Editor weekly workflow e2e** (`tests/e2e/weekly-workflow.e2e.spec.ts`): dashboard → new video → new article (hero from the library, Markdown pasted, video linked) → publish → a visitor sees it on Home, Articles, the article page and /watch. It takes about ten seconds scripted, so it proves the flow works, **not** that a person does it in under ten minutes (the runbook estimates 10–15 minutes for step 3; time a real run before calling that criterion met). `deleteTestUser` now removes a user's autosaved drafts.
 - **Review-deploy support:** `netlify.toml` → `scripts/netlify-build.mjs` (migrate → `scripts/bootstrap-admin.ts` → optional seed → build, migrations and seed run as production); `isReviewSite()` (`src/lib/site-url.ts`) makes a `*.netlify.app` site non-indexable (`robots.txt` and `noindex`) and turns itself off on the real domain. The bootstrap admin exists because a fresh database leaves Payload's "create first user" open to whoever reaches `/admin` first (it returns 403 and redirects once a user exists) and because the seed's articles need an author.
+
+## 3c. What the family redesign built
+
+See `docs/REDESIGN-PLAN.md` for the why. Thirteen commits on top of PR #1 (`git log 673e508..`), each one logical change:
+
+- **Content model** (migration `20261110_165153_family_redesign`): a *Page copy* global (Home hero, statement, stats, FAQ, press; About; Services intro and steps), Site settings tabs *Selma & family*, *Organisation* and *Search*, a *Services* collection (`/services`, `/services/<slug>`), team LinkedIn and credentials, users → team profile, article key takeaways.
+  - The migration only adds tables and columns, then fills empty fields from `src/content/defaults.ts` through `src/content/apply-defaults.ts`, which the seed also calls. It never overwrites anything.
+  - The generated `down` failed on a constraint already dropped by `CASCADE`, so it uses `IF EXISTS`. Up, down and up again were checked.
+  - `src/content/site-copy.ts` is gone (the open "page copy" decision is done).
+- **Design system** (selma.au's): night/ink/mist/indigo tokens, Plus Jakarta Sans and JetBrains Mono via `next/font/local`.
+  - Dark hero (`DarkHero`, `PageIntro`) with a CSS aurora and the `RingMark` drawing in. The header is transparent over a dark hero (`body:has(.hero-dark)`) and turns to glass with a scroll-driven animation; there is no JavaScript.
+  - Family bar, a Selma menu link, the Meet Selma showcase, and a night footer with an EthicAI family column, ABN and Acknowledgement of Country.
+  - The new components are in `src/components/family/`. Client components are unchanged.
+- **Pages:** Home rebuilt; new Services pages; About, Articles, Watch, Newsletter, Contact and Privacy restyled with breadcrumbs. Articles gain key takeaways and an author box (when the user is linked to a profile); the automatic "Updated" date was removed because imported posts would all show the import date.
+- **Squarespace import:** `scripts/import-squarespace.ts` brings in the 7 /insights posts with their original slugs, dates, authors and header images. It is idempotent and must run against production *before* the cutover. The converter is `src/lib/html-to-markdown.ts`.
+- **SEO:**
+  - One linked set of JSON-LD: Organization `…/#organization` owns Product `https://selma.au/#product`, plus WebSite, founders, WebPage, BreadcrumbList, FAQPage, Person, Service and Article.
+  - Entity-naming titles; verification codes from settings; sitemap with services, dates and images; AVIF.
+  - `fetchPriority="high"` hero images (Next 16 deprecates `priority`).
+  - Redirects for all 27 Squarespace URLs (`src/lib/redirects.ts`, fixture `tests/fixtures/squarespace/sitemap-paths.txt`).
+- **GEO:**
+  - robots.txt names AI search and training crawlers and follows *Site settings → Search* (allow-all by default; `src/lib/robots.ts`).
+  - `/llms.txt`, `/llms-full.txt` and `/articles/feed.xml`.
+  - IndexNow on publish (`src/lib/indexnow.ts`; off without `INDEXNOW_KEY`, on review sites and locally).
+- **Docs:** cutover steps for the apex domain and the import (`DEPLOYMENT-NETLIFY.md` §5–6), `SELMA-SEO-HANDOFF.md`, an "answer first" check in the runbook, and BUILD-SPEC §6.
+- **Verified** (sandbox, 10 November):
+  - lint and typecheck clean; 224 unit tests; full e2e suite 107 passed, 5 opt-in skipped; `npm run build` passes.
+  - New e2e tests: Selma links, header colour over the hero and after scrolling, FAQ from the keyboard, reduced motion, every JSON-LD reference resolves, and all 28 old URLs ending on a 200.
+  - Lighthouse mobile on the production build: Home 100/100/100/100 (LCP 0.9 s, CLS 0); article 96/100/100/100 (CLS 0). The article's *simulated* LCP is 2.8 s against the 2.5 s target, while the observed LCP was 0.14 s and the image starts at 43 ms with high priority. Lighthouse's slow-4G model counts the framework scripts (about 160 KB) as competing with the image. Re-check on Netlify, where its image CDN serves `next/image`.
 
 ## 4. Sandbox bootstrap (a fresh container each session)
 
@@ -140,6 +185,12 @@ cd /home/user/ethicai && nohup npx next dev > /home/user/.sandbox-ethicai/dev.lo
 - **Git:** conventional commits, one logical change each, with the attribution lines the session's reminder specifies. GitHub work uses the `mcp__github__*` tools (load them with ToolSearch); there is no `gh` CLI.
 - **How the user likes to work:** a short status at each checkpoint with explicit decisions to make, honest about what couldn't be verified, Australian English throughout, and the PR description updated rather than a new PR.
 
+- **The dev server records a `dev` row in `payload_migrations`** (batch −1) when it pushes the schema. `npm run migrate` then stops to ask about it. If no schema change was pushed, delete the row (`delete from payload_migrations where name='dev' and batch=-1`) before migrating. Stop the dev server before `migrate:create`.
+- **`ss` isn't installed** in this image: find the dev server's PIDs through `/proc/*/cmdline` (and see the warning above about patterns in your own command line).
+- **Full-page screenshots** need `reducedMotion: 'reduce'`, or the scroll-driven `.reveal` blocks below the fold come out invisible.
+- **Payload's generated `down` migrations** can fail when a `DROP TABLE … CASCADE` already removed a constraint that a later line drops again; use `IF EXISTS`.
+- The sandbox's "Ethicai" environment now reaches `selma.au` and `ethicai.au` (the owner widened it), and R2 images render through `next/image` here.
+
 ## 6. Repo map
 
 - `src/payload.config.ts`: collections, `siteSettings` global, S3 adapter (`clientUploads: true`, 20 MB). Do not reorder plugins or swap the adapter.
@@ -148,11 +199,21 @@ cd /home/user/ethicai && nohup npx next dev > /home/user/.sandbox-ethicai/dev.lo
 - `src/components/{ui,layout,feed,newsletter,blocks,icons}`, `ContactForm.tsx`, `JsonLd.tsx`, `OgImage.tsx`.
 - `src/lib/`: `queries`, `rss`, `elfsight`, `revalidate`, `revalidate-request`, `seo`, `structured-data`, `storage`, `video-url`, `reading-time`, `site-settings`, `redirects`, and others.
 - `src/content/site-copy.ts`: Home/About copy. `public/__forms.html`: the Netlify Forms declaration (keep in step with `ContactForm.tsx`).
+- Family redesign: `src/components/family/*`, `src/globals/PageCopy.ts`, `src/collections/Services.ts`, `src/content/{defaults,apply-defaults}.ts`, `src/fields/slug.ts`, `src/lib/{family,robots,llms,feed,indexnow,html-to-markdown,plain-content}.ts`, routes `src/app/{llms.txt,llms-full.txt,indexnow-key.txt}`, `src/app/(frontend)/{services,articles/feed.xml}`, `scripts/import-squarespace.ts`.
 - `scripts/seed.ts` (idempotent; don't re-run on production), `src/migrations/` (two so far), `tests/{unit,e2e,helpers,fixtures}`.
 
 ## 7. Decisions already made (don't reopen without cause)
 
 Netlify stays. Uploads go browser → R2 by signed URL (Netlify Functions cap bodies at about 4.5 MB); 20 MB limit, raster images only. Fonts are self-hosted (Inter, Fraunces). Only R2 and `i.ytimg.com` are `next/image` hosts (Elfsight renders its own images, so none added). Header "Subscribe" goes to `/newsletter`. The article ↔ video link is stored once, on the article (`relatedVideo`). TikTok cards need an uploaded thumbnail. Integration values live in siteSettings, never env. Publishing revalidates through hooks; `/api/revalidate` is only for out-of-band changes. Production needs its own R2 bucket and CORS rule.
+
+Family redesign decisions:
+
+- **One shared family look** taken from selma.au (the owner's call), with EthicAI as the parent brand.
+- **Canonical `https://ethicai.au`**, with www redirecting to it (Netlify primary domain).
+- **AI crawlers allowed by default**, search and training alike, changeable in the admin.
+- **No `/selma` page**, so the site doesn't compete with selma.au; Selma lives on Home, About, Services, the menu, the footer and the structured data.
+- Newsletter left the header menu; the Subscribe button and the footer cover it.
+- No video hero: AGENTS.md rule 3, and the LCP budget.
 
 ## 8. Not yet verified
 
@@ -163,6 +224,9 @@ Netlify stays. Uploads go browser → R2 by signed URL (Netlify Functions cap bo
 - EthicAI's own Substack feed (other live Substack feeds parse correctly).
 - `next/image` rendering R2 images through the optimiser; `E2E_MEDIA_UPLOAD=1 npm run test:e2e` covers it on a machine with normal network access.
 - YouTube thumbnails, a real Netlify Forms submission, and anything on Netlify itself (Phase 6). Lighthouse numbers are from a local production build.
+
+- The family redesign on Netlify, and in Safari and Firefox. Browsers without scroll-driven animations keep the frosted header throughout, by design; that fallback was not seen in a real browser.
+- The Squarespace import against production, Search Console and Bing, an IndexNow ping from the live site, and selma.au's side of the hand-off.
 
 ## 9. After Phase 5
 

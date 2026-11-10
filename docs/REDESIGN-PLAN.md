@@ -1,6 +1,6 @@
 # Redesign plan: the EthicAI family look, selma.au, Google SEO and AI search (GEO)
 
-**Status:** proposed, waiting on the owner's go-ahead (10 November 2026). Nothing in this plan is built yet. It sits on top of PR [#1](https://github.com/dhynesmnk-cyber/ethicai/pull/1) (Phases 0–5) and comes before the domain cutover (BUILD-SPEC §10, Phase 6).
+**Status:** built and verified in the sandbox (10 November 2026) on branch `claude/peaceful-sagan-9iylgh`, on top of PR [#1](https://github.com/dhynesmnk-cyber/ethicai/pull/1) (Phases 0–5). The domain cutover (BUILD-SPEC §10, Phase 6) is next and stays with the owner. What was built, how it was verified and what still needs the client: `docs/HANDOVER.md` §2 and §3c.
 
 ## 1. Where things stand
 
