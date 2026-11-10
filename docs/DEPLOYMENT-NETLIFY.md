@@ -121,14 +121,32 @@ Current state: `ethicai.au` points at Squarespace. **Critical: check where email
 1. In Netlify: Domain management → add `ethicai.au` + `www.ethicai.au`. Netlify will show the DNS records it wants (A `75.2.60.5` / CNAME or Netlify DNS nameservers — prefer **keeping the existing registrar and setting records** over moving nameservers, unless the registrar makes it painful).
 2. Where is the `.au` domain registered? (Squarespace Domains, or a registrar like VentraIP/Crazy Domains/GoDaddy.) You'll edit DNS there.
 3. Copy current DNS records first (screenshot/export): note MX, TXT (SPF/DKIM — email deliverability!), any `_acme-challenge`.
-4. Set the Netlify A/CNAME records; **preserve MX + SPF/DKIM TXT records exactly**; let www canonicalise to one apex form (client's current site uses `www` — match it: canonical `https://www.ethicai.au`, redirect apex → www).
+4. Set the Netlify A/CNAME records; **preserve MX + SPF/DKIM TXT records exactly**. The canonical address is the **apex, `https://ethicai.au`** (decided November 2026; Squarespace used `www`): in Netlify *Domain management*, make `ethicai.au` the **primary domain** and keep `www.ethicai.au` as an alias, which Netlify then redirects to the apex with a 301. Set `NEXT_PUBLIC_SITE_URL=https://ethicai.au` (no trailing slash) on the production site; that also switches indexing on (`isReviewSite()`).
 5. TLS: Netlify auto-provisions Let's Encrypt once DNS resolves. Verify both hostnames.
 6. Keep the Squarespace site alive (paused, not deleted) for ~30 days as a rollback + content source. Cancel only after sign-off.
-7. Post-cutover: check `netlify.toml`/`next.config` 301 redirects for any old URLs that were indexed (search `site:ethicai.au` in Google to see what exists).
+7. Old URLs: every page in Squarespace's sitemap already redirects to its new home (`src/lib/redirects.ts`, checked by `tests/unit/redirects.test.ts` and `tests/e2e/redirects.e2e.spec.ts`). Before relying on it, confirm with the client where the campaign pages (`/bootcamp`, `/movement`, `/startmate`, `/moodi`) and the AI Academy shop (`/aiacademy/p/*`) should go; they point at `/services` and `/services/academy` for now. Also search `site:ethicai.au` in Google for anything indexed that isn't in the sitemap.
+
+### Before the cutover (while Squarespace still serves ethicai.au)
+
+1. **Import the old blog posts** into production, so `/insights/<slug>` has somewhere to go. First create (or link to a team profile) user accounts for Kara Bombell and Katriel Healy so the bylines match; then, with production's environment variables loaded:
+   ```bash
+   npx payload run scripts/import-squarespace.ts
+   ```
+   It creates the 7 articles with their original slugs, dates, authors and header images, skips anything that exists, and can be re-run. Afterwards, review each header image's alt text in the admin (Squarespace exports none), then `POST /api/revalidate` once.
+2. **IndexNow (optional):** set `INDEXNOW_KEY` on the production site (`openssl rand -hex 16`). Leave it unset on the review site.
+3. **AI crawlers:** the site allows AI search and training crawlers by default (*Site settings → Search*). If the domain's DNS goes through Cloudflare, turn off Cloudflare's *Block AI bots* and *AI Labyrinth* (Security → Bots) or they will override that choice.
+
+### After the cutover
+
+1. **Google Search Console:** add a **Domain** property for `ethicai.au` (verified with a DNS TXT record, which covers apex and www), submit `https://ethicai.au/sitemap.xml`, and use *URL inspection* on Home, /about and one article. The old `www` property can stay for watching the redirects settle.
+2. **Bing Webmaster Tools:** *Import from Google Search Console* (no separate verification needed), and check the sitemap is listed. Bing's index feeds Copilot and DuckDuckGo and is one of the sources behind ChatGPT search.
+3. Check `https://ethicai.au/robots.txt`, `/sitemap.xml`, `/llms.txt` and `/articles/feed.xml`, and, if `INDEXNOW_KEY` is set, `/indexnow-key.txt`.
+4. Validate structured data on Home, /about, a service and an article with Google's Rich Results Test and the schema.org validator.
+5. Send `docs/SELMA-SEO-HANDOFF.md` to whoever maintains selma.au.
 
 ## 6. Launch smoke checklist (production)
 
-- [ ] `https://www.ethicai.au` + apex both load, TLS valid, canonical/OG tags correct (validate with a social debugger)
+- [ ] `https://ethicai.au` loads with valid TLS; `https://www.ethicai.au/<any path>` answers 301 to the same path on the apex; canonical and Open Graph URLs use the apex (validate with a social debugger)
 - [ ] `/admin` login works for admin + editor roles; editor restrictions hold
 - [ ] **Upload an image in prod admin → verify it lands in R2 and renders** (the #1 Netlify failure point — test explicitly)
 - [ ] Publish a test article (then unpublish): appears on Home + listing, draft preview works, revalidation is prompt
@@ -139,7 +157,9 @@ Current state: `ethicai.au` points at Squarespace. **Critical: check where email
 - [ ] Lighthouse mobile on Home + one article: Perf ≥ 90, A11y ≥ 95, SEO ≥ 95
 - [ ] Mobile pass on real device (320px width too)
 - [ ] Client email still sends/receives (DNS MX/TXT intact) — ask client to confirm
-- [ ] Old Squarespace URLs you care about 301 correctly
+- [ ] Every old Squarespace URL ends on a working page, on both `www` and apex: `for p in $(cat tests/fixtures/squarespace/sitemap-paths.txt); do curl -s -o /dev/null -w "%{http_code} $p\n" -L "https://www.ethicai.au$p"; done` (expect all `200`)
+- [ ] `robots.txt` matches the AI crawler policy in Site settings; `/llms.txt` lists the services, Selma and the articles
+- [ ] Family links: the bar, menu and footer go to selma.au; *Site settings → Selma & family* changes show up after saving
 - [ ] Error monitoring: Netlify notifications on; consider Sentry free tier or Netlify's error detection
 - [ ] Hand over: admin credentials (2 users), this doc, runbook
 

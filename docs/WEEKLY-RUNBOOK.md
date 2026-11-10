@@ -72,6 +72,14 @@ Use a two-pass approach: machine draft, human voice.
 3. Pull quote (Lexical quote block) — the most shareable line
 4. Close + CTA line ("Watch the 60-second original on TikTok/YouTube — link above.")
 
+**Writing so search engines and AI assistants quote you (2 min check):**
+- **Answer first.** The first paragraph says what the article concludes; the excerpt can stand on its own as an answer.
+- **Key takeaways:** add up to five one-sentence points in the article's *Key takeaways* field. They appear first as "In short" and are what AI assistants most often quote. Each must make sense on its own (no "this", "as above").
+- **Question-style headings** where they fit ("What does the right to refuse AI mean for employers?"), the way people ask.
+- **Name things fully** at least once: "EthicAI", "Selma", the law, the organisation, the place (Australia, NSW).
+- **Facts with sources:** link the report, law or article a figure comes from; never state a number without one.
+- **Author:** make sure the author's user account is linked to their team profile (*Users → Profile*), so the byline shows their role and credentials.
+
 ## Step 3 — Publish on the site (10–15 min)
 
 In `/admin`, in this order:
@@ -180,7 +188,7 @@ Week of: ____________   Videos received: ___   Articles published: ___   Issue s
 [ ] 4. Claims verified against transcripts; AU English check
 [ ] 5. Video entries created in admin (correct platform date, featured flag)
 [ ] 6. Articles created: excerpt ≤300 chars, hero + alt text, tags consistent,
-       relatedVideo linked
+       relatedVideo linked, key takeaways (answer first), author linked to profile
 [ ] 7. Previewed on mobile → published
 [ ] 8. Frontend spot-check: Home, /articles, /watch, article page, feed card links back
 [ ] 9. Substack issue written from template, theme-grouped, links tested

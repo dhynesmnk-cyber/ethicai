@@ -188,13 +188,14 @@ Sections in order:
 
 ## 6. Design system
 
-- **Palette (default proposal unless client supplies brand guide):**
-  - Background `#FBFAF8` (warm off-white), surface `#FFFFFF`, ink `#1C1C1E` (near-black), muted `#5C5C63`, accent `#1F6F5C` (deep eucalyptus green — credible, human, distinct from tech-bro blue), accent-hover darker, plus a soft sand `#EFE9DF` for section bands. Verify WCAG AA contrast for all text pairs.
-- **Type:** headings — a humanist serif or strong sans (e.g. `Fraunces`, `Newsreader`, or `Inter Tight`); body — `Inter` or `Source Sans 3` via `next/font`, 17–18px base, line-height 1.65. Load max 2 families, self-hosted via next/font, `display: swap`.
-- **Spacing/radius:** 4px base grid; cards radius 12–16px; shadows subtle (or none — prefer borders/hairlines).
-- **Components (build once, reuse):** `Container`, `SectionHeading`, `Button` (primary/secondary/ghost), `Card` (article/video variants), `TagChip`, `Prose`, `Facade` (click-to-load embed), `Pagination`, `SubscribeCTA`, `Quote`.
-- **Imagery:** real team photos; no generic AI/robot stock imagery. Decorative graphics should be restrained (thin line work, soft gradient meshes at most).
-- **Motion:** minimal — fade/slide-up on scroll via CSS or 20 lines of IntersectionObserver; respect `prefers-reduced-motion`.
+> **Updated November 2026 (family redesign, `docs/REDESIGN-PLAN.md`):** the site now uses the design system of selma.au, EthicAI's product site, so the two read as one family. This replaces the original proposal (warm off-white, eucalyptus green, Fraunces and Inter).
+
+- **Palette** (tokens in `src/app/(frontend)/globals.css`, contrast checked by `tests/unit/contrast.test.ts`): white page, mist `#F5F5F7` bands, night `#0A0A0C` for dark sections (hero, Meet Selma, watch strip, footer), ink `#1D1D1F`, muted `#6E6E73`, family indigo `#534AB7` (hover `#3D358A`; on night, soft indigo `#9B95D8` for text, links and focus rings), tint `#EFEEFA`.
+- **Type:** Plus Jakarta Sans for everything (headings 700–800, tight tracking), JetBrains Mono for figures and step numbers, both self-hosted with `next/font/local`, 17–18px body, line-height 1.65.
+- **Shape:** 18px card radius, 1px hairlines, pill buttons; frosted glass header (transparent over dark heroes, glass once scrolled).
+- **Components:** the originals plus `DarkHero`, `PageIntro` (dark opening with breadcrumbs and page structured data), `FamilyBar`, `RingMark` (the shared family mark), `Statement`, `StatsStrip`, `SelmaShowcase`, `NumberedSteps`, `FaqList` (native `<details>`), `PressStrip`, `Breadcrumbs`, `FeatureArticleCard` (`src/components/family/`, `src/components/ui/`).
+- **Imagery:** real team photos; no AI/robot stock imagery. Selma's background video is **not** reused (video files stay off this site and would cost LCP): dark heroes use an optional uploaded photo or a CSS indigo aurora.
+- **Motion:** CSS only (scroll-driven reveals, the aurora, the ring mark drawing in, hero text rising once); all of it off under `prefers-reduced-motion`.
 
 ## 7. Integrations — implementation details
 
