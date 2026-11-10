@@ -81,11 +81,6 @@ export default async function ArticlePage({ params }: Props) {
   const authorName = profile?.name ?? author?.name
   const video = typeof article.relatedVideo === 'object' ? article.relatedVideo : null
   const publishedAt = article.publishedAt ?? article.createdAt
-  // Shown as "Updated" when the article changed more than a day after it went live.
-  const updated =
-    new Date(article.updatedAt).getTime() - new Date(publishedAt).getTime() > 86_400_000
-      ? article.updatedAt
-      : null
   const path = `/articles/${article.slug}`
   const url = `${siteUrl()}${path}`
   const crumbs = [
@@ -148,12 +143,6 @@ export default async function ArticlePage({ params }: Props) {
               </>
             )}
             <time dateTime={publishedAt}>{formatDate(publishedAt)}</time>
-            {updated && (
-              <>
-                <span aria-hidden="true"> · </span>
-                Updated <time dateTime={updated}>{formatDate(updated)}</time>
-              </>
-            )}
             <span aria-hidden="true"> · </span>
             {readingMinutes(article.content)} min read
           </p>
