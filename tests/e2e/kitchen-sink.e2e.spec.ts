@@ -40,7 +40,7 @@ test('renders every shared component', async ({ page }) => {
     'Pagination',
     'Subscribe call to action (inline)',
     'Social icons',
-    'Motion',
+    'Photographs',
   ]) {
     await expect(page.getByRole('heading', { level: 2, name: section })).toBeVisible()
   }
