@@ -14,6 +14,7 @@ import { convertMarkdownToLexical, editorConfigFactory } from '@payloadcms/richt
 import { getPayload } from 'payload'
 import sharp from 'sharp'
 
+import { applyContentDefaults } from '@/content/apply-defaults'
 import { articleEditorFeatures } from '@/fields/articleEditor'
 
 // A fresh object per call: the storage plugin stores a temporary `skipCloudStorage` flag on the
@@ -30,8 +31,8 @@ const escapeXml = (value: string) => value.replace(/[<>&"']/g, (char) => `&#${ch
 async function placeholderPng(label: string, width: number, height: number): Promise<Buffer> {
   const fontSize = Math.round(Math.min(width, height) / 6)
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-    <rect width="100%" height="100%" fill="#EFE9DF"/>
-    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#1F6F5C"
+    <rect width="100%" height="100%" fill="#F5F5F7"/>
+    <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#534AB7"
       font-family="sans-serif" font-size="${fontSize}">${escapeXml(label)}</text>
   </svg>`
   return sharp(Buffer.from(svg)).png().toBuffer()
@@ -100,7 +101,7 @@ const team = [
   },
   {
     name: 'Simon Brock',
-    role: 'Digital agency leader',
+    role: 'Partner and Chief Product Officer',
     initials: 'SB',
     bio: [
       'Simon joined EthicAI in 2026. His career spans film and sound production, creative and strategic direction, customer experience design and digital agency leadership across Australia and New Zealand, with work for McDonald’s, ALDI, Toyota, EA Games and Tourism Australia.',
@@ -289,5 +290,9 @@ if (Object.keys(placeholders).length > 0) {
 } else {
   log('site settings already filled, skipped')
 }
+
+// --- Page copy, Selma and organisation details, services (only fills what is empty) -------
+
+for (const item of await applyContentDefaults({ payload })) log(`filled ${item}`)
 
 log('done')

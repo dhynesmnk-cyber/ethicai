@@ -8,10 +8,12 @@ import sharp from 'sharp'
 
 import { Articles } from './collections/Articles'
 import { Media, MAX_UPLOAD_BYTES } from './collections/Media'
+import { Services } from './collections/Services'
 import { TeamMembers } from './collections/TeamMembers'
 import { Testimonials } from './collections/Testimonials'
 import { Users } from './collections/Users'
 import { Videos } from './collections/Videos'
+import { PageCopy } from './globals/PageCopy'
 import { SiteSettings } from './globals/SiteSettings'
 import { publicFileURL, readS3Settings } from './lib/storage'
 
@@ -34,8 +36,8 @@ export default buildConfig({
     },
   },
   // Admin sidebar order follows this list.
-  collections: [Articles, Videos, Media, TeamMembers, Testimonials, Users],
-  globals: [SiteSettings],
+  collections: [Articles, Videos, Services, Media, TeamMembers, Testimonials, Users],
+  globals: [SiteSettings, PageCopy],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

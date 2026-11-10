@@ -5,10 +5,11 @@ import type {
 } from 'payload'
 
 import { adminOnly, publishedFlagOrSignedIn } from '@/access'
+import { httpsUrl } from '@/fields/slug'
 import { revalidatePaths } from '@/lib/revalidate'
 import type { TeamMember } from '@/payload-types'
 
-const paths = ['/', '/about']
+const paths = ['/', '/about', '/llms.txt']
 
 const revalidateTeam: CollectionAfterChangeHook<TeamMember> = ({ context, doc, req }) => {
   revalidatePaths(req, context, paths)
@@ -59,6 +60,25 @@ export const TeamMembers: CollectionConfig = {
       type: 'textarea',
       required: true,
       admin: { description: 'Leave a blank line between paragraphs.', rows: 12 },
+    },
+    {
+      name: 'linkedinUrl',
+      type: 'text',
+      label: 'LinkedIn profile',
+      validate: httpsUrl,
+      admin: {
+        description:
+          'Full link to their LinkedIn profile. Shown on the About page and tells search engines this is the same person.',
+      },
+    },
+    {
+      name: 'credentials',
+      type: 'text',
+      hasMany: true,
+      admin: {
+        description:
+          'Qualifications, one per entry, e.g. “Artificial Intelligence and Business Strategy, MIT Sloan”. Press Enter after each.',
+      },
     },
     {
       name: 'photo',

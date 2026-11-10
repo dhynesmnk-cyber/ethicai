@@ -3,10 +3,12 @@ import { describe, expect, it } from 'vitest'
 
 import { Articles } from '@/collections/Articles'
 import { Media } from '@/collections/Media'
+import { Services } from '@/collections/Services'
 import { TeamMembers } from '@/collections/TeamMembers'
 import { Testimonials } from '@/collections/Testimonials'
 import { Users } from '@/collections/Users'
 import { Videos } from '@/collections/Videos'
+import { PageCopy } from '@/globals/PageCopy'
 import { SiteSettings } from '@/globals/SiteSettings'
 
 // BUILD-SPEC §8: "sensible admin.description copy on every field". The maintainer should never
@@ -41,10 +43,12 @@ const targets: Array<[string, CollectionConfig | GlobalConfig]> = [
   ['articles', Articles],
   ['videos', Videos],
   ['media', Media],
+  ['services', Services],
   ['teamMembers', TeamMembers],
   ['testimonials', Testimonials],
   ['users', Users],
   ['siteSettings', SiteSettings],
+  ['pageCopy', PageCopy],
 ]
 
 describe('admin help text', () => {

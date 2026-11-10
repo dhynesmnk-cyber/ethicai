@@ -3,20 +3,19 @@ import type {
   CollectionAfterDeleteHook,
   CollectionConfig,
   FieldHook,
-  TextField,
-  TextFieldSingleValidation,
 } from 'payload'
-import { slugField } from 'payload'
-import { text } from 'payload/shared'
 
 import { adminOnly, publishedOrSignedIn, signedIn } from '@/access'
 import { articleEditor } from '@/fields/articleEditor'
+import { urlSlugField } from '@/fields/slug'
 import { revalidatePaths } from '@/lib/revalidate'
-import { articlePreviewPath, siteUrl, SLUG_PATTERN } from '@/lib/site-url'
+import { articlePreviewPath, siteUrl } from '@/lib/site-url'
 import type { Article } from '@/payload-types'
 
 const articlePaths = (slug: string | null | undefined): string[] =>
-  slug ? ['/', '/articles', `/articles/${slug}`] : ['/', '/articles']
+  slug
+    ? ['/', '/articles', `/articles/${slug}`, '/articles/feed.xml', '/llms.txt', '/llms-full.txt']
+    : ['/', '/articles', '/articles/feed.xml', '/llms.txt', '/llms-full.txt']
 
 const revalidateArticle: CollectionAfterChangeHook<Article> = ({
   context,
@@ -48,28 +47,9 @@ const setPublishedAt: FieldHook<Article> = ({ siblingData, value }) => {
   return value
 }
 
-const slug = slugField({
-  overrides: (row) => {
-    for (const field of row.fields) {
-      if ('name' in field && field.name === 'slug') {
-        const slugInput = field as TextField
-        const validateSlug: TextFieldSingleValidation = (value, options) => {
-          if (value && !SLUG_PATTERN.test(value)) {
-            return 'Use lowercase letters, numbers and single hyphens only, e.g. "ai-and-hr".'
-          }
-          return text(value, options)
-        }
-        slugInput.validate = validateSlug
-        slugInput.admin = {
-          ...slugInput.admin,
-          description:
-            'The article’s web address: /articles/<slug>. It fills in by itself a few seconds after you type the title (wait for it before publishing). Changing it breaks old links.',
-        }
-      }
-    }
-    return row
-  },
-})
+const slug = urlSlugField(
+  'The article’s web address: /articles/<slug>. It fills in by itself a few seconds after you type the title (wait for it before publishing). Changing it breaks old links.',
+)
 
 export const Articles: CollectionConfig = {
   slug: 'articles',
@@ -128,6 +108,25 @@ export const Articles: CollectionConfig = {
                 description:
                   'One or two sentences (300 characters max). Used on article cards, in search results and when the link is shared.',
               },
+            },
+            {
+              name: 'keyTakeaways',
+              type: 'array',
+              maxRows: 5,
+              labels: { singular: 'Takeaway', plural: 'Key takeaways' },
+              admin: {
+                description:
+                  'Optional: up to five one-sentence points, shown first as “In short”. Search engines and AI assistants often quote these, so make each one stand on its own.',
+              },
+              fields: [
+                {
+                  name: 'point',
+                  type: 'text',
+                  required: true,
+                  maxLength: 200,
+                  admin: { description: 'One complete sentence (200 characters max).' },
+                },
+              ],
             },
             {
               name: 'heroImage',

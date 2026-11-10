@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     articles: Article;
     videos: Video;
+    services: Service;
     media: Media;
     teamMembers: TeamMember;
     testimonials: Testimonial;
@@ -86,6 +87,7 @@ export interface Config {
   collectionsSelect: {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     videos: VideosSelect<false> | VideosSelect<true>;
+    services: ServicesSelect<false> | ServicesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     teamMembers: TeamMembersSelect<false> | TeamMembersSelect<true>;
     testimonials: TestimonialsSelect<false> | TestimonialsSelect<true>;
@@ -101,9 +103,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     siteSettings: SiteSetting;
+    pageCopy: PageCopy;
   };
   globalsSelect: {
     siteSettings: SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    pageCopy: PageCopySelect<false> | PageCopySelect<true>;
   };
   locale: null;
   widgets: {
@@ -147,6 +151,18 @@ export interface Article {
    * One or two sentences (300 characters max). Used on article cards, in search results and when the link is shared.
    */
   excerpt: string;
+  /**
+   * Optional: up to five one-sentence points, shown first as “In short”. Search engines and AI assistants often quote these, so make each one stand on its own.
+   */
+  keyTakeaways?:
+    | {
+        /**
+         * One complete sentence (200 characters max).
+         */
+        point: string;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Landscape image, ideally 16:9.
    */
@@ -277,6 +293,10 @@ export interface User {
    */
   role: 'admin' | 'editor';
   /**
+   * The team member this person is. Article bylines then link to their profile, and search engines see their role and credentials.
+   */
+  profile?: (number | null) | TeamMember;
+  /**
    * Optional profile picture. It isn’t shown on the public site yet.
    */
   avatar?: (number | null) | Media;
@@ -299,6 +319,47 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teamMembers".
+ */
+export interface TeamMember {
+  id: number;
+  /**
+   * Full name, shown as the heading for this person on the About page.
+   */
+  name: string;
+  /**
+   * e.g. “Founder”. Shown under the name.
+   */
+  role: string;
+  /**
+   * Leave a blank line between paragraphs.
+   */
+  bio: string;
+  /**
+   * Full link to their LinkedIn profile. Shown on the About page and tells search engines this is the same person.
+   */
+  linkedinUrl?: string | null;
+  /**
+   * Qualifications, one per entry, e.g. “Artificial Intelligence and Business Strategy, MIT Sloan”. Press Enter after each.
+   */
+  credentials?: string[] | null;
+  /**
+   * Square head-and-shoulders photo works best.
+   */
+  photo: number | Media;
+  /**
+   * Lower numbers appear first.
+   */
+  order?: number | null;
+  /**
+   * Only published team members appear on the site.
+   */
+  published?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -350,33 +411,69 @@ export interface Video {
   createdAt: string;
 }
 /**
+ * What EthicAI offers. Each service has its own page under /services.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "teamMembers".
+ * via the `definition` "services".
  */
-export interface TeamMember {
+export interface Service {
   id: number;
   /**
-   * Full name, shown as the heading for this person on the About page.
+   * The service’s name, e.g. “FutureFit Diagnostic”.
    */
-  name: string;
+  title: string;
   /**
-   * e.g. “Founder”. Shown under the name.
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  role: string;
+  generateSlug?: boolean | null;
   /**
-   * Leave a blank line between paragraphs.
+   * The service’s web address: /services/<slug>. It fills in from the title when you first save. Changing it breaks old links.
    */
-  bio: string;
+  slug: string;
   /**
-   * Square head-and-shoulders photo works best.
+   * One or two sentences (240 characters max): what it is and who it’s for. Used on the service cards and in search results.
    */
-  photo: number | Media;
+  summary: string;
+  /**
+   * The full description. Use Heading 2 for sections such as “Why it matters” and “How we help”. Markdown pastes convert as you paste.
+   */
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Optional questions and answers at the end of the page. Start each answer with the answer itself.
+   */
+  faq?:
+    | {
+        /**
+         * Phrase it the way a client would ask it.
+         */
+        question: string;
+        /**
+         * Two or three plain sentences.
+         */
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Lower numbers appear first.
    */
   order?: number | null;
   /**
-   * Only published team members appear on the site.
+   * Only published services appear on the site.
    */
   published?: boolean | null;
   updatedAt: string;
@@ -448,6 +545,10 @@ export interface PayloadLockedDocument {
         value: number | Video;
       } | null)
     | ({
+        relationTo: 'services';
+        value: number | Service;
+      } | null)
+    | ({
         relationTo: 'media';
         value: number | Media;
       } | null)
@@ -512,6 +613,12 @@ export interface PayloadMigration {
 export interface ArticlesSelect<T extends boolean = true> {
   title?: T;
   excerpt?: T;
+  keyTakeaways?:
+    | T
+    | {
+        point?: T;
+        id?: T;
+      };
   heroImage?: T;
   content?: T;
   seo?:
@@ -545,6 +652,28 @@ export interface VideosSelect<T extends boolean = true> {
   videoId?: T;
   featured?: T;
   source?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services_select".
+ */
+export interface ServicesSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  summary?: T;
+  body?: T;
+  faq?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  order?: T;
+  published?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -609,6 +738,8 @@ export interface TeamMembersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
   bio?: T;
+  linkedinUrl?: T;
+  credentials?: T;
   photo?: T;
   order?: T;
   published?: T;
@@ -636,6 +767,7 @@ export interface TestimonialsSelect<T extends boolean = true> {
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
+  profile?: T;
   avatar?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -767,6 +899,248 @@ export interface SiteSetting {
    * Plausible: your domain (e.g. ethicai.au). GA4: the G-XXXXXXX ID.
    */
   analyticsId?: string | null;
+  /**
+   * Selma’s details, as shown on this site.
+   */
+  selma?: {
+    /**
+     * Untick to hide every Selma link and section (menu, family bar, Home section, footer).
+     */
+    show?: boolean | null;
+    /**
+     * Where every “Selma” link goes.
+     */
+    url?: string | null;
+    /**
+     * Where the “Join the waitlist” buttons go.
+     */
+    waitlistUrl?: string | null;
+    /**
+     * Selma’s one-line promise, shown with the name.
+     */
+    tagline?: string | null;
+    /**
+     * Two or three sentences introducing Selma on the Home page.
+     */
+    summary?: string | null;
+    /**
+     * The parts of the suite, shown as cards on the Home page.
+     */
+    suite?:
+      | {
+          /**
+           * e.g. “Trace”.
+           */
+          name: string;
+          /**
+           * A short line under the name, e.g. “Provenance for every response”.
+           */
+          kicker?: string | null;
+          /**
+           * One or two sentences.
+           */
+          description: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  /**
+   * A short message in the dark family bar at the top of every page.
+   */
+  announcement?: {
+    /**
+     * Untick to show only the EthicAI · Selma links in the bar.
+     */
+    enabled?: boolean | null;
+    /**
+     * Keep it to one short sentence.
+     */
+    text?: string | null;
+    /**
+     * The link text after the message.
+     */
+    linkLabel?: string | null;
+    /**
+     * Where the link goes (https:// links only).
+     */
+    linkUrl?: string | null;
+  };
+  /**
+   * Shown in the footer and given to search engines, so keep it exactly as registered.
+   */
+  organisation?: {
+    /**
+     * The registered company name.
+     */
+    legalName?: string | null;
+    /**
+     * Australian Business Number, e.g. 13 686 628 848.
+     */
+    abn?: string | null;
+    /**
+     * Where EthicAI is based, e.g. “Sydney, NSW”.
+     */
+    locality?: string | null;
+    /**
+     * Shown in the footer of every page.
+     */
+    acknowledgement?: string | null;
+    /**
+     * Shown in the footer under the Acknowledgement of Country.
+     */
+    inclusion?: string | null;
+  };
+  /**
+   * Search engine and AI assistant settings.
+   */
+  search: {
+    /**
+     * Which AI companies’ crawlers may read the site (robots.txt). “AI search” lets ChatGPT, Claude, Perplexity and others find and cite EthicAI when people ask them questions. “Training” also lets them learn from the content for future models. Search engines like Google and Bing are always allowed.
+     */
+    aiCrawlers: 'allow-all' | 'search-only' | 'block-all';
+    /**
+     * Only if you verify with the HTML tag method: paste the content="…" value. Not needed if the domain is verified through DNS.
+     */
+    googleVerification?: string | null;
+    /**
+     * The content="…" value of Bing’s msvalidate.01 meta tag. Not needed if you import the site from Google Search Console.
+     */
+    bingVerification?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * The fixed text on the Home, About and Services pages.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pageCopy".
+ */
+export interface PageCopy {
+  id: number;
+  /**
+   * The dark, full-screen opening of the Home page.
+   */
+  hero: {
+    /**
+     * Small capitals above the headline, e.g. “AI ethics and governance · Sydney”.
+     */
+    eyebrow?: string | null;
+    /**
+     * The page’s main heading. Keep it short: it is shown very large.
+     */
+    headline: string;
+    /**
+     * One or two sentences under the headline.
+     */
+    subhead?: string | null;
+    /**
+     * Optional background photo. Choose a dark, calm landscape image (at least 1920 pixels wide); the text sits over its lower left. Leave empty for the animated indigo light.
+     */
+    image?: (number | null) | Media;
+  };
+  /**
+   * The large centred paragraph after the opening: what EthicAI is for.
+   */
+  statement?: string | null;
+  /**
+   * Up to four short proof points, shown in a strip. Only use claims you can stand behind.
+   */
+  stats?:
+    | {
+        /**
+         * The big figure or word, e.g. “6M+”.
+         */
+        value: string;
+        /**
+         * What it means, e.g. “TikTok views in under a year”.
+         */
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Questions and answers near the end of the Home page. Answer in the first sentence: search engines and AI assistants quote these.
+   */
+  faq?:
+    | {
+        /**
+         * Phrase it the way a visitor would ask it.
+         */
+        question: string;
+        /**
+         * Two or three plain sentences. Start with the answer itself.
+         */
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Coverage of EthicAI or Selma, linked from the Home page.
+   */
+  press?:
+    | {
+        /**
+         * The publication, e.g. “IT Brief Australia”.
+         */
+        outlet: string;
+        /**
+         * The article’s headline, as published.
+         */
+        headline: string;
+        /**
+         * The full link to the article, starting with https://.
+         */
+        url: string;
+        /**
+         * When it was published.
+         */
+        date?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The opening of the About page. Team members are edited under Team members.
+   */
+  about: {
+    /**
+     * The page’s main heading, e.g. “About EthicAI”.
+     */
+    headline: string;
+    /**
+     * The first paragraph: who EthicAI is, in a sentence or two. Search engines and AI assistants often quote it.
+     */
+    lead?: string | null;
+    /**
+     * The rest of the story. Leave a blank line between paragraphs.
+     */
+    story?: string | null;
+  };
+  /**
+   * The Services overview page. Each service is edited under Services.
+   */
+  services?: {
+    /**
+     * The paragraph under the Services heading.
+     */
+    intro?: string | null;
+    /**
+     * How we work, shown as numbered steps (01 to 04).
+     */
+    steps?:
+      | {
+          /**
+           * A few words, e.g. “Understand where you stand”.
+           */
+          title: string;
+          /**
+           * One sentence.
+           */
+          body: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -791,6 +1165,107 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   footerText?: T;
   analytics?: T;
   analyticsId?: T;
+  selma?:
+    | T
+    | {
+        show?: T;
+        url?: T;
+        waitlistUrl?: T;
+        tagline?: T;
+        summary?: T;
+        suite?:
+          | T
+          | {
+              name?: T;
+              kicker?: T;
+              description?: T;
+              id?: T;
+            };
+      };
+  announcement?:
+    | T
+    | {
+        enabled?: T;
+        text?: T;
+        linkLabel?: T;
+        linkUrl?: T;
+      };
+  organisation?:
+    | T
+    | {
+        legalName?: T;
+        abn?: T;
+        locality?: T;
+        acknowledgement?: T;
+        inclusion?: T;
+      };
+  search?:
+    | T
+    | {
+        aiCrawlers?: T;
+        googleVerification?: T;
+        bingVerification?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pageCopy_select".
+ */
+export interface PageCopySelect<T extends boolean = true> {
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        headline?: T;
+        subhead?: T;
+        image?: T;
+      };
+  statement?: T;
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  faq?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  press?:
+    | T
+    | {
+        outlet?: T;
+        headline?: T;
+        url?: T;
+        date?: T;
+        id?: T;
+      };
+  about?:
+    | T
+    | {
+        headline?: T;
+        lead?: T;
+        story?: T;
+      };
+  services?:
+    | T
+    | {
+        intro?: T;
+        steps?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              id?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

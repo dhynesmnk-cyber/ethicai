@@ -184,3 +184,37 @@ export async function getTestimonials(limit = 3) {
   })
   return docs
 }
+
+const publishedFlag: Where = { published: { equals: true } }
+
+/** Published services in display order (Home, /services, footer, llms.txt). */
+export async function getServices() {
+  const payload = await payloadClient()
+  const { docs } = await payload.find({
+    collection: 'services',
+    depth: 0,
+    limit: 50,
+    sort: 'order',
+    where: publishedFlag,
+  })
+  return docs
+}
+
+/** Cached per request, so generateMetadata and the page share one query. */
+export const getServiceBySlug = cache(async (slug: string) => {
+  const payload = await payloadClient()
+  const { docs } = await payload.find({
+    collection: 'services',
+    depth: 1,
+    limit: 1,
+    pagination: false,
+    where: { and: [{ slug: { equals: slug } }, publishedFlag] },
+  })
+  return docs[0]
+})
+
+/** The Home/About/Services page text (pageCopy global), read once per render. */
+export const getPageCopy = cache(async () => {
+  const payload = await payloadClient()
+  return payload.findGlobal({ slug: 'pageCopy', depth: 1 })
+})

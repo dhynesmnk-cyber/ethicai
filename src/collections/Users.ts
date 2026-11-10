@@ -56,6 +56,16 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'profile',
+      type: 'relationship',
+      relationTo: 'teamMembers',
+      admin: {
+        position: 'sidebar',
+        description:
+          'The team member this person is. Article bylines then link to their profile, and search engines see their role and credentials.',
+      },
+    },
+    {
       name: 'avatar',
       type: 'upload',
       relationTo: 'media',
